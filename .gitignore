@@ -1,0 +1,77 @@
+# Environment variables
+.env
+.env.backup
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Composer
+vendor/
+composer.phar
+composer.lock
+
+# Backup files
+*.bak
+*.backup
+*.sql.backup
+
+# Local configuration files
+config/local.php
+config/database.local.php
+
+# Upload directories (these should be stored elsewhere in production)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Storage directories
+storage/cache/*
+storage/logs/*
+storage/sessions/*
+!storage/cache/.gitkeep
+!storage/logs/.gitkeep
+!storage/sessions/.gitkeep
+
+# Node modules (if using npm)
+node_modules/
+
+# Build artifacts
+build/
+dist/
+*.tar.gz
+*.zip
+
+# PHPUnit
+.phpunit.result.cache
+coverage/
+
+# Redis dump
+dump.rdb
+
+# Apache
+.htaccess.local
