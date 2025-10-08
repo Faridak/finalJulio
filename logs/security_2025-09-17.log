@@ -1,0 +1,11 @@
+{"timestamp":"2025-09-17 07:22:32","ip":"::1","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"\/admin\/dashboard.php","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 07:22:32","ip":"::1","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"\/admin\/cms-dashboard.php","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 07:22:32","ip":"::1","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"\/admin\/accounting-dashboard.php","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 07:22:32","ip":"::1","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"\/admin\/cms-banners.php","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 07:22:33","ip":"::1","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"\/admin\/cms-content.php","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 07:22:33","ip":"::1","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"\/admin\/accounts-receivable.php","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 07:22:33","ip":"::1","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"\/admin\/accounts-payable.php","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 08:21:55","ip":"0.0.0.0","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 08:22:48","ip":"0.0.0.0","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 09:06:33","ip":"0.0.0.0","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"","redirect_url":"login.php"},"severity":"info","user_agent":""}
+{"timestamp":"2025-09-17 09:07:26","ip":"0.0.0.0","user_id":null,"event":"unauthorized_access_attempt","details":{"requested_url":"","redirect_url":"login.php"},"severity":"info","user_agent":""}

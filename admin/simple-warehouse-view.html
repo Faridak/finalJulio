@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple 2D Warehouse Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .rack-container {
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            background: linear-gradient(145deg, #dbeafe, #bfdbfe);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .rack-header {
+            background: #3b82f6;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 6px 6px 0 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .shelf-container {
+            border: 1px solid #93c5fd;
+            border-radius: 4px;
+            margin: 0.5rem;
+            padding: 0.5rem;
+            background: #eff6ff;
+        }
+        
+        .shelf-label {
+            background: #2563eb;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        .bins-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        
+        .bin {
+            width: 30px;
+            height: 25px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #d1d5db;
+        }
+        
+        .bin:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .bin-empty { 
+            background: #f9fafb; 
+            border-color: #e5e7eb;
+            color: #9ca3af;
+        }
+        
+        .bin-partial { 
+            background: #fef3c7; 
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        
+        .bin-full { 
+            background: #dcfce7; 
+            border-color: #16a34a;
+            color: #166534;
+        }
+        
+        .bin-blocked { 
+            background: #fee2e2; 
+            border-color: #dc2626;
+            color: #991b1b;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 0.5rem;
+            border: 1px solid #d1d5db;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Simple 2D Warehouse Visualization</h1>
+                    <p class="text-gray-600 mt-2">
+                        Static geometric representation of warehouse racks, shelves, and bins
+                    </p>
+                </div>
+                <div class="text-right">
+                    <h2 class="text-xl font-semibold text-blue-600">Main Warehouse</h2>
+                    <p class="text-gray-500">WH-001</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-info-circle mr-2 text-blue-600"></i>Bin Status Legend
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="legend-item">
+                    <div class="legend-color bin-empty"></div>
+                    <span class="text-sm text-gray-700">Empty</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bin-partial"></div>
+                    <span class="text-sm text-gray-700">Partial</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bin-full"></div>
+                    <span class="text-sm text-gray-700">Full</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bin-blocked"></div>
+                    <span class="text-sm text-gray-700">Blocked</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Warehouse Visualization -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Rack 1 -->
+            <div class="rack-container">
+                <div class="rack-header">
+                    Rack 1 (R01)
+                </div>
+                
+                <div class="p-3">
+                    <!-- Level 1 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 1</div>
+                        <div class="bins-container">
+                            <div class="bin bin-empty" title="Bin: B01, Status: Empty">01</div>
+                            <div class="bin bin-partial" title="Bin: B02, Status: Partial">02</div>
+                            <div class="bin bin-full" title="Bin: B03, Status: Full">03</div>
+                            <div class="bin bin-empty" title="Bin: B04, Status: Empty">04</div>
+                            <div class="bin bin-blocked" title="Bin: B05, Status: Blocked">05</div>
+                            <div class="bin bin-partial" title="Bin: B06, Status: Partial">06</div>
+                            <div class="bin bin-full" title="Bin: B07, Status: Full">07</div>
+                            <div class="bin bin-empty" title="Bin: B08, Status: Empty">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 2 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 2</div>
+                        <div class="bins-container">
+                            <div class="bin bin-full" title="Bin: B01, Status: Full">01</div>
+                            <div class="bin bin-empty" title="Bin: B02, Status: Empty">02</div>
+                            <div class="bin bin-partial" title="Bin: B03, Status: Partial">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-full" title="Bin: B05, Status: Full">05</div>
+                            <div class="bin bin-empty" title="Bin: B06, Status: Empty">06</div>
+                            <div class="bin bin-partial" title="Bin: B07, Status: Partial">07</div>
+                            <div class="bin bin-full" title="Bin: B08, Status: Full">08</div>
+                            <div class="bin bin-empty" title="Bin: B09, Status: Empty">09</div>
+                            <div class="bin bin-blocked" title="Bin: B10, Status: Blocked">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 3 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 3</div>
+                        <div class="bins-container">
+                            <div class="bin bin-partial" title="Bin: B01, Status: Partial">01</div>
+                            <div class="bin bin-full" title="Bin: B02, Status: Full">02</div>
+                            <div class="bin bin-empty" title="Bin: B03, Status: Empty">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-partial" title="Bin: B05, Status: Partial">05</div>
+                            <div class="bin bin-full" title="Bin: B06, Status: Full">06</div>
+                            <div class="bin bin-empty" title="Bin: B07, Status: Empty">07</div>
+                            <div class="bin bin-partial" title="Bin: B08, Status: Partial">08</div>
+                            <div class="bin bin-full" title="Bin: B09, Status: Full">09</div>
+                            <div class="bin bin-empty" title="Bin: B10, Status: Empty">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 4 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 4</div>
+                        <div class="bins-container">
+                            <div class="bin bin-blocked" title="Bin: B01, Status: Blocked">01</div>
+                            <div class="bin bin-partial" title="Bin: B02, Status: Partial">02</div>
+                            <div class="bin bin-full" title="Bin: B03, Status: Full">03</div>
+                            <div class="bin bin-empty" title="Bin: B04, Status: Empty">04</div>
+                            <div class="bin bin-partial" title="Bin: B05, Status: Partial">05</div>
+                            <div class="bin bin-full" title="Bin: B06, Status: Full">06</div>
+                            <div class="bin bin-empty" title="Bin: B07, Status: Empty">07</div>
+                            <div class="bin bin-blocked" title="Bin: B08, Status: Blocked">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 5 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 5</div>
+                        <div class="bins-container">
+                            <div class="bin bin-empty" title="Bin: B01, Status: Empty">01</div>
+                            <div class="bin bin-full" title="Bin: B02, Status: Full">02</div>
+                            <div class="bin bin-partial" title="Bin: B03, Status: Partial">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-empty" title="Bin: B05, Status: Empty">05</div>
+                            <div class="bin bin-partial" title="Bin: B06, Status: Partial">06</div>
+                            <div class="bin bin-full" title="Bin: B07, Status: Full">07</div>
+                            <div class="bin bin-empty" title="Bin: B08, Status: Empty">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rack 2 -->
+            <div class="rack-container">
+                <div class="rack-header">
+                    Rack 2 (R02)
+                </div>
+                
+                <div class="p-3">
+                    <!-- Level 1 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 1</div>
+                        <div class="bins-container">
+                            <div class="bin bin-full" title="Bin: B01, Status: Full">01</div>
+                            <div class="bin bin-empty" title="Bin: B02, Status: Empty">02</div>
+                            <div class="bin bin-partial" title="Bin: B03, Status: Partial">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-full" title="Bin: B05, Status: Full">05</div>
+                            <div class="bin bin-empty" title="Bin: B06, Status: Empty">06</div>
+                            <div class="bin bin-partial" title="Bin: B07, Status: Partial">07</div>
+                            <div class="bin bin-full" title="Bin: B08, Status: Full">08</div>
+                            <div class="bin bin-empty" title="Bin: B09, Status: Empty">09</div>
+                            <div class="bin bin-partial" title="Bin: B10, Status: Partial">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 2 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 2</div>
+                        <div class="bins-container">
+                            <div class="bin bin-partial" title="Bin: B01, Status: Partial">01</div>
+                            <div class="bin bin-full" title="Bin: B02, Status: Full">02</div>
+                            <div class="bin bin-empty" title="Bin: B03, Status: Empty">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-partial" title="Bin: B05, Status: Partial">05</div>
+                            <div class="bin bin-full" title="Bin: B06, Status: Full">06</div>
+                            <div class="bin bin-empty" title="Bin: B07, Status: Empty">07</div>
+                            <div class="bin bin-partial" title="Bin: B08, Status: Partial">08</div>
+                            <div class="bin bin-full" title="Bin: B09, Status: Full">09</div>
+                            <div class="bin bin-empty" title="Bin: B10, Status: Empty">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 3 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 3</div>
+                        <div class="bins-container">
+                            <div class="bin bin-blocked" title="Bin: B01, Status: Blocked">01</div>
+                            <div class="bin bin-partial" title="Bin: B02, Status: Partial">02</div>
+                            <div class="bin bin-full" title="Bin: B03, Status: Full">03</div>
+                            <div class="bin bin-empty" title="Bin: B04, Status: Empty">04</div>
+                            <div class="bin bin-partial" title="Bin: B05, Status: Partial">05</div>
+                            <div class="bin bin-full" title="Bin: B06, Status: Full">06</div>
+                            <div class="bin bin-empty" title="Bin: B07, Status: Empty">07</div>
+                            <div class="bin bin-blocked" title="Bin: B08, Status: Blocked">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 4 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 4</div>
+                        <div class="bins-container">
+                            <div class="bin bin-empty" title="Bin: B01, Status: Empty">01</div>
+                            <div class="bin bin-full" title="Bin: B02, Status: Full">02</div>
+                            <div class="bin bin-partial" title="Bin: B03, Status: Partial">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-empty" title="Bin: B05, Status: Empty">05</div>
+                            <div class="bin bin-partial" title="Bin: B06, Status: Partial">06</div>
+                            <div class="bin bin-full" title="Bin: B07, Status: Full">07</div>
+                            <div class="bin bin-empty" title="Bin: B08, Status: Empty">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 5 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 5</div>
+                        <div class="bins-container">
+                            <div class="bin bin-partial" title="Bin: B01, Status: Partial">01</div>
+                            <div class="bin bin-full" title="Bin: B02, Status: Full">02</div>
+                            <div class="bin bin-empty" title="Bin: B03, Status: Empty">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-partial" title="Bin: B05, Status: Partial">05</div>
+                            <div class="bin bin-full" title="Bin: B06, Status: Full">06</div>
+                            <div class="bin bin-empty" title="Bin: B07, Status: Empty">07</div>
+                            <div class="bin bin-partial" title="Bin: B08, Status: Partial">08</div>
+                            <div class="bin bin-full" title="Bin: B09, Status: Full">09</div>
+                            <div class="bin bin-empty" title="Bin: B10, Status: Empty">10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rack 3 -->
+            <div class="rack-container">
+                <div class="rack-header">
+                    Rack 3 (R03)
+                </div>
+                
+                <div class="p-3">
+                    <!-- Level 1 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 1</div>
+                        <div class="bins-container">
+                            <div class="bin bin-empty" title="Bin: B01, Status: Empty">01</div>
+                            <div class="bin bin-partial" title="Bin: B02, Status: Partial">02</div>
+                            <div class="bin bin-full" title="Bin: B03, Status: Full">03</div>
+                            <div class="bin bin-empty" title="Bin: B04, Status: Empty">04</div>
+                            <div class="bin bin-blocked" title="Bin: B05, Status: Blocked">05</div>
+                            <div class="bin bin-partial" title="Bin: B06, Status: Partial">06</div>
+                            <div class="bin bin-full" title="Bin: B07, Status: Full">07</div>
+                            <div class="bin bin-empty" title="Bin: B08, Status: Empty">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 2 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 2</div>
+                        <div class="bins-container">
+                            <div class="bin bin-full" title="Bin: B01, Status: Full">01</div>
+                            <div class="bin bin-empty" title="Bin: B02, Status: Empty">02</div>
+                            <div class="bin bin-partial" title="Bin: B03, Status: Partial">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-full" title="Bin: B05, Status: Full">05</div>
+                            <div class="bin bin-empty" title="Bin: B06, Status: Empty">06</div>
+                            <div class="bin bin-partial" title="Bin: B07, Status: Partial">07</div>
+                            <div class="bin bin-full" title="Bin: B08, Status: Full">08</div>
+                            <div class="bin bin-empty" title="Bin: B09, Status: Empty">09</div>
+                            <div class="bin bin-blocked" title="Bin: B10, Status: Blocked">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 3 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 3</div>
+                        <div class="bins-container">
+                            <div class="bin bin-partial" title="Bin: B01, Status: Partial">01</div>
+                            <div class="bin bin-full" title="Bin: B02, Status: Full">02</div>
+                            <div class="bin bin-empty" title="Bin: B03, Status: Empty">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-partial" title="Bin: B05, Status: Partial">05</div>
+                            <div class="bin bin-full" title="Bin: B06, Status: Full">06</div>
+                            <div class="bin bin-empty" title="Bin: B07, Status: Empty">07</div>
+                            <div class="bin bin-partial" title="Bin: B08, Status: Partial">08</div>
+                            <div class="bin bin-full" title="Bin: B09, Status: Full">09</div>
+                            <div class="bin bin-empty" title="Bin: B10, Status: Empty">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 4 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 4</div>
+                        <div class="bins-container">
+                            <div class="bin bin-blocked" title="Bin: B01, Status: Blocked">01</div>
+                            <div class="bin bin-partial" title="Bin: B02, Status: Partial">02</div>
+                            <div class="bin bin-full" title="Bin: B03, Status: Full">03</div>
+                            <div class="bin bin-empty" title="Bin: B04, Status: Empty">04</div>
+                            <div class="bin bin-partial" title="Bin: B05, Status: Partial">05</div>
+                            <div class="bin bin-full" title="Bin: B06, Status: Full">06</div>
+                            <div class="bin bin-empty" title="Bin: B07, Status: Empty">07</div>
+                            <div class="bin bin-blocked" title="Bin: B08, Status: Blocked">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Level 5 -->
+                    <div class="shelf-container">
+                        <div class="shelf-label">Level 5</div>
+                        <div class="bins-container">
+                            <div class="bin bin-empty" title="Bin: B01, Status: Empty">01</div>
+                            <div class="bin bin-full" title="Bin: B02, Status: Full">02</div>
+                            <div class="bin bin-partial" title="Bin: B03, Status: Partial">03</div>
+                            <div class="bin bin-blocked" title="Bin: B04, Status: Blocked">04</div>
+                            <div class="bin bin-empty" title="Bin: B05, Status: Empty">05</div>
+                            <div class="bin bin-partial" title="Bin: B06, Status: Partial">06</div>
+                            <div class="bin bin-full" title="Bin: B07, Status: Full">07</div>
+                            <div class="bin bin-empty" title="Bin: B08, Status: Empty">08</div>
+                            <div class="bin bin-partial" title="Bin: B09, Status: Partial">09</div>
+                            <div class="bin bin-full" title="Bin: B10, Status: Full">10</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Information Panel -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-warehouse mr-2 text-blue-600"></i>Warehouse Structure
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600">3</div>
+                    <div class="text-sm text-gray-600">Racks</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">15</div>
+                    <div class="text-sm text-gray-600">Shelves (Levels)</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-purple-600">150</div>
+                    <div class="text-sm text-gray-600">Total Bins</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
