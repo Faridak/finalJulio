@@ -261,7 +261,7 @@
                                     `<button onclick="openPayInvoiceModal(${payable.id}, '${payable.vendor_name}', '${payable.invoice_number}', '${payable.due_date}', ${payable.amount}, ${payable.paid_amount})" class="text-green-600 hover:text-green-900 mr-3">Pay</button>` : 
                                     ''
                                 }
-                                <button class="text-blue-600 hover:text-blue-900">View</button>
+                                <button onclick="viewPayable(${payable.id})" class="text-blue-600 hover:text-blue-900">View</button>
                             </td>
                         `;
                         tbody.appendChild(row);
@@ -409,6 +409,13 @@
         document.getElementById('payInvoiceForm').reset();
     }
 
+    // View payable details
+    function viewPayable(payableId) {
+        // For now, we'll show an alert with the payable ID
+        // In a real implementation, this would open a modal with detailed information
+        alert('Viewing details for payable ID: ' + payableId + ' - Feature coming soon!');
+    }
+
     // Pay account payable
     function payAccountPayable() {
         const formData = {
@@ -438,6 +445,13 @@
             console.error('Error processing payment:', error);
             alert('Error processing payment. Please try again.');
         });
+    }
+
+    // View payable details
+    function viewPayable(payableId) {
+        // For now, we'll show an alert with the payable ID
+        // In a real implementation, this would open a modal with detailed information
+        alert('Viewing details for payable ID: ' + payableId + ' - Feature coming soon!');
     }
     </script>
 

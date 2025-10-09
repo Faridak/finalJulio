@@ -30,14 +30,13 @@
                 </a>
                 
                 <?php if (isLoggedIn()): ?>
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600">
+                    <div class="relative">
+                        <button id="userMenuButton" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 focus:outline-none">
                             <i class="fas fa-user"></i>
                             <span><?= htmlspecialchars($_SESSION['user_email'] ?? 'User') ?></span>
                             <i class="fas fa-chevron-down text-sm"></i>
                         </button>
-                        <div x-show="open" @click.away="open = false" 
-                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                        <div id="userMenuDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
                             <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                             <a href="orders.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
                             <?php if (getUserRole() === 'merchant'): ?>
@@ -45,6 +44,8 @@
                             <?php endif; ?>
                             <?php if (getUserRole() === 'admin'): ?>
                                 <a href="admin/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
+                                <a href="sales-dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Engineering Sales</a>
+                                <a href="engineering-dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Engineering Tasks</a>
                             <?php endif; ?>
                             <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
                         </div>
@@ -57,3 +58,24 @@
         </div>
     </div>
 </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userMenuButton = document.getElementById('userMenuButton');
+    const userMenuDropdown = document.getElementById('userMenuDropdown');
+    
+    if (userMenuButton && userMenuDropdown) {
+        userMenuButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+    }
+});
+</script>

@@ -369,7 +369,7 @@ $stats = [
                     <p class="text-sm text-gray-600 mt-1"><?= htmlspecialchars(substr($promotion['description'], 0, 60)) ?><?= strlen($promotion['description']) > 60 ? '...' : '' ?></p>
                     <div class="mt-2 flex justify-between items-center">
                         <span class="text-sm font-medium text-purple-600">
-                            <?= $promotion['discount_type'] === 'percentage' ? $promotion['discount_value'] . '%' : '$' . $promotion['discount_value'] ?>
+                            <?= $promotion['promotion_type'] === 'percentage' ? $promotion['discount_value'] . '%' : '$' . $promotion['discount_value'] ?>
                         </span>
                         <span class="text-xs text-gray-500"><?= $promotion['product_count'] ?> products</span>
                     </div>

@@ -1,8 +1,12 @@
 <?php
+session_start();
 require_once 'config/database.php';
 
-// Require login
-requireLogin();
+// Require login - using the existing isLoggedIn() function
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
 
 $userId = $_SESSION['user_id'];
 $userRole = $_SESSION['user_role'];

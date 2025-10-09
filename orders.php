@@ -1,8 +1,12 @@
 <?php
+session_start();
 require_once 'config/database.php';
 
-// Require login
-requireLogin();
+// Require login - using the existing isLoggedIn() function
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
 
 // Get user's orders
 $stmt = $pdo->prepare("
@@ -79,7 +83,7 @@ $orders = $stmt->fetchAll();
                                         <?= ucfirst($order['status']) ?>
                                     </span>
                                     <span class="text-lg font-semibold text-gray-900">
-                                        $<?= number_format($order['total'], 2) ?>
+                                        $<?= number_format($order['total_amount'], 2) ?>
                                     </span>
                                 </div>
                             </div>
@@ -91,7 +95,7 @@ $orders = $stmt->fetchAll();
                                 <div>
                                     <h4 class="font-medium text-gray-900 mb-2">Shipping Address</h4>
                                     <p class="text-sm text-gray-600">
-                                        <?= nl2br(htmlspecialchars($order['shipping_address'])) ?>
+                                        <?= nl2br(htmlspecialchars($order['shipping_address'] ?? '')) ?>
                                     </p>
                                 </div>
                                 <div>

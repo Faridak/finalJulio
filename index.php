@@ -23,13 +23,13 @@ $seoMetadata = $cms->getSEOMetadata('homepage');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($seoMetadata['meta_title'] ?? 'VentDepot - Your Online Marketplace') ?></title>
-    <?php if ($seoMetadata['meta_description']): ?>
+    <?php if ($seoMetadata && $seoMetadata['meta_description']): ?>
         <meta name="description" content="<?= htmlspecialchars($seoMetadata['meta_description']) ?>">
     <?php endif; ?>
-    <?php if ($seoMetadata['meta_keywords']): ?>
+    <?php if ($seoMetadata && $seoMetadata['meta_keywords']): ?>
         <meta name="keywords" content="<?= htmlspecialchars($seoMetadata['meta_keywords']) ?>">
     <?php endif; ?>
-    <?php if ($seoMetadata['canonical_url']): ?>
+    <?php if ($seoMetadata && $seoMetadata['canonical_url']): ?>
         <link rel="canonical" href="<?= htmlspecialchars($seoMetadata['canonical_url']) ?>">
     <?php endif; ?>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -83,6 +83,8 @@ $seoMetadata = $cms->getSEOMetadata('homepage');
                                 <?php endif; ?>
                                 <?php if (getUserRole() === 'admin'): ?>
                                     <a href="admin/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
+                                    <a href="sales-dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Engineering Sales</a>
+                                    <a href="engineering-dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Engineering Tasks</a>
                                 <?php endif; ?>
                                 <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
                             </div>

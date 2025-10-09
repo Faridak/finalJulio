@@ -311,7 +311,7 @@ $orderStats = $statsStmt->fetch();
                                     <h4 class="font-medium text-gray-900 mb-2">Payment & Shipping</h4>
                                     <div class="text-sm text-gray-600 space-y-1">
                                         <p><strong>Payment:</strong> <?= htmlspecialchars($order['payment_method']) ?></p>
-                                        <p><strong>Shipping Cost:</strong> $<?= number_format($order['shipping_cost'], 2) ?></p>
+                                        <p><strong>Shipping Cost:</strong> $<?= number_format($order['shipping_cost'] ?? 0.00, 2) ?></p>
                                     </div>
                                 </div>
                             </div>

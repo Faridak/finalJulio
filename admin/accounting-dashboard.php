@@ -448,6 +448,44 @@
     }
     </script>
 
-    <?php include 'footer.php'; ?>
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">VentDepot Admin</h3>
+                    <p class="text-gray-400">Advanced e-commerce platform administration panel.</p>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Navigation</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="dashboard.php" class="hover:text-white">Dashboard</a></li>
+                        <li><a href="users.php" class="hover:text-white">Users</a></li>
+                        <li><a href="orders.php" class="hover:text-white">Orders</a></li>
+                        <li><a href="products.php" class="hover:text-white">Products</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Modules</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="global-shipping-admin.php" class="hover:text-white">Shipping</a></li>
+                        <li><a href="seo-management.php" class="hover:text-white">SEO</a></li>
+                        <li><a href="pricing-management.php" class="hover:text-white">Pricing</a></li>
+                        <li><a href="accounting-dashboard.php" class="hover:text-white">Accounting</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="../contact-support.php" class="hover:text-white">Help Center</a></li>
+                        <li><a href="../faq.php" class="hover:text-white">FAQs</a></li>
+                        <li><a href="../contact.php" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 VentDepot Admin Panel. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once '../config/database.php';
 
 // Require admin login
@@ -37,10 +38,11 @@ $recentActivitiesQuery = "
      WHERE u.role = 'customer' AND u.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
      ORDER BY u.created_at DESC LIMIT 5)
     UNION ALL
-    (SELECT 'merchant' as type, ma.id, ma.user_id, ma.estimated_monthly_sales as amount, ma.created_at, ma.status,
-            ma.contact_email as user_email, ma.contact_name as first_name, '' as last_name,
+    (SELECT 'merchant' as type, ma.id, ma.user_id, 0 as amount, ma.created_at, ma.status,
+            u.email as user_email, '' as first_name, '' as last_name,
             CONCAT('Merchant application: ', ma.business_name) as description
      FROM merchant_applications ma
+     JOIN users u ON ma.user_id = u.id
      WHERE ma.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
      ORDER BY ma.created_at DESC LIMIT 5)
     UNION ALL
@@ -96,8 +98,8 @@ $topMerchantsQuery = "
         COALESCE(up.last_name, '') as last_name,
         COUNT(DISTINCT p.id) as product_count,
         COUNT(DISTINCT oi.order_id) as order_count,
-        COALESCE(SUM(oi.price * oi.quantity), 0) as merchant_revenue,
-        COUNT(DISTINCT CASE WHEN p.stock > 0 THEN p.id END) as active_products,
+        COALESCE(SUM(oi.price_at_purchase * oi.quantity), 0) as merchant_revenue,
+        COUNT(DISTINCT CASE WHEN p.inventory > 0 THEN p.id END) as active_products,
         MAX(o.created_at) as last_sale_date,
         u.created_at as joined_date
     FROM users u
@@ -798,6 +800,15 @@ $topMerchants = $stmt->fetchAll();
                         <li><a href="../contact.php" class="hover:text-white">Customer Contact</a></li>
                         <li><a href="../merchant/register.php" class="hover:text-white">Merchant Registration</a></li>
                         <li><a href="../seller-guide.php" class="hover:text-white">Seller Guide</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Engineering Module</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="../quote-request.php" class="hover:text-white">Request Quote</a></li>
+                        <li><a href="../sales-dashboard.php" class="hover:text-white">Sales Dashboard</a></li>
+                        <li><a href="../engineering-dashboard.php" class="hover:text-white">Engineering Tasks</a></li>
+                        <li><a href="../gantt-view.php" class="hover:text-white">Project Timeline</a></li>
                     </ul>
                 </div>
             </div>

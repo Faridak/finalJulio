@@ -316,7 +316,7 @@ $stats = [
                                             <?= $provider['is_active'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
                                             <?= $provider['is_active'] ? 'Active' : 'Inactive' ?>
                                         </span>
-                                        <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                        <button onclick="editProvider(<?= $provider['id'] ?>)" class="text-blue-600 hover:text-blue-800 text-sm">
                                             <i class="fas fa-edit mr-1"></i>Edit
                                         </button>
                                     </div>
@@ -651,6 +651,11 @@ $stats = [
         function updateStatus(shipmentId) {
             // Implementation for updating shipment status
             alert('Update shipment #' + shipmentId + ' - Feature coming soon!');
+        }
+        
+        function editProvider(providerId) {
+            // Implementation for editing providers
+            alert('Edit provider #' + providerId + ' - Feature coming soon!');
         }
     </script>
 </body>
