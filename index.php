@@ -13,300 +13,423 @@ $stmt = $pdo->prepare("SELECT DISTINCT category FROM products WHERE category IS 
 $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+// Fetch default products for fallback
+$stmt = $pdo->prepare("SELECT * FROM products ORDER BY created_at DESC LIMIT 50");
+$stmt->execute();
+$defaultProducts = $stmt->fetchAll();
+
 // Get SEO metadata for homepage
 $seoMetadata = $cms->getSEOMetadata('homepage');
+
+// Dummy data for demonstration
+$dummyCategories = ['Electronics', 'Fashion', 'Home & Garden', 'Sports', 'Beauty', 'Automotive', 'Toys', 'Computers', 'Health', 'Jewelry'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($seoMetadata['meta_title'] ?? 'VentDepot - Your Online Marketplace') ?></title>
-    <?php if ($seoMetadata && $seoMetadata['meta_description']): ?>
-        <meta name="description" content="<?= htmlspecialchars($seoMetadata['meta_description']) ?>">
-    <?php endif; ?>
-    <?php if ($seoMetadata && $seoMetadata['meta_keywords']): ?>
-        <meta name="keywords" content="<?= htmlspecialchars($seoMetadata['meta_keywords']) ?>">
-    <?php endif; ?>
-    <?php if ($seoMetadata && $seoMetadata['canonical_url']): ?>
-        <link rel="canonical" href="<?= htmlspecialchars($seoMetadata['canonical_url']) ?>">
-    <?php endif; ?>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold text-blue-600">VentDepot</h1>
-                </div>
-                
-                <!-- Search Bar -->
-                <div class="flex-1 max-w-lg mx-8">
-                    <form action="search.php" method="GET" class="relative">
-                        <input type="text" name="q" placeholder="Search products..." 
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <button type="submit" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- User Menu -->
-                <div class="flex items-center space-x-4">
-                    <a href="cart.php" class="relative text-gray-600 hover:text-blue-600">
-                        <i class="fas fa-shopping-cart text-xl"></i>
-                        <?php if (getCartCount() > 0): ?>
-                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                <?= getCartCount() ?>
-                            </span>
-                        <?php endif; ?>
-                    </a>
-                    
-                    <?php if (isLoggedIn()): ?>
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center space-x-2 text-gray-600 hover:text-blue-600">
-                                <i class="fas fa-user"></i>
-                                <span><?= htmlspecialchars($_SESSION['user_email'] ?? 'User') ?></span>
-                                <i class="fas fa-chevron-down text-sm"></i>
-                            </button>
-                            <div x-show="open" @click.away="open = false" 
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                                <a href="orders.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
-                                <?php if (getUserRole() === 'merchant'): ?>
-                                    <a href="merchant/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Merchant Dashboard</a>
-                                <?php endif; ?>
-                                <?php if (getUserRole() === 'admin'): ?>
-                                    <a href="admin/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin Dashboard</a>
-                                    <a href="sales-dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Engineering Sales</a>
-                                    <a href="engineering-dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Engineering Tasks</a>
-                                <?php endif; ?>
-                                <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <a href="login.php" class="text-gray-600 hover:text-blue-600">Login</a>
-                        <a href="register.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign Up</a>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Banner from CMS -->
-    <?php 
-    $heroBanners = $cms->getBannersByType('hero', 1);
-    if (!empty($heroBanners)): 
-        echo $cms->renderBanner($heroBanners[0]);
-    else: ?>
-        <!-- Default Hero Section -->
-        <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-            <div class="max-w-7xl mx-auto px-4 text-center">
-                <h1 class="text-5xl font-bold mb-6">Welcome to VentDepot</h1>
-                <p class="text-xl mb-8">Discover amazing products from trusted merchants worldwide</p>
-                <a href="search.php" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
-                    Start Shopping
-                </a>
-            </div>
-        </section>
-    <?php endif; ?>
-
-    <!-- Promotional Banners from CMS -->
-    <?php 
-    $promoBanners = $cms->getBannersByType('promotion', 3);
-    if (!empty($promoBanners)): ?>
-        <section class="py-8 bg-gray-100">
-            <div class="max-w-7xl mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <?php foreach ($promoBanners as $banner): 
-                        $image = $cms->getImageById($banner['image_id']);
-                        $imageUrl = $image ? $image['file_path'] : 'https://via.placeholder.com/400x200';
-                    ?>
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                            <img src="<?= htmlspecialchars($imageUrl) ?>" 
-                                 alt="<?= htmlspecialchars($banner['title']) ?>"
-                                 class="w-full h-48 object-cover">
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-2"><?= htmlspecialchars($banner['title']) ?></h3>
-                                <?php if ($banner['subtitle']): ?>
-                                    <p class="text-gray-600 text-sm mb-3"><?= htmlspecialchars($banner['subtitle']) ?></p>
-                                <?php endif; ?>
-                                <?php if ($banner['button_text'] && $banner['button_url']): ?>
-                                    <a href="<?= htmlspecialchars($banner['button_url']) ?>" 
-                                       target="<?= $banner['target'] === '_blank' ? '_blank' : '_self' ?>"
-                                       class="text-blue-600 hover:text-blue-800 font-medium">
-                                        <?= htmlspecialchars($banner['button_text']) ?> →
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </section>
-    <?php endif; ?>
-
-    <!-- Categories -->
-    <section class="py-16">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Shop by Category</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                <?php foreach ($categories as $category): ?>
-                    <a href="search.php?category=<?= urlencode($category) ?>" 
-                       class="bg-white rounded-lg p-6 text-center shadow-md hover:shadow-lg transition duration-200">
-                        <div class="text-3xl mb-3">
-                            <?php
-                            $icons = [
-                                'Electronics' => '📱',
-                                'Clothing' => '👕',
-                                'Home' => '🏠',
-                                'Books' => '📚',
-                                'Sports' => '⚽',
-                                'Beauty' => '💄'
-                            ];
-                            echo $icons[$category] ?? '🛍️';
-                            ?>
-                        </div>
-                        <h3 class="font-semibold text-gray-800"><?= htmlspecialchars($category) ?></h3>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-
-    <!-- Featured Products Carousel from CMS -->
-    <section class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <?php if (!empty($featuredProducts)): ?>
-                <?= $cms->renderProductCarousel($featuredProducts, 'Featured Products', 'Our most popular items') ?>
-            <?php else: ?>
-                <h2 class="text-3xl font-bold text-center mb-12">Featured Products</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <?php 
-                    $stmt = $pdo->prepare("SELECT * FROM products ORDER BY created_at DESC LIMIT 8");
-                    $stmt->execute();
-                    $defaultProducts = $stmt->fetchAll();
-                    foreach ($defaultProducts as $product): ?>
-                        <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-200">
-                            <a href="product.php?id=<?= $product['id'] ?>">
-                                <img src="<?= htmlspecialchars($product['image_url'] ?? 'https://via.placeholder.com/300x200') ?>" 
-                                     alt="<?= htmlspecialchars($product['name']) ?>"
-                                     class="w-full h-48 object-cover">
-                            </a>
-                            <div class="p-4">
-                                <h3 class="font-semibold text-lg mb-2">
-                                    <a href="product.php?id=<?= $product['id'] ?>" class="hover:text-blue-600">
-                                        <?= htmlspecialchars($product['name']) ?>
-                                    </a>
-                                </h3>
-                                <p class="text-gray-600 text-sm mb-3"><?= htmlspecialchars(substr($product['description'], 0, 100)) ?>...</p>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-2xl font-bold text-blue-600">$<?= number_format($product['price'], 2) ?></span>
-                                    <button onclick="addToCart(<?= $product['id'] ?>)" 
-                                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-    </section>
-
-    <!-- Content Blocks from CMS -->
-    <?php 
-    $contentBlocks = $cms->getContentBlocksBySection('homepage-featured');
-    if (!empty($contentBlocks)): ?>
-        <section class="py-16 bg-gray-100">
-            <div class="max-w-7xl mx-auto px-4">
-                <?php foreach ($contentBlocks as $block): ?>
-                    <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-                        <h2 class="text-2xl font-bold mb-4"><?= htmlspecialchars($block['title']) ?></h2>
-                        <?php if ($block['content_type'] === 'html'): ?>
-                            <?= $block['content'] ?>
-                        <?php else: ?>
-                            <p class="text-gray-700"><?= htmlspecialchars($block['content']) ?></p>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </section>
-    <?php endif; ?>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">VentDepot</h3>
-                    <p class="text-gray-400">Your trusted online marketplace for quality products from verified merchants.</p>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Customer Service</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="contact.php" class="hover:text-white">Contact Us</a></li>
-                        <li><a href="shipping-info.php" class="hover:text-white">Shipping Info</a></li>
-                        <li><a href="returns.php" class="hover:text-white">Returns</a></li>
-                        <li><a href="faq.php" class="hover:text-white">FAQ</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">For Merchants</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="merchant/register.php" class="hover:text-white">Become a Seller</a></li>
-                        <li><a href="merchant/login.php" class="hover:text-white">Merchant Login</a></li>
-                        <li><a href="seller-guide.php" class="hover:text-white">Seller Guide</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Connect</h4>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook text-xl"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter text-xl"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram text-xl"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 VentDepot. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        function addToCart(productId) {
-            fetch('api/cart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopNow - E-commerce Homepage</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f45925",
+                        "background-light": "#f8f6f5",
+                        "background-dark": "#221410",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
                 },
-                body: JSON.stringify({
-                    action: 'add',
-                    product_id: productId,
-                    quantity: 1
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update cart count in navigation
-                    location.reload();
-                } else {
-                    alert('Error adding to cart: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error adding to cart');
-            });
+            },
         }
     </script>
+<style>
+.hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light font-display text-[#181311] group/design-root dark:bg-background-dark dark:text-white">
+<header class="sticky top-0 z-40 flex w-full flex-col bg-white shadow-sm dark:bg-[#1a1a1a] dark:shadow-gray-900/10">
+<div class="hidden border-b border-[#f5f1f0] px-4 py-2 lg:flex lg:justify-end lg:px-10 dark:border-[#333]">
+<div class="flex items-center gap-6 text-xs font-medium text-[#8a6b60] dark:text-gray-400">
+<a class="hover:text-primary transition-colors" href="#">Sell on ShopNow</a>
+<a class="hover:text-primary transition-colors" href="#">Help Center</a>
+<a class="hover:text-primary transition-colors" href="#">Buyer Protection</a>
+<a class="flex items-center gap-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">phone_iphone</span>
+                App
+            </a>
+</div>
+</div>
+<div class="flex items-center justify-between gap-4 px-4 py-4 lg:px-10">
+<div class="flex shrink-0 items-center gap-2">
+<div class="flex size-8 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<!-- Changed logo to VentDepot -->
+<h2 class="text-xl font-bold tracking-tight text-[#181311] lg:text-2xl dark:text-white">VentDepot</h2>
+</div>
+<div class="hidden max-w-[700px] flex-1 lg:block">
+<div class="flex h-11 w-full items-center rounded-full border border-gray-300 bg-white p-[2px] dark:border-gray-700 dark:bg-[#2a2a2a]">
+<div class="relative flex h-full flex-1 items-center">
+<input class="w-full border-none bg-transparent px-4 text-sm text-[#181311] placeholder-[#8a6b60] focus:ring-0 dark:text-white dark:placeholder-gray-500" placeholder="Search 10,000+ products..." type="text"/>
+</div>
+<button class="flex h-full items-center justify-center rounded-full bg-gray-100 px-6 text-gray-600 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</div>
+<div class="flex shrink-0 items-center gap-3 lg:gap-6">
+<button class="flex items-center justify-center rounded-full p-2 text-[#181311] lg:hidden dark:text-white">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="hidden items-center gap-2 lg:flex">
+<span class="material-symbols-outlined text-[28px] text-[#181311] dark:text-gray-300">person</span>
+<div class="flex flex-col">
+<span class="text-xs text-[#8a6b60] dark:text-gray-400">Welcome</span>
+<div class="flex gap-1 text-xs font-bold text-[#181311] dark:text-white">
+<a class="hover:text-primary" href="#">Sign in</a> / <a class="hover:text-primary" href="#">Join</a>
+</div>
+</div>
+</div>
+<button class="relative hidden items-center justify-center rounded-lg p-2 text-[#181311] hover:bg-gray-100 lg:flex dark:text-white dark:hover:bg-[#333]">
+<span class="material-symbols-outlined">favorite</span>
+<span class="absolute right-1 top-1 flex h-2 w-2">
+<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
+</span>
+</button>
+<button class="relative flex items-center justify-center gap-2 rounded-lg bg-transparent px-3 py-2 text-[#181311] hover:bg-gray-100 dark:bg-transparent dark:text-white dark:hover:bg-[#333]">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="hidden text-sm font-bold lg:block">$0.00</span>
+<span class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">0</span>
+</button>
+</div>
+</div>
+<div class="hidden border-t border-[#f5f1f0] px-10 py-2.5 lg:flex dark:border-[#333]">
+<nav class="flex items-center gap-8 text-sm font-medium text-gray-700 dark:text-gray-300">
+<a class="flex items-center gap-2 font-bold text-[#181311] dark:text-white" href="#"><span class="material-symbols-outlined">menu</span>All Categories</a>
+<a class="text-primary font-bold" href="#">Special Offers</a>
+<a class="hover:text-primary" href="#">Choice</a>
+<a class="hover:text-primary" href="#">SuperDeals</a>
+<a class="hover:text-primary" href="#">Free Shipping</a>
+<a class="hover:text-primary" href="#">Home &amp; Pajamas</a>
+<a class="hover:text-primary" href="#">Women's Fashion</a>
+<a class="hover:text-primary" href="#">Motor</a>
+<a class="hover:text-primary" href="#">Jewelry &amp; Watches</a>
+<a class="flex items-center gap-1 hover:text-primary" href="#">More <span class="material-symbols-outlined text-base">expand_more</span></a>
+</nav>
+</div>
+</header>
+<main class="flex-1 px-4 py-6 lg:px-10">
+<div class="mx-auto flex max-w-[1400px] flex-col gap-6">
+<div class="flex flex-col gap-6">
+<section class="flex flex-col gap-4">
+<div class="relative w-full overflow-hidden rounded-xl bg-[#006b52] p-8 text-white">
+<div class="absolute inset-0 z-0 h-full w-full bg-cover bg-right" data-alt="Abstract green background with gift boxes and electronics" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCDbSLsxGzSGFYBu9LhdB4qlkQu-E3Pj6NxfYoBUu-59SRF2k0QmrwuJJw4f6hGiZSJZntfLOuRpoLWIyHhf9fGp0N7fXOmNeDTWCznBdbi-v0k9DZ7eFZPB6SeugTw7YVhY5pffX9ixHDzdA-PvioWWo0uIkNtd0ta4irhtW2Nr_tV1Pm8E6s5W-RmhCDmCDneqa3mTf3Y6oUjzf5PurF1qOZZ6OxK3IaXSIQS-y-rWDpVuag44wh7e4dWQJER4gHoxYsSRX51b-M');"></div>
+<div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center">
+<div class="flex flex-1 flex-col">
+<p class="font-semibold">The Promotion Ends: 14 days, 23:59 (CT)</p>
+<h1 class="text-5xl font-extrabold uppercase tracking-tight text-white">Gift Season <span class="material-symbols-outlined text-4xl">arrow_forward</span></h1>
+</div>
+<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+<div class="flex flex-col items-center justify-center rounded-lg bg-white/20 p-4 text-center backdrop-blur-sm">
+<span class="text-2xl font-bold">-$380</span>
+<span class="text-xs">on +$3,000</span>
+<span class="mt-2 rounded-full bg-white px-3 py-1 text-xs font-bold text-gray-800">Code: MXGS6</span>
+</div>
+<div class="flex flex-col items-center justify-center rounded-lg bg-white/20 p-4 text-center backdrop-blur-sm">
+<span class="text-2xl font-bold">-$300</span>
+<span class="text-xs">on +$2,200</span>
+<span class="mt-2 rounded-full bg-white px-3 py-1 text-xs font-bold text-gray-800">Code: MXGS5</span>
+</div>
+<div class="flex flex-col items-center justify-center rounded-lg bg-white/20 p-4 text-center backdrop-blur-sm">
+<span class="text-2xl font-bold">-$190</span>
+<span class="text-xs">on +$1,500</span>
+<span class="mt-2 rounded-full bg-white px-3 py-1 text-xs font-bold text-gray-800">Code: MXGS4</span>
+</div>
+<div class="flex h-full min-h-[120px] items-center justify-center rounded-lg bg-white p-4">
+<div class="h-full w-full bg-contain bg-center bg-no-repeat" data-alt="Image of various small products" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAehzWZwV8WdJ6gj7UGPFvCjW-8o4Wyp3RcxUa9V1pRP7KLjFPfADRrpIhp8-VBFvtGB75Tz1toyu60YLx86GQzc53Zep024Qe1x5nsDBl2M6nxUEKJQvPdjhq-I5wyn79RAKjoPjKu5jUA0fYtADVqw7rmHPl1RMZtOO38aWKYTCAWckuMChW8zfdhJ2J1nFMg4mNVc0SbJdfFh-z6LO63yFT8ze5tC570JAlVJ4vE-wB3fJHTJBS6synoe5n2N_CBguMVCaf7TUE');"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-4 rounded-xl bg-white p-3 shadow-sm dark:bg-[#1a1a1a] md:grid-cols-3">
+<div class="flex items-center justify-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+<span class="material-symbols-outlined text-primary">verified</span>
+<span>Extra Star Discount of 16.79%</span>
+</div>
+<div class="flex items-center justify-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+<span>Fast Shipping</span>
+</div>
+<div class="flex items-center justify-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+<span class="material-symbols-outlined text-primary">assignment_return</span>
+<span>Returns within 90 days</span>
+</div>
+</div>
+</section>
+<section class="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm dark:bg-[#1a1a1a]">
+<div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<h2 class="text-xl font-bold uppercase tracking-wide text-primary">Flash Deals</h2>
+<div class="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+<span>Ending in</span>
+<div class="flex items-center gap-1">
+<span class="flex h-7 w-7 items-center justify-center rounded bg-gray-800 text-sm font-bold text-white dark:bg-gray-700">03</span>
+<span class="font-bold">:</span>
+<span class="flex h-7 w-7 items-center justify-center rounded bg-gray-800 text-sm font-bold text-white dark:bg-gray-700">24</span>
+<span class="font-bold">:</span>
+<span class="flex h-7 w-7 items-center justify-center rounded bg-gray-800 text-sm font-bold text-white dark:bg-gray-700">55</span>
+</div>
+</div>
+</div>
+<a class="flex items-center gap-1 rounded-full border border-primary px-4 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10" href="#">View all<span class="material-symbols-outlined text-lg">chevron_right</span></a>
+</div>
+<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+<!-- Product items will go here -->
+<?php for ($i = 0; $i < 12; $i++): ?>
+<div class="group flex flex-col overflow-hidden rounded-lg border border-transparent transition-all hover:border-primary hover:shadow-lg dark:hover:border-primary">
+<div class="relative aspect-square w-full overflow-hidden bg-[#f5f1f0] dark:bg-[#2a2a2a]">
+<div class="h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-110" data-alt="Product image" style="background-image: url('https://via.placeholder.com/300x300?text=Product+<?= $i+1 ?>');"></div>
+</div>
+<div class="flex flex-1 flex-col p-3">
+<h3 class="text-sm font-medium text-[#181311] line-clamp-2 dark:text-white">Product <?= $i+1 ?></h3>
+<div class="mt-2 flex items-center gap-1">
+<span class="text-xs text-gray-500 line-through">$<?= number_format(rand(20, 100), 2) ?></span>
+<span class="text-sm font-bold text-primary">$<?= number_format(rand(10, 50), 2) ?></span>
+</div>
+<div class="mt-2 flex items-center justify-between">
+<div class="flex items-center gap-1 text-xs text-gray-500">
+<span class="material-symbols-outlined text-[14px] text-yellow-400">star</span>
+<span>4.8</span>
+</div>
+<button class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white transition-colors hover:bg-[#e04a1d]">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<?php endfor; ?>
+</div>
+</section>
+
+<!-- Today's Offers Section -->
+<section class="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm dark:bg-[#1a1a1a]">
+<div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<h2 class="text-xl font-bold uppercase tracking-wide text-primary">Today's Offers</h2>
+</div>
+<a class="flex items-center gap-1 rounded-full border border-primary px-4 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10" href="#">View all<span class="material-symbols-outlined text-lg">chevron_right</span></a>
+</div>
+<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+<!-- Canvas 1: Hot Deals -->
+<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+<h3 class="font-bold text-gray-800 dark:text-white">Hot Deals</h3>
+<div class="mt-2 space-y-3">
+<?php for ($i = 0; $i < 3; $i++): ?>
+<div class="flex items-center gap-3">
+<div class="h-12 w-12 bg-gray-200 rounded"></div>
+<div class="flex-1">
+<div class="text-sm font-medium">Product <?= $i+13 ?></div>
+<div class="flex items-center gap-1">
+<span class="text-primary font-bold">$<?= number_format(rand(10, 50), 2) ?></span>
+<span class="text-xs text-gray-500 line-through">$<?= number_format(rand(20, 100), 2) ?></span>
+</div>
+</div>
+</div>
+<?php endfor; ?>
+</div>
+</div>
+
+<!-- Canvas 2: Super Offers -->
+<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+<h3 class="font-bold text-gray-800 dark:text-white">Super Offers</h3>
+<div class="mt-2 space-y-3">
+<?php for ($i = 3; $i < 6; $i++): ?>
+<div class="flex items-center gap-3">
+<div class="h-12 w-12 bg-gray-200 rounded"></div>
+<div class="flex-1">
+<div class="text-sm font-medium">Product <?= $i+13 ?></div>
+<div class="flex items-center gap-1">
+<span class="text-primary font-bold">$<?= number_format(rand(10, 50), 2) ?></span>
+<span class="text-xs text-gray-500 line-through">$<?= number_format(rand(20, 100), 2) ?></span>
+</div>
+</div>
+</div>
+<?php endfor; ?>
+</div>
+</div>
+
+<!-- Canvas 3: Same Day Delivery -->
+<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+<h3 class="font-bold text-gray-800 dark:text-white">Same Day Delivery</h3>
+<div class="mt-2 space-y-3">
+<?php for ($i = 6; $i < 9; $i++): ?>
+<div class="flex items-center gap-3">
+<div class="h-12 w-12 bg-gray-200 rounded"></div>
+<div class="flex-1">
+<div class="text-sm font-medium">Product <?= $i+13 ?></div>
+<div class="flex items-center gap-1">
+<span class="text-primary font-bold">$<?= number_format(rand(10, 50), 2) ?></span>
+<span class="text-xs bg-blue-100 text-blue-800 px-1 rounded">Fast</span>
+</div>
+</div>
+</div>
+<?php endfor; ?>
+</div>
+</div>
+
+<!-- Canvas 4: Quick Delivery -->
+<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+<h3 class="font-bold text-gray-800 dark:text-white">Quick Delivery</h3>
+<div class="mt-2 space-y-3">
+<?php for ($i = 9; $i < 12; $i++): ?>
+<div class="flex items-center gap-3">
+<div class="h-12 w-12 bg-gray-200 rounded"></div>
+<div class="flex-1">
+<div class="text-sm font-medium">Product <?= $i+13 ?></div>
+<div class="flex items-center gap-1">
+<span class="text-primary font-bold">$<?= number_format(rand(10, 50), 2) ?></span>
+<span class="text-xs bg-green-100 text-green-800 px-1 rounded">24h</span>
+</div>
+</div>
+</div>
+<?php endfor; ?>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Offers by Category Section -->
+<section class="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm dark:bg-[#1a1a1a]">
+<div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<h2 class="text-xl font-bold uppercase tracking-wide text-primary">Offers by Category</h2>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+<!-- Left Side: Large Category Banner -->
+<div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-8 text-white flex flex-col justify-center">
+<h3 class="text-2xl font-bold mb-2">Electronics Sale</h3>
+<p class="mb-4">Up to 60% OFF on latest gadgets</p>
+<button class="bg-white text-blue-600 hover:bg-gray-100 font-bold py-2 px-6 rounded w-fit">
+Shop Electronics
+</button>
+</div>
+
+<!-- Right Side: 2x3 Album -->
+<div class="grid grid-cols-2 grid-rows-3 gap-4">
+<?php 
+$albumCategories = array_slice($dummyCategories, 0, 6);
+foreach ($albumCategories as $category): ?>
+<div class="bg-gray-100 dark:bg-[#2a2a2a] rounded-lg p-4 flex flex-col items-center justify-center">
+<div class="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12 mb-2"></div>
+<div class="font-medium text-center text-xs"><?= htmlspecialchars($category) ?></div>
+</div>
+<?php endforeach; ?>
+</div>
+</div>
+</section>
+
+<!-- Product Album Section -->
+<section class="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm dark:bg-[#1a1a1a]">
+<div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+<div class="flex items-center gap-3">
+<h2 class="text-xl font-bold uppercase tracking-wide text-primary">Featured Products</h2>
+</div>
+<a class="flex items-center gap-1 rounded-full border border-primary px-4 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10" href="#">View all<span class="material-symbols-outlined text-lg">chevron_right</span></a>
+</div>
+<div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+<?php for ($i = 0; $i < 36; $i++): ?>
+<div class="group flex flex-col overflow-hidden rounded-lg border border-transparent transition-all hover:border-primary hover:shadow-lg dark:hover:border-primary">
+<div class="relative aspect-square w-full overflow-hidden bg-[#f5f1f0] dark:bg-[#2a2a2a]">
+<div class="h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-110" data-alt="Product image" style="background-image: url('https://via.placeholder.com/300x300?text=Item+<?= $i+1 ?>');"></div>
+<span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded">-<?= rand(10, 70) ?>%</span>
+</div>
+<div class="flex flex-1 flex-col p-3">
+<h3 class="text-sm font-medium text-[#181311] line-clamp-2 dark:text-white">Item <?= $i+1 ?></h3>
+<div class="mt-2 flex items-center gap-1">
+<span class="text-xs text-gray-500 line-through">$<?= number_format(rand(20, 100), 2) ?></span>
+<span class="text-sm font-bold text-primary">$<?= number_format(rand(10, 50), 2) ?></span>
+</div>
+<button class="mt-2 w-full rounded-lg bg-primary py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#e04a1d]">
+Add to Cart
+</button>
+</div>
+</div>
+<?php endfor; ?>
+</div>
+<div class="mt-4 text-center">
+<button class="rounded-lg border border-primary px-6 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/10">
+Load More
+</button>
+</div>
+</section>
+</div>
+</div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white py-12">
+<div class="max-w-7xl mx-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div>
+<h3 class="text-xl font-bold mb-4">VentDepot</h3>
+<p class="text-gray-400">Your trusted online marketplace for quality products from verified merchants.</p>
+</div>
+<div>
+<h4 class="font-semibold mb-4">Customer Service</h4>
+<ul class="space-y-2 text-gray-400">
+<li><a href="contact.php" class="hover:text-white">Contact Us</a></li>
+<li><a href="shipping-info.php" class="hover:text-white">Shipping Info</a></li>
+<li><a href="returns.php" class="hover:text-white">Returns</a></li>
+<li><a href="faq.php" class="hover:text-white">FAQ</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-semibold mb-4">For Merchants</h4>
+<ul class="space-y-2 text-gray-400">
+<li><a href="merchant/register.php" class="hover:text-white">Become a Seller</a></li>
+<li><a href="merchant/login.php" class="hover:text-white">Merchant Login</a></li>
+<li><a href="seller-guide.php" class="hover:text-white">Seller Guide</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-semibold mb-4">Connect</h4>
+<div class="flex space-x-4">
+<a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook text-xl"></i></a>
+<a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter text-xl"></i></a>
+<a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram text-xl"></i></a>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+<p>&copy; 2024 VentDepot. All rights reserved.</p>
+</div>
+</div>
+</footer>
 </body>
 </html>
