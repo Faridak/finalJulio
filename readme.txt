@@ -68,3 +68,19 @@ Manual Deployment (Alternative):
 4. Extract: cd /tmp && tar -xzf ventdepot.tar.gz -C /var/www/html
 5. Set permissions: chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 6. Reload Apache: systemctl reload apache2
+
+Windows Batch Deployment (Alternative):
+-------------------------------------
+1. Double-click deploy.bat or run from command prompt: deploy.bat
+2. The script will:
+   - Package all files (excluding .git and deployment scripts)
+   - Create a ZIP archive
+   - Upload to the Linode server at 198.58.124.137
+   - Extract files to /var/www/html
+   - Set proper permissions
+   - Reload Apache service
+
+Note: For Windows deployment, you need:
+- PuTTY tools (pscp and plink) installed and in your PATH
+- SSH keys configured for authentication to the Linode server
+- ZIP/Unzip utilities available on both local and remote systems
