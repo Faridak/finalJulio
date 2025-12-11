@@ -1,91 +1,192 @@
 #!/bin/bash
 
-# VentDepot Deployment Script for Linode Instance
-# This script deploys the finalJulio project to the Linode production server
+# VentDepot Comprehensive Deployment Script
+# This script deploys the finalJulio project to both GitHub and Linode production server
 
 # Configuration
 LINODE_IP="198.58.124.137"
 PROJECT_PATH="/c/xampp/htdocs/finalJulio"
 DEPLOY_USER="root"
 REMOTE_PATH="/var/www/html"
+GITHUB_REPO="https://github.com/Faridak/finalJulio.git"
 
-echo "=== VentDepot Production Deployment ==="
-echo "Deploying from: $PROJECT_PATH"
+echo "=== VentDepot Comprehensive Deployment ==="
 echo "Deploying to: $DEPLOY_USER@$LINODE_IP:$REMOTE_PATH"
+echo "GitHub Repository: $GITHUB_REPO"
 echo ""
 
-# Check if we're in the right directory
-if [ ! -d ".git" ]; then
-    echo "Error: Please run this script from the project root directory (should contain .git folder)"
-    exit 1
-fi
+# Change to project directory
+cd "$PROJECT_PATH" || exit 1
 
-# Check Git status
+# Step 1: Git Operations - Commit and Push to GitHub
+echo "=== Step 1: Git Operations ==="
 echo "Checking Git status..."
 if [[ -n $(git status --porcelain) ]]; then
-    echo "Warning: You have uncommitted changes:"
-    git status --short
-    echo ""
-    read -p "Do you want to continue deployment anyway? (y/N): " response
-    if [[ ! "$response" =~ ^[Yy]$ ]]; then
-        echo "Deployment cancelled."
+    echo "Uncommitted changes detected. Adding and committing..."
+    git add .
+    git commit -m "Automated deployment commit - $(date)"
+    if [ $? -eq 0 ]; then
+        echo "Changes committed successfully."
+    else
+        echo "Failed to commit changes."
+    fi
+else
+    echo "No uncommitted changes found."
+fi
+
+echo "Pushing to GitHub..."
+git push
+if [ $? -eq 0 ]; then
+    echo "Successfully pushed to GitHub!"
+else
+    echo "Failed to push to GitHub."
+fi
+
+echo ""
+
+# Step 2: Create deployment package
+echo "=== Step 2: Creating Deployment Package ==="
+echo "Cleaning up previous deployment files..."
+
+# Remove previous deployment files if they exist
+rm -rf deploy_temp
+rm -f ventdepot-deploy.zip
+
+echo "Creating deployment package..."
+mkdir deploy_temp
+
+# Create archive excluding .git and deployment scripts
+tar -czf temp_archive.tar.gz --exclude='.git' --exclude='deploy.sh' --exclude='deploy.ps1' --exclude='deploy.bat' --exclude='.gitignore' .
+
+# Extract to deployment directory
+tar -xzf temp_archive.tar.gz -C deploy_temp
+
+# Clean up temporary archive
+rm -f temp_archive.tar.gz
+
+echo "Deployment package created successfully!"
+
+# Create ZIP archive
+echo "Creating ZIP archive..."
+if command -v zip >/dev/null 2>&1; then
+    zip -r ventdepot-deploy.zip deploy_temp/* >/dev/null
+    if [ $? -eq 0 ]; then
+        echo "ZIP archive created successfully!"
+    else
+        echo "Failed to create ZIP archive!"
         exit 1
     fi
 else
-    echo "Working directory is clean."
+    echo "zip command not found. Using tar.gz instead..."
+    tar -czf ventdepot-deploy.tar.gz deploy_temp/*
+    if [ $? -eq 0 ]; then
+        echo "tar.gz archive created successfully!"
+        ARCHIVE_TYPE="tar.gz"
+    else
+        echo "Failed to create tar.gz archive!"
+        exit 1
+    fi
 fi
 
-# Ensure we have the latest changes
-echo "Pulling latest changes from repository..."
-git pull origin master
+echo ""
 
-# Create a temporary archive of the project
-echo "Creating deployment package..."
-TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
-ARCHIVE_NAME="ventdepot-deploy-$TIMESTAMP.tar.gz"
+# Step 3: Deploy to Linode
+echo "=== Step 3: Deploying to Linode ==="
 
-# Create archive excluding .git and deployment scripts
-tar -czf "$ARCHIVE_NAME" --exclude='.git' --exclude='deploy.sh' --exclude='deploy.ps1' .
-
-if [ -f "$ARCHIVE_NAME" ]; then
-    echo "Deployment package created: $ARCHIVE_NAME"
-else
-    echo "Failed to create deployment package!"
-    exit 1
-fi
-
-# Upload the archive to the Linode server
-echo "Uploading to Linode server..."
-scp "$ARCHIVE_NAME" "$DEPLOY_USER@$LINODE_IP:/tmp/"
-
-if [ $? -eq 0 ]; then
-    echo "Upload successful!"
-else
-    echo "Upload failed!"
-    rm -f "$ARCHIVE_NAME"
-    exit 1
-fi
-
-# Clean up local archive
-rm -f "$ARCHIVE_NAME"
-
-# Deploy on remote server
-echo "Deploying on remote server..."
-ssh $DEPLOY_USER@$LINODE_IP << EOF
+# Check if required tools are available
+if command -v scp >/dev/null 2>&1 && command -v ssh >/dev/null 2>&1; then
+    echo "SSH tools found. Proceeding with automated deployment..."
+    
+    # Upload the archive to the Linode server
+    echo "Uploading to Linode server..."
+    if [ "$ARCHIVE_TYPE" = "tar.gz" ]; then
+        scp ventdepot-deploy.tar.gz "$DEPLOY_USER@$LINODE_IP:/tmp/"
+        ARCHIVE_FILE="ventdepot-deploy.tar.gz"
+    else
+        scp ventdepot-deploy.zip "$DEPLOY_USER@$LINODE_IP:/tmp/"
+        ARCHIVE_FILE="ventdepot-deploy.zip"
+    fi
+    
+    if [ $? -eq 0 ]; then
+        echo "Upload successful!"
+        
+        # Deploy on remote server
+        echo "Deploying on remote server..."
+        ssh $DEPLOY_USER@$LINODE_IP << EOF
 cd /tmp
-tar -xzf $ARCHIVE_NAME -C $REMOTE_PATH
+if [ "$ARCHIVE_TYPE" = "tar.gz" ]; then
+    tar -xzf $ARCHIVE_FILE
+else
+    unzip -o $ARCHIVE_FILE
+fi
+cp -r deploy_temp/* $REMOTE_PATH
 chown -R www-data:www-data $REMOTE_PATH
 chmod -R 755 $REMOTE_PATH
 systemctl reload apache2
 echo "Deployment completed at \$(date)"
 EOF
-
-if [ $? -eq 0 ]; then
-    echo "Deployment completed successfully!"
-    echo "Your application is now live at: http://$LINODE_IP"
+        
+        if [ $? -eq 0 ]; then
+            echo "Deployment completed successfully!"
+            echo "Your application is now live at: http://$LINODE_IP"
+        else
+            echo "Remote deployment commands failed!"
+        fi
+    else
+        echo "Upload failed!"
+    fi
 else
-    echo "Remote deployment commands failed!"
-    exit 1
+    echo "SSH tools not found. Showing manual deployment instructions..."
+    show_manual_instructions
 fi
 
+# Function to show manual instructions
+show_manual_instructions() {
+    echo ""
+    echo "=== MANUAL DEPLOYMENT INSTRUCTIONS ==="
+    echo "Please follow these steps to manually deploy:"
+    echo "1. Make sure you have SSH tools (scp, ssh) installed"
+    echo "2. Run this script again"
+    echo ""
+    echo "Alternatively, you can manually upload and deploy:"
+    echo "1. Upload the archive to your Linode server:"
+    if [ "$ARCHIVE_TYPE" = "tar.gz" ]; then
+        echo "   scp ventdepot-deploy.tar.gz root@$LINODE_IP:/tmp/"
+    else
+        echo "   scp ventdepot-deploy.zip root@$LINODE_IP:/tmp/"
+    fi
+    echo "2. SSH into your server:"
+    echo "   ssh root@$LINODE_IP"
+    echo "3. Run these commands on the server:"
+    echo "   cd /tmp"
+    if [ "$ARCHIVE_TYPE" = "tar.gz" ]; then
+        echo "   tar -xzf ventdepot-deploy.tar.gz"
+    else
+        echo "   unzip -o ventdepot-deploy.zip"
+    fi
+    echo "   cp -r deploy_temp/* $REMOTE_PATH"
+    echo "   chown -R www-data:www-data $REMOTE_PATH"
+    echo "   chmod -R 755 $REMOTE_PATH"
+    echo "   systemctl reload apache2"
+    echo "   echo 'Deployment completed'"
+    echo ""
+    echo "Your application will be available at: http://$LINODE_IP"
+}
+
+# Cleanup function
+cleanup() {
+    echo "Cleaning up temporary files..."
+    rm -rf deploy_temp
+    if [ "$ARCHIVE_TYPE" = "tar.gz" ]; then
+        rm -f ventdepot-deploy.tar.gz
+    else
+        rm -f ventdepot-deploy.zip
+    fi
+}
+
+# Perform cleanup
+cleanup
+
+echo ""
 echo "=== Deployment Process Completed ==="
+echo "Both GitHub and Linode deployment attempted."
