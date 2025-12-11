@@ -38,3 +38,33 @@ Screen	Tech	Features
 Merchant Approval	admin/merchants.php	List with "Approve/Reject" buttons (AJAX), email notification
 Order Management	admin/orders.php	Filter by status (Shipped/Processing), click to view shipping details
 Analytics	admin/analytics.php	Interactive charts (Chart.js), revenue by category
+
+Deployment Instructions
+=======================
+
+To deploy the finalJulio application to production:
+
+1. Ensure all changes are committed and pushed to the repository:
+   git add .
+   git commit -m "Production ready updates"
+   git push origin master
+
+2. Use the deployment script:
+   PowerShell: .\deploy.ps1
+   Bash/Linux: ./deploy.sh
+
+3. The deployment script will:
+   - Package all files (excluding .git and deployment scripts)
+   - Upload to the Linode server at 198.58.124.137
+   - Extract files to /var/www/html
+   - Set proper permissions
+   - Reload Apache service
+
+Manual Deployment (Alternative):
+-------------------------------
+1. Create archive: tar -czf ventdepot.tar.gz --exclude='.git' .
+2. Upload: scp ventdepot.tar.gz root@198.58.124.137:/tmp/
+3. SSH into server: ssh root@198.58.124.137
+4. Extract: cd /tmp && tar -xzf ventdepot.tar.gz -C /var/www/html
+5. Set permissions: chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+6. Reload Apache: systemctl reload apache2
