@@ -72,8 +72,12 @@ class WebhookHandler {
         $payload = @file_get_contents('php://input');
         $sigHeader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
         
-        // Get webhook secret from configuration
-        $webhookSecret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? 'whsec_test_...';
+        // Get webhook secret from configuration - do not use hardcoded fallback
+        $webhookSecret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? getenv('STRIPE_WEBHOOK_SECRET');
+        if (empty($webhookSecret)) {
+            Security::logSecurityEvent('webhook_config_missing', ['gateway' => 'stripe'], 'error');
+            return ['success' => false, 'error' => 'Webhook secret not configured'];
+        }
         
         // Verify webhook signature
         if (!$this->verifyStripeSignature($payload, $sigHeader, $webhookSecret)) {

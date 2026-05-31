@@ -3,11 +3,12 @@
 session_start();
 require_once 'config/database.php';
 require_once 'includes/security.php';
+require_once 'includes/functions.php';
 
-// CSRF validation temporarily disabled
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-//     die('CSRF token mismatch');
-// }
+// Enforce CSRF validation
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCSRF();
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {

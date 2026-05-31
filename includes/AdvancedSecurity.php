@@ -11,7 +11,11 @@ class AdvancedSecurity {
     
     public function __construct($pdo) {
         $this->pdo = $pdo;
-        $this->encryptionKey = $_ENV['ENCRYPTION_KEY'] ?? md5('default_encryption_key');
+        $this->encryptionKey = $_ENV['ENCRYPTION_KEY'] ?? getenv('ENCRYPTION_KEY');
+        if (empty($this->encryptionKey)) {
+            // Fail fast if encryption key is not configured
+            throw new \RuntimeException('ENCRYPTION_KEY environment variable is required for AdvancedSecurity');
+        }
     }
     
     /**

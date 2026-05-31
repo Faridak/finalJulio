@@ -3,6 +3,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 // Database Configuration
+// Load global helpers
+require_once __DIR__ . '/../includes/functions.php';
+
 $host = 'localhost';
 $dbname = 'ventdepot';
 $username = 'root';

@@ -73,6 +73,9 @@ class PaymentGateway {
                 // Update order status
                 $this->updateOrderStatus($orderId, 'paid', $transactionId);
                 
+                // Deduct inventory from stock
+                $this->deductInventoryForOrder($orderId);
+                
                 // Process commission splits
                 $this->processCommissionSplits($orderId, $result['net_amount']);
                 
@@ -495,6 +498,72 @@ class PaymentGateway {
             'refund_id' => 'paypal_refund_' . uniqid(),
             'amount' => $amount
         ];
+    }
+    
+    /**
+     * Deduct inventory from stock when payment is confirmed
+     */
+    private function deductInventoryForOrder($orderId) {
+        try {
+            // Get all order items
+            $stmt = $this->pdo->prepare("
+                SELECT oi.product_id, oi.quantity
+                FROM order_items oi
+                WHERE oi.order_id = ?
+            ");
+            $stmt->execute([$orderId]);
+            $orderItems = $stmt->fetchAll();
+            
+            if (empty($orderItems)) {
+                return;
+            }
+            
+            // Get the default/primary location (usually location_id = 1)
+            $locationId = 1; // Adjust if needed based on your warehouse setup
+            
+            foreach ($orderItems as $item) {
+                // Update product_inventory: deduct from quantity_on_hand
+                $stmt = $this->pdo->prepare("
+                    UPDATE product_inventory 
+                    SET quantity_on_hand = GREATEST(0, quantity_on_hand - ?),
+                        quantity_reserved = 0,
+                        last_movement_at = NOW()
+                    WHERE product_id = ? AND location_id = ?
+                ");
+                $stmt->execute([$item['quantity'], $item['product_id'], $locationId]);
+                
+                // Log this inventory movement
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO inventory_movements (
+                        product_id, location_id, movement_type, quantity, 
+                        reference_type, reference_id, reason, created_by, created_at
+                    ) VALUES (?, ?, 'out', ?, 'order', ?, 'Payment confirmed - Order fulfillment', ?, NOW())
+                ");
+                $stmt->execute([
+                    $item['product_id'],
+                    $locationId,
+                    $item['quantity'],
+                    $orderId,
+                    'system'
+                ]);
+                
+                // Update product stock (sum across all locations)
+                $stmt = $this->pdo->prepare("
+                    UPDATE products 
+                    SET stock = (
+                        SELECT COALESCE(SUM(quantity_on_hand), 0) 
+                        FROM product_inventory 
+                        WHERE product_id = ?
+                    )
+                    WHERE id = ?
+                ");
+                $stmt->execute([$item['product_id'], $item['product_id']]);
+            }
+            
+        } catch (Exception $e) {
+            // Log error but don't fail the payment
+            error_log("Failed to deduct inventory for order $orderId: " . $e->getMessage());
+        }
     }
     
     /**
