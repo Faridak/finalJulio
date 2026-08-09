@@ -1,3 +1,10 @@
+﻿<?php
+// Setup/seed script: CLI-only. Never expose over the web in production.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('This script can only be run from the command line.');
+}
+?>
 <?php
 require_once 'config/database.php';
 

@@ -14,6 +14,20 @@ class PaymentGateway {
     private $paypalClientId;
     private $paypalClientSecret;
     private $paypalMode; // 'sandbox' or 'live'
+    private $paypalAccounts = []; // region-routed accounts: US, MX
+
+    /**
+     * Which PayPal account serves this order? Mexico ships -> PayPal Mexico;
+     * everyone else -> PayPal USA.
+     * @return array{region:string, client_id:string, secret:string, currency:string}
+     */
+    public function resolvePayPalAccount($orderId) {
+        $stmt = $this->pdo->prepare("SELECT shipping_country FROM orders WHERE id = ? LIMIT 1");
+        $stmt->execute([$orderId]);
+        $country = strtoupper((string) $stmt->fetchColumn());
+        $region = ($country === 'MX') ? 'MX' : 'US';
+        return ['region' => $region] + $this->paypalAccounts[$region];
+    }
     
     public function __construct($pdo) {
         $this->pdo = $pdo;
@@ -28,9 +42,27 @@ class PaymentGateway {
         // These should be loaded from environment variables or secure config
         $this->stripeSecretKey = $_ENV['STRIPE_SECRET_KEY'] ?? 'sk_test_dummy';
         $this->stripePublishableKey = $_ENV['STRIPE_PUBLISHABLE_KEY'] ?? 'pk_test_dummy';
-        // Default to 'sb' (PayPal Sandbox) if not set, to enable the feature for demo
-        $this->paypalClientId = $_ENV['PAYPAL_CLIENT_ID'] ?? 'sb'; 
-        $this->paypalClientSecret = $_ENV['PAYPAL_CLIENT_SECRET'] ?? 'secret';
+        // Two PayPal business accounts, routed by the order's shipping country:
+        //   MX  -> PayPal Mexico   (PAYPAL_MX_CLIENT_ID / PAYPAL_MX_SECRET)
+        //   else-> PayPal USA      (PAYPAL_US_CLIENT_ID / PAYPAL_US_SECRET)
+        // Legacy single-account vars (PAYPAL_CLIENT_ID/SECRET) fall back to US.
+        // Placeholder/empty ids -> 'sb' demo mode for that account.
+        $clean = function ($v) { return ($v === '' || $v === null || strpos((string)$v, 'your_') === 0) ? 'sb' : $v; };
+        $this->paypalAccounts = [
+            'US' => [
+                'client_id' => $clean($_ENV['PAYPAL_US_CLIENT_ID'] ?? ($_ENV['PAYPAL_CLIENT_ID'] ?? 'sb')),
+                'secret'    => $_ENV['PAYPAL_US_SECRET'] ?? ($_ENV['PAYPAL_CLIENT_SECRET'] ?? ($_ENV['PAYPAL_SECRET'] ?? 'secret')),
+                'currency'  => 'USD',
+            ],
+            'MX' => [
+                'client_id' => $clean($_ENV['PAYPAL_MX_CLIENT_ID'] ?? 'sb'),
+                'secret'    => $_ENV['PAYPAL_MX_SECRET'] ?? 'secret',
+                'currency'  => $_ENV['PAYPAL_MX_CURRENCY'] ?? 'USD', // set MXN when pricing in pesos
+            ],
+        ];
+        // Back-compat: default active account (US) for code paths without order context.
+        $this->paypalClientId = $this->paypalAccounts['US']['client_id'];
+        $this->paypalClientSecret = $this->paypalAccounts['US']['secret'];
         $this->paypalMode = $_ENV['PAYPAL_MODE'] ?? 'sandbox';
     }
     
@@ -99,13 +131,18 @@ class PaymentGateway {
                     
                     // Create accounts receivable entry with credit information
                     $this->createAccountsReceivableEntry($orderId, $order);
-                    
+
+                    // Connect inventory, accounting (ledger) and shipping to this payment
+                    $this->runFulfilmentOrchestration($orderId, $order['user_id'] ?? null);
+
                     $this->pdo->commit();
                 } else {
                     // Update order status even for mock, so confirmation page shows "Paid"
                     // We assume 'orders' table exists if getOrderDetails succeeded.
                     try {
                         $this->updateOrderStatus($orderId, 'paid', $transactionId);
+                        // Connect inventory, accounting (ledger) and shipping to this payment
+                        $this->runFulfilmentOrchestration($orderId, $order['user_id'] ?? null);
                     } catch (Exception $e) {
                         // Ignore DB errors in mock mode
                     }
@@ -200,12 +237,15 @@ class PaymentGateway {
      */
     private function processPayPalPayment($order, $paymentData) {
         try {
-            // MOCK: If using the 'sb' dummy ID, return success immediately
+            // Route to the correct regional account (MX vs US) for this order.
+            $account = $this->resolvePayPalAccount($order['id']);
+            $this->paypalClientId = $account['client_id'];
+            $this->paypalClientSecret = $account['secret'];
+
+            // MOCK: If using the 'sb' dummy ID, return success immediately (dev only)
             if ($this->paypalClientId === 'sb') {
-                $totalAmount = number_format($order['total'], 2, '.', '');
                 $platformFee = number_format($order['total'] * 0.029, 2, '.', '');
                 $merchantAmount = number_format($order['total'] - $platformFee, 2, '.', '');
-                
                 return [
                     'success' => true,
                     'gateway_reference' => 'mock_pp_' . uniqid(),
@@ -216,67 +256,123 @@ class PaymentGateway {
                 ];
             }
 
-            // Get PayPal access token
+            // Real flow (Orders v2): the buyer APPROVED the order in the PayPal
+            // popup; the client posts us the order id and WE capture it server-side.
+            // Never trust a client-side capture claim.
+            $paypalOrderId = trim($paymentData['paypal_order_id'] ?? '');
+            if ($paypalOrderId === '' || !preg_match('/^[A-Z0-9\-]{5,64}$/i', $paypalOrderId)) {
+                throw new Exception('Missing or invalid PayPal order id.');
+            }
+
             $accessToken = $this->getPayPalAccessToken();
-            
             if (!$accessToken) {
-                throw new Exception("Failed to get PayPal access token");
+                throw new Exception('Failed to get PayPal access token');
             }
-            
-            // Calculate amounts
-            $totalAmount = number_format($order['total'], 2, '.', '');
-            $platformFee = number_format($order['total'] * 0.029, 2, '.', '');
-            $merchantAmount = number_format($order['total'] - $platformFee, 2, '.', '');
-            
-            // Create PayPal order
-            $paypalOrder = $this->createPayPalOrder([
-                'intent' => 'CAPTURE',
-                'purchase_units' => [
-                    [
-                        'reference_id' => 'order_' . $order['id'],
-                        'amount' => [
-                            'currency_code' => 'USD',
-                            'value' => $totalAmount
-                        ],
-                        'payee' => [
-                            'merchant_id' => $order['merchant_paypal_id'] ?? null
-                        ],
-                        'payment_instruction' => [
-                            'platform_fees' => [
-                                [
-                                    'amount' => [
-                                        'currency_code' => 'USD',
-                                        'value' => $platformFee
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ], $accessToken);
-            
-            if ($paypalOrder && $paypalOrder['status'] === 'COMPLETED') {
-                return [
-                    'success' => true,
-                    'gateway_reference' => $paypalOrder['id'],
-                    'net_amount' => floatval($merchantAmount),
-                    'platform_fee' => floatval($platformFee),
-                    'gateway_fee' => 0,
-                    'raw_response' => json_encode($paypalOrder)
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'error_message' => 'PayPal payment failed or requires approval'
-                ];
+
+            // Capture the approved order.
+            $capture = $this->payPalRequest('POST', "/v2/checkout/orders/{$paypalOrderId}/capture", null, $accessToken);
+
+            // Already captured (double-submit / webhook race)? Fetch and verify instead.
+            if (isset($capture['name']) && $capture['name'] === 'UNPROCESSABLE_ENTITY'
+                && ($capture['details'][0]['issue'] ?? '') === 'ORDER_ALREADY_CAPTURED') {
+                $capture = $this->payPalRequest('GET', "/v2/checkout/orders/{$paypalOrderId}", null, $accessToken);
             }
-            
+
+            if (!isset($capture['status']) || $capture['status'] !== 'COMPLETED') {
+                $issue = $capture['details'][0]['issue'] ?? ($capture['name'] ?? 'capture failed');
+                throw new Exception('PayPal capture not completed: ' . $issue);
+            }
+
+            // Verify the captured amount matches OUR order total (prevents a
+            // buyer approving a cheaper order and replaying its id).
+            $pu = $capture['purchase_units'][0] ?? [];
+            $cap = $pu['payments']['captures'][0] ?? null;
+            $paidValue = (float) ($cap['amount']['value'] ?? ($pu['amount']['value'] ?? 0));
+            $paidCurrency = $cap['amount']['currency_code'] ?? ($pu['amount']['currency_code'] ?? '');
+            if ($paidCurrency !== $account['currency'] || abs($paidValue - (float) $order['total']) > 0.01) {
+                Security::logSecurityEvent('paypal_amount_mismatch', [
+                    'order_id' => $order['id'], 'expected' => $order['total'],
+                    'paid' => $paidValue, 'currency' => $paidCurrency, 'paypal_order' => $paypalOrderId,
+                ], 'error');
+                throw new Exception('PayPal amount mismatch — payment not accepted.');
+            }
+
+            $paypalFee = (float) ($cap['seller_receivable_breakdown']['paypal_fee']['value'] ?? 0);
+            $platformFee = round($order['total'] * 0.029, 2);
+
+            return [
+                'success' => true,
+                'gateway_reference' => $cap['id'] ?? $paypalOrderId,
+                'net_amount' => round($order['total'] - $platformFee, 2),
+                'platform_fee' => $platformFee,
+                'gateway_fee' => $paypalFee,
+                'raw_response' => json_encode($capture)
+            ];
+
         } catch (Exception $e) {
             return [
                 'success' => false,
                 'error_message' => $e->getMessage()
             ];
         }
+    }
+
+    /**
+     * Server-side: create a PayPal order for OUR order total, so the amount the
+     * buyer approves is set by the server, not the browser.
+     * @return array{id?:string,error?:string}
+     */
+    public function createPayPalOrderFor($orderId) {
+        $order = $this->getOrderDetails($orderId);
+        if (!$order) return ['error' => 'Order not found'];
+
+        // Route to the regional account for this order (MX vs US).
+        $account = $this->resolvePayPalAccount($orderId);
+        $this->paypalClientId = $account['client_id'];
+        $this->paypalClientSecret = $account['secret'];
+
+        if ($this->paypalClientId === 'sb') {
+            return ['id' => 'MOCK-' . strtoupper(uniqid()), 'region' => $account['region']];
+        }
+
+        $accessToken = $this->getPayPalAccessToken();
+        if (!$accessToken) return ['error' => 'PayPal auth failed'];
+
+        $body = [
+            'intent' => 'CAPTURE',
+            'purchase_units' => [[
+                'reference_id' => 'order_' . $orderId,
+                'custom_id' => (string) $orderId,
+                'amount' => ['currency_code' => $account['currency'], 'value' => number_format($order['total'], 2, '.', '')],
+            ]],
+        ];
+        $res = $this->payPalRequest('POST', '/v2/checkout/orders', $body, $accessToken);
+        if (!empty($res['id'])) return ['id' => $res['id'], 'region' => $account['region']];
+        return ['error' => $res['message'] ?? 'Could not create PayPal order'];
+    }
+
+    /** Authenticated JSON request to the PayPal REST API. */
+    private function payPalRequest($method, $path, $body, $accessToken) {
+        $baseUrl = $this->paypalMode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+        $curl = curl_init();
+        $opts = [
+            CURLOPT_URL => $baseUrl . $path,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $accessToken,
+                'PayPal-Request-Id: vd-' . md5($path . serialize($body)), // idempotency
+            ],
+        ];
+        if ($body !== null) $opts[CURLOPT_POSTFIELDS] = json_encode($body);
+        curl_setopt_array($curl, $opts);
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        if ($response === false) return ['name' => 'CURL_ERROR', 'message' => $err];
+        return json_decode($response, true) ?: [];
     }
     
     /**
@@ -353,8 +449,19 @@ class PaymentGateway {
      * Update order status
      */
     private function updateOrderStatus($orderId, $status, $transactionId = null) {
+        // 'paid' is a PAYMENT state, not a fulfilment state — orders.status has
+        // no 'paid' member (writing it silently stored '' before this fix).
+        if ($status === 'paid') {
+            $stmt = $this->pdo->prepare("
+                UPDATE orders
+                SET payment_status = 'paid', status = 'processing',
+                    payment_transaction_id = ?, updated_at = NOW()
+                WHERE id = ?
+            ");
+            return $stmt->execute([$transactionId, $orderId]);
+        }
         $stmt = $this->pdo->prepare("
-            UPDATE orders 
+            UPDATE orders
             SET status = ?, payment_transaction_id = ?, updated_at = NOW()
             WHERE id = ?
         ");
@@ -592,17 +699,47 @@ class PaymentGateway {
     }
     
     /**
+     * Run the fulfilment orchestrator: connects the completed payment to the
+     * inventory ledger, the accounting general ledger, and shipping.
+     * Failures are logged and never abort the payment (the orchestrator is
+     * idempotent and flag-guarded, so a reconciliation run can finish later).
+     */
+    private function runFulfilmentOrchestration($orderId, $userId = null) {
+        try {
+            require_once __DIR__ . '/../services/OrderFulfillmentOrchestrator.php';
+            $orchestrator = new OrderFulfillmentOrchestrator($this->pdo);
+            $orchestrator->onPaymentCompleted($orderId, $userId);
+        } catch (Exception $e) {
+            error_log("Fulfilment orchestration failed for order $orderId: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Get payment methods configuration for frontend
      */
-    public function getPaymentMethodsConfig() {
+    public function getPaymentMethodsConfig($orderId = null) {
+        // With an order in context, expose the REGION-ROUTED PayPal account so
+        // the JS SDK loads the right client-id (MX order -> PayPal Mexico).
+        if ($orderId) {
+            $acct = $this->resolvePayPalAccount($orderId);
+            $ppClientId = $acct['client_id'];
+            $ppCurrency = $acct['currency'];
+            $ppRegion = $acct['region'];
+        } else {
+            $ppClientId = $this->paypalAccounts['US']['client_id'];
+            $ppCurrency = $this->paypalAccounts['US']['currency'];
+            $ppRegion = 'US';
+        }
         return [
             'stripe' => [
                 'enabled' => !empty($this->stripePublishableKey),
                 'publishable_key' => $this->stripePublishableKey
             ],
             'paypal' => [
-                'enabled' => !empty($this->paypalClientId),
-                'client_id' => $this->paypalClientId,
+                'enabled' => !empty($ppClientId),
+                'client_id' => $ppClientId,
+                'currency' => $ppCurrency,
+                'region' => $ppRegion,
                 'mode' => $this->paypalMode
             ],
             'mock' => [

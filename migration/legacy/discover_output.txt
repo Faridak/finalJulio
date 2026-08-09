@@ -1,0 +1,2717 @@
+=== TABLES + ROW COUNTS (largest first) ===
+schema table rows
+------ ----- ----
+dbo pagetracking 51082357
+dbo sacotizacionseguimientobitacora 6312805
+dbo saproductcostlogv2 1545733
+dbo saproductoinformacionproducto 1318574
+dbo zphothogallery 1208201
+dbo TlBiPedCot 790165
+dbo BitacoraC 688427
+dbo NotaCotizacion 617368
+dbo inventorylog 589358
+dbo ListaPreciosD 475626
+dbo Colonia 432081
+dbo saupcproduct 390525
+dbo sagtinproduct 387990
+dbo saeanproduct 387943
+dbo logging_Url_Hits 381938
+dbo Municipio 375759
+dbo saproductphotop 371529
+dbo Domicilio 363125
+dbo saproductstock 292872
+dbo saproductstocklog 290751
+dbo saproductocategoriaproducto 287122
+dbo salistapreciosd 283855
+dbo ProdIdioma 275309
+dbo clientelog 274905
+dbo prodidioma_bkp 272535
+dbo saproductod 267791
+dbo Producto 266129
+dbo saproducto 262038
+dbo saproductcostv2 260934
+dbo CotizacionD 245666
+dbo saupc20200822 243995
+dbo Cliente 225701
+dbo ClientePublicidad 224508
+dbo dupliate_cliente 224263
+dbo saproductcostlog 223875
+dbo ClientMail 222994
+dbo Cliente_tm 222606
+dbo client_updates 220460
+dbo Clientebitacora 215012
+dbo Clientebitacorad 213815
+dbo saproductoinformacionproductorespaldoleadtime 212229
+dbo Bitacora 212204
+dbo sagtinproduct20200822 211040
+dbo AnexoD 205658
+dbo newZipcodeTable 196168
+dbo PedidoD 191820
+dbo sacotizacionseguimientod 187164
+dbo UsuarioLog 162849
+dbo ip_status 146971
+dbo PedidoDomTemp 145756
+dbo sagtintemp 138433
+dbo PedidoGastosEnvio 136399
+dbo PedidoM 135735
+dbo PedidoFormaPago 135556
+dbo PedidoCambioStatus 133775
+dbo saupcproductx 130269
+dbo saproductphotofl 124281
+dbo saproductcost 105225
+dbo BitacoraCli 92512
+dbo ClienteStatus 92465
+dbo CotizacionM 89898
+dbo CotizacionSeguroE 89803
+dbo marketHistory 85485
+dbo cotizacioncriterio 84915
+dbo CotizacionGastosEnvio 84680
+dbo ReportData 61219
+dbo salistapreciosbitacora 59955
+dbo saproductoinformacioncategoria 49826
+dbo saproductpo 46298
+dbo saproductstockpolog 36579
+dbo CotizacionPedido 36068
+dbo accountReceivable 27309
+dbo selectedCustomDropdown 19924
+dbo saproductocategoria 17972
+dbo saproductocategoria_bkp 17796
+dbo PromocionFijaCotizacion 14993
+dbo saseocategoryvar 14132
+dbo NotaPedido 13428
+dbo saseofeedfile 13108
+dbo SubSubCatProd 10895
+dbo Example 10003
+dbo inventorystocktransit 9792
+dbo saseo 8749
+dbo saseofeedfile2 8541
+dbo saproductocategoria20201015 8222
+dbo Etapa 7892
+dbo saproductcostdata 7439
+dbo tlordtrabitacora 6800
+dbo saproductstockpo 6711
+dbo saproductogenera 6699
+dbo Estado 5784
+dbo saEmailToFriendCounter 5619
+dbo lastUpdationProductView 4801
+dbo saseocategory 4713
+dbo Textos 4196
+dbo NotaCliente 4088
+dbo saseokeywordv2 3955
+dbo ListaimpresaD 3881
+dbo satemplatetextosd 3595
+dbo Tarjeta 3571
+dbo tlordtracliente 3380
+dbo AdminIPLog 3173
+dbo satemplatetextosd_2 2905
+dbo saproductcross 2871
+dbo saseobackup 2787
+dbo saestado 2566
+dbo ClienteRespuesta 2424
+dbo Componente 2385
+dbo TLPROVEEDORTELEFONO 2282
+dbo ProviderProduct 2195
+dbo tlpedidoinst 2072
+dbo PromocionFijaPedido 2030
+dbo productViewApproval 1807
+dbo ReportClient 1804
+dbo TarjetaD 1675
+dbo Invitaciones 1572
+dbo tlordtra 1479
+dbo saproductpospecial 1331
+dbo TLPROVEEDORD 1168
+dbo TLPROVEEDORCONTACTO 1146
+dbo Providerd 1123
+dbo Proveedor 1053
+dbo SubCatProd 874
+dbo Acceso 809
+dbo deletedInvoice 794
+dbo Carrito 691
+dbo Pais 648
+dbo saseofeedfamilytotal 621
+dbo EmailParameters 553
+dbo ClienteNoExiste 518
+dbo sapais 487
+dbo sacotizacionseguimientoperfil 367
+dbo saseofeedfamily 338
+dbo saempresa 329
+dbo saempresa_bkp 328
+dbo Publicidad 320
+dbo saequivalence 317
+dbo Usuariosmail 304
+dbo saproductphoto2 276
+dbo REspuesta 258
+dbo newTaxTable 256
+dbo PromocionFijaProducto 246
+dbo tlproveedorbitacora 242
+dbo Tbl_Country 240
+dbo ListaimpresaM 239
+dbo satemplatetextos 223
+dbo NotaCotizacionTemp 220
+dbo Theme 183
+dbo StatusCotizacion 178
+dbo StatusPedido 164
+dbo saseofeedfactor 152
+dbo tlordtraprioridad 145
+dbo Vendedor 143
+dbo Report 136
+dbo saequivalencerefrespaldo 132
+dbo USUARIOSINVITADOS 128
+dbo sacotizacionseguimiento 124
+dbo sagtin 120
+dbo logForUrlHits 120
+dbo ClienteCarrito 120
+dbo PromocionProd 111
+dbo saequivalenceref 96
+dbo tlordtrarepeticion 92
+dbo saproductexchangelog 90
+dbo saproductpolog 89
+dbo Pregunta 86
+dbo customTaxDropdown 86
+dbo saproductoinformacion 82
+dbo tlproveedorarchivo 73
+dbo tlordtratipo 69
+dbo saproductphotoinfo 69
+dbo tlordtraarchivo 66
+dbo StatusCliente 65
+dbo marketplace 59
+dbo newTaxTable2 54
+dbo TextosM 45
+dbo Usuario 44
+dbo CategoriaCte 43
+dbo marketprice 37
+dbo Ayuda 36
+dbo tlordtrausuario 35
+dbo saproductoinformacionunidad 31
+dbo saproductstockwarehouse 28
+dbo saproductoinformaciontipo 27
+dbo PedidoPromocion 27
+dbo GastosEnvio 26
+dbo GastosEnvioReferencia 25
+dbo AdminIP 24
+dbo saseofeed 24
+dbo tlordtrastatus 24
+dbo GastosEnvioD 22
+dbo TemplateNotas 21
+dbo UsuarioLogIP 19
+dbo ImpuestoMatris 18
+dbo Nuevo 18
+dbo Programa 18
+dbo sausuarioperfil 16
+dbo AnexoM 15
+dbo CategoriaProd 15
+dbo saalert 13
+dbo PromocionM 12
+dbo FormaPago 12
+dbo Foo 10
+dbo promociones 10
+dbo saequivalencetype 10
+dbo saproductpostatus 10
+dbo saproductexchange 10
+dbo saproductstockwhlog 9
+dbo TipoTarjeta 7
+dbo TLPROVEEDORSTATUS 7
+dbo ZonaFiscal 6
+dbo TestUpdate 6
+dbo samarketplaceShipping 6
+dbo saidioma 6
+dbo salistaprecios 6
+dbo Continente 6
+dbo client_engineer 6
+dbo customTaxDropdowns 5
+dbo Idioma 5
+dbo Tbl_Currency 5
+dbo zipcodeBoxTable 5
+dbo tltienda 4
+dbo saproductcurrency 4
+dbo satemplategrupo 4
+dbo Condicion 4
+dbo accountants 4
+dbo aatable 3
+dbo aatest 3
+dbo aaTestTable 3
+dbo Impuesto 3
+dbo sacross 3
+dbo Moneda 3
+dbo saseometa 3
+dbo samarketplace 3
+dbo samonedatipocambio 3
+dbo sapricelist 3
+dbo TipoCambio 3
+dbo TipoGastosEnvio 3
+dbo TipoPromocion 3
+dbo TipoDomicilio 2
+dbo tlpromocionregalo 2
+dbo TLPRODUCTO 2
+dbo tlpromocion 2
+dbo tlpromocionbono 2
+dbo saproductphoto 2
+dbo saproductpoinfo 2
+dbo ListaPreciosCatCte 2
+dbo ListaPreciosM 2
+dbo CuentasBanco 2
+dbo CartLabels 2
+dbo class 1
+dbo Caracteristica 1
+dbo Empresa 1
+dbo MasterDiscount 1
+dbo productViewHeaders 1
+dbo saseofeedfactorA 1
+dbo saproductcostconfigalert 1
+dbo samoneda 1
+dbo TLPROVEEDORUSUARIO 1
+dbo TipoCaracteristica 1
+dbo Tbl_Users 1
+dbo TempTableToKeep 0
+dbo test_by_kabeer 0
+dbo Tbl_Language 0
+dbo Tbl_State 0
+dbo sysdiagrams 0
+dbo saupctemp 0
+dbo tlpromocionregalod 0
+dbo tlpromocionbonod 0
+dbo tlpromocionpedcot 0
+dbo zona_mapping 0
+dbo salistaprecioscategoriacliente 0
+dbo saproductcostlogv2x 0
+dbo saproductoaccesorio 0
+dbo saproductocostobitacora 0
+dbo saseov2 0
+dbo saupc 0
+dbo saseoalert 0
+dbo Notacotizacionhistorial 0
+dbo PedidoCaract 0
+dbo dtproperties 0
+dbo CotizacionPromocion 0
+dbo CotizacionCaract 0
+dbo ComponenteD 0
+dbo CaractProducto 0
+dbo acrDeletedInvoices 0
+dbo carritoCaract 0
+dbo Cliente_Temp 0
+ 
+=== COLUMNS (all user tables) ===
+table column type max_length is_nullable is_identity
+----- ------ ---- ---------- ----------- -----------
+aatable id varchar 10 1 0
+aatable Name varchar 10 1 0
+aatest col1 varchar 10 1 0
+aatest col2 varchar 10 1 0
+aatest col3 varchar 10 1 0
+aaTestTable col1 varchar 10 1 0
+aaTestTable col4 varchar 10 1 0
+aaTestTable col3 varchar 10 1 0
+aaTestTable col2 varchar 10 1 0
+Acceso IdPrograma int 4 0 0
+Acceso IdUsuario smallint 2 0 0
+Acceso Valido smallint 2 1 0
+accountants id int 4 0 1
+accountants emailaddress varchar 100 0 0
+accountReceivable ID int 4 0 1
+accountReceivable idPedido decimal 9 0 0
+accountReceivable amountPaid decimal 9 0 0
+accountReceivable paymentDate datetime 8 0 0
+accountReceivable paymentType varchar 50 1 0
+accountReceivable paymentInvoiceNo varchar 50 1 0
+accountReceivable paymentNotes text 16 1 0
+accountReceivable paymentPercentage varchar 50 1 0
+accountReceivable invoicePDF varchar 200 1 0
+accountReceivable invoiceXML varchar 200 1 0
+accountReceivable saveUrl varchar 200 1 0
+accountReceivable cancelUrl varchar 200 1 0
+accountReceivable preInvoice varchar 10 0 0
+accountReceivable activeInvoice bit 1 0 0
+acrDeletedInvoices id uniqueidentifier 16 1 0
+acrDeletedInvoices idPedido bigint 8 1 0
+acrDeletedInvoices amountPaid varchar 50 1 0
+acrDeletedInvoices paymentDate datetime 8 1 0
+acrDeletedInvoices paymentType varchar 50 1 0
+acrDeletedInvoices paymentInvoiceNo varchar 50 1 0
+acrDeletedInvoices paymentNotes varchar 50 1 0
+acrDeletedInvoices paymentPercentage varchar 50 1 0
+acrDeletedInvoices invoicePDF varchar 50 1 0
+acrDeletedInvoices invoiceXML varchar 50 1 0
+acrDeletedInvoices saveUrl varchar 50 1 0
+acrDeletedInvoices cancelUrl varchar 50 1 0
+acrDeletedInvoices preInvoice varchar 50 1 0
+acrDeletedInvoices acrId int 4 1 0
+AdminIP ID int 4 0 1
+AdminIP IP nvarchar 100 0 0
+AdminIP DateUpdated datetime 8 0 0
+AdminIP ManualOverride bit 1 0 0
+AdminIP Source nvarchar 40 0 0
+AdminIP SecurityEnabled bit 1 0 0
+AdminIP Email varchar 200 0 0
+AdminIP Zone nvarchar 40 0 0
+AdminIPLog ID int 4 0 1
+AdminIPLog IP nvarchar 100 0 0
+AdminIPLog DateAdded datetime 8 0 0
+AdminIPLog Source nvarchar 40 0 0
+AdminIPLog Zone nvarchar 40 0 0
+AnexoD IdIdioma smallint 2 0 0
+AnexoD IdProducto varchar 20 0 0
+AnexoD IdAnexo decimal 9 0 0
+AnexoD DetalleAnexo varchar 150 0 0
+AnexoM IdIdioma smallint 2 0 0
+AnexoM IdAnexo decimal 9 0 0
+AnexoM DescAnexo varchar 50 0 0
+Ayuda id smallint 2 0 0
+Ayuda Descripcion varchar 50 0 0
+Ayuda Ayuda text 16 1 0
+Bitacora idBitacora decimal 9 0 1
+Bitacora IdEtapa smallint 2 1 0
+Bitacora NumeroTarjeta varchar 25 1 0
+Bitacora Monto decimal 9 1 0
+Bitacora IdPedido decimal 9 1 0
+Bitacora Fecha datetime 8 1 0
+Bitacora Comentario varchar 500 1 0
+Bitacora userid int 4 1 0
+Bitacora username varchar 50 1 0
+BitacoraC IdBitacoraC decimal 9 0 0
+BitacoraC IdStatus int 4 0 0
+BitacoraC IdCotizacion decimal 9 0 0
+BitacoraC Fecha datetime 8 0 0
+BitacoraC Comentario varchar 1000 1 0
+BitacoraCli IdBitacoraCli decimal 9 0 0
+BitacoraCli IdStatus int 4 0 0
+BitacoraCli IdClientec varchar 6 0 0
+BitacoraCli Fecha datetime 8 0 0
+BitacoraCli Comentario varchar 1000 1 0
+BitacoraCli IdCliente varchar 6 1 0
+Caracteristica IdCaracteristica varchar 10 0 0
+Caracteristica IdTipoCaracteristica int 4 0 0
+Caracteristica Descripcion varchar 40 1 0
+Caracteristica ididioma smallint 2 0 0
+Caracteristica Orden smallint 2 1 0
+CaractProducto IdCaracteristica varchar 10 0 0
+CaractProducto IdTipoCaracteristica int 4 0 0
+CaractProducto Ididioma smallint 2 0 0
+CaractProducto IdProducto varchar 20 0 0
+Carrito IdCliente varchar 6 0 0
+Carrito Renglon smallint 2 0 0
+Carrito IdProducto varchar 20 0 0
+Carrito FechaCarrito datetime 8 1 0
+Carrito Cantidad int 4 1 0
+carritoCaract IdCliente varchar 6 0 0
+carritoCaract IdProducto varchar 20 0 0
+carritoCaract REnglon smallint 2 0 0
+carritoCaract IdCaracteristica varchar 10 0 0
+carritoCaract IdTipoCaracteristica int 4 0 0
+carritoCaract ididioma smallint 2 0 0
+CartLabels CartLabelID int 4 0 1
+CartLabels Country_ID int 4 1 0
+CartLabels Country_Label varchar 50 1 0
+CartLabels Label_1 varchar 50 1 0
+CartLabels Label_2 varchar 50 1 0
+CartLabels Label_3 varchar 50 1 0
+CartLabels Label_1_Ext_1 varchar 50 1 0
+CartLabels Label_1_Ext_2 varchar 50 1 0
+CartLabels Label_2_Ext varchar 50 1 0
+CartLabels Label_3_Ext varchar 50 1 0
+CategoriaCte IdCategoriaCte varchar 3 0 0
+CategoriaCte Descripcion varchar 50 0 0
+CategoriaCte ganancia smallint 2 1 0
+CategoriaCte DescuentoGeneral smallint 2 1 0
+CategoriaCte UsaLista bit 1 1 0
+CategoriaProd IdIdioma smallint 2 0 0
+CategoriaProd IdCategoria varchar 10 0 0
+CategoriaProd Descripcion varchar 60 1 0
+CategoriaProd DescLarga varchar 1000 1 0
+CategoriaProd Imagen varchar 40 1 0
+CategoriaProd ECubicaje varchar 100 1 0
+CategoriaProd Catentabla bit 1 0 0
+CategoriaProd numproductos int 4 0 0
+CategoriaProd Prodentabla bit 1 0 0
+CategoriaProd Concantidad bit 1 0 0
+CategoriaProd Editable bit 1 0 0
+class name varchar 50 1 0
+class roll_no int 4 1 0
+class age int 4 1 0
+class department varchar 50 1 0
+class subject varchar -1 1 0
+client_engineer IdClient varchar 6 0 0
+client_engineer Engineer varchar 30 1 0
+client_engineer LogDate datetime 8 0 0
+client_updates idcliente varchar 6 0 0
+client_updates countryIdzona int 4 1 0
+client_updates paiscountry varchar 6 1 0
+client_updates tax_id int 4 1 0
+Cliente IdCategoriaCte varchar 3 0 0
+Cliente IdCliente varchar 6 0 0
+Cliente IdDistribuidor varchar 6 1 0
+Cliente RazonSocial varchar 100 0 0
+Cliente Paterno varchar 30 1 0
+Cliente Materno varchar 30 1 0
+Cliente RegFedCont varchar 25 0 0
+Cliente Tel1 varchar 15 0 0
+Cliente PersonaFisMor varchar 1 0 0
+Cliente Email varchar 60 0 0
+Cliente Fax varchar 15 0 0
+Cliente Contacto varchar 40 1 0
+Cliente IdUsuario smallint 2 0 0
+Cliente Login varchar 14 1 0
+Cliente Password varchar 10 0 0
+Cliente LoginIP varchar 20 1 0
+Cliente FechaBitacora datetime 8 0 0
+Cliente FechaRegistro datetime 8 0 0
+Cliente Distribuidor decimal 9 1 0
+Cliente Consulta decimal 9 1 0
+Cliente Idzona int 4 1 0
+Cliente Logotipo varchar -1 1 0
+Cliente IdMoneda smallint 2 1 0
+Cliente Active bit 1 0 0
+Cliente AdminIPExempt bit 1 0 0
+Cliente EmailActive int 4 1 0
+Cliente PaisCountry varchar 6 1 0
+Cliente tax_id int 4 1 0
+Cliente businessLogo varchar -1 1 0
+Cliente lattitude varchar -1 1 0
+Cliente longitude varchar -1 1 0
+Cliente_Temp IdCategoriaCte varchar 3 0 0
+Cliente_Temp IdCliente varchar 6 0 0
+Cliente_Temp IdDistribuidor varchar 6 1 0
+Cliente_Temp RazonSocial varchar 100 0 0
+Cliente_Temp Paterno varchar 30 1 0
+Cliente_Temp Materno varchar 30 1 0
+Cliente_Temp RegFedCont varchar 25 0 0
+Cliente_Temp Tel1 varchar 15 0 0
+Cliente_Temp PersonaFisMor varchar 1 0 0
+Cliente_Temp Email varchar 60 0 0
+Cliente_Temp Fax varchar 15 0 0
+Cliente_Temp Contacto varchar 40 1 0
+Cliente_Temp IdUsuario smallint 2 0 0
+Cliente_Temp Login varchar 14 1 0
+Cliente_Temp Password varchar 10 0 0
+Cliente_Temp LoginIP varchar 20 1 0
+Cliente_Temp Active smallint 2 1 0
+Cliente_Temp FechaBitacora datetime 8 0 0
+Cliente_Temp FechaRegistro datetime 8 0 0
+Cliente_Temp Distribuidor decimal 9 1 0
+Cliente_Temp Consulta decimal 9 1 0
+Cliente_Temp Idzona int 4 1 0
+Cliente_Temp Logotipo varchar 20 1 0
+Cliente_Temp IdMoneda smallint 2 1 0
+Cliente_tm IdCategoriaCte varchar 3 0 0
+Cliente_tm IdCliente varchar 6 0 0
+Cliente_tm IdDistribuidor varchar 6 1 0
+Cliente_tm RazonSocial varchar 100 0 0
+Cliente_tm Paterno varchar 30 1 0
+Cliente_tm Materno varchar 30 1 0
+Cliente_tm RegFedCont varchar 25 0 0
+Cliente_tm Tel1 varchar 15 0 0
+Cliente_tm PersonaFisMor varchar 1 0 0
+Cliente_tm Email varchar 60 0 0
+Cliente_tm Fax varchar 15 0 0
+Cliente_tm Contacto varchar 40 1 0
+Cliente_tm IdUsuario smallint 2 0 0
+Cliente_tm Login varchar 14 1 0
+Cliente_tm Password varchar 10 0 0
+Cliente_tm LoginIP varchar 20 1 0
+Cliente_tm FechaBitacora datetime 8 0 0
+Cliente_tm FechaRegistro datetime 8 0 0
+Cliente_tm Distribuidor decimal 9 1 0
+Cliente_tm Consulta decimal 9 1 0
+Cliente_tm Idzona int 4 1 0
+Cliente_tm Logotipo varchar -1 1 0
+Cliente_tm IdMoneda smallint 2 1 0
+Cliente_tm Active bit 1 0 0
+Cliente_tm AdminIPExempt bit 1 0 0
+Cliente_tm EmailActive int 4 1 0
+Cliente_tm PaisCountry varchar 6 1 0
+Cliente_tm tax_id int 4 1 0
+Cliente_tm businessLogo varchar -1 1 0
+Cliente_tm lattitude varchar -1 1 0
+Cliente_tm longitude varchar -1 1 0
+Clientebitacora IdCliente varchar 6 0 0
+Clientebitacora FecRegistro datetime 8 1 0
+Clientebitacora IdUsuario varchar 6 1 0
+Clientebitacora Datos text 16 1 0
+Clientebitacorad idcustomer varchar 6 1 0
+Clientebitacorad datelastaccess date 3 1 0
+Clientebitacorad datelastorder date 3 1 0
+Clientebitacorad dayslastaccess int 4 1 0
+Clientebitacorad dayslastorder int 4 1 0
+Clientebitacorad idm varchar 6 1 0
+Clientebitacorad idstatus smallint 2 1 0
+ClienteCarrito IdCliente varchar 6 1 0
+ClienteCarrito FechaCliente datetime 8 1 0
+ClienteCarrito Status int 4 1 0
+clientelog IdCliente varchar 6 0 0
+clientelog feclog datetime 8 0 0
+clientelog datoip varchar 20 0 0
+clientelog datopos int 4 0 0
+ClienteNoExiste idcliente varchar 6 1 0
+ClienteNoExiste idusuario smallint 2 1 0
+ClienteNoExiste fecregistrobaja datetime 8 1 0
+ClientePublicidad IdCliente varchar 6 0 0
+ClientePublicidad IdGiro varchar 3 0 0
+ClientePublicidad IdMedio varchar 3 0 0
+ClientePublicidad IdEmpleados varchar 3 0 0
+ClienteRespuesta IdCliente varchar 6 0 0
+ClienteRespuesta IdPregunta int 4 0 0
+ClienteRespuesta IdRespuesta int 4 1 0
+ClienteStatus idclientec varchar 6 1 0
+ClienteStatus idstatus smallint 2 1 0
+ClienteStatus fecha datetime 8 1 0
+ClienteStatus idcliente varchar 6 1 0
+ClientMail IdClient varchar 6 0 0
+ClientMail IdQuoteFollow smallint 2 1 0
+ClientMail IdNewsLetter smallint 2 1 0
+Colonia IdColonia int 4 0 0
+Colonia IdMunicipio int 4 0 0
+Colonia IdPais int 4 0 0
+Colonia IdEstado int 4 0 0
+Colonia Nombre varchar 50 1 0
+Colonia CodigoPostal varchar 25 0 0
+Colonia userNumber bigint 8 1 0
+Colonia userName varchar 100 1 0
+Colonia lastUpdation datetime 8 1 0
+Colonia active bit 1 1 0
+Componente IdProducto varchar 20 0 0
+Componente Consecutivo int 4 0 0
+Componente Descripcion varchar 100 0 0
+Componente Archivo varchar 100 0 0
+Componente Proteccion bit 1 0 0
+ComponenteD IdCliente varchar 6 0 0
+ComponenteD IdProducto varchar 20 0 0
+ComponenteD Consecutivo int 4 0 0
+ComponenteD Login varchar 20 0 0
+ComponenteD Password varchar 20 0 0
+ComponenteD Vigencia datetime 8 0 0
+Condicion IdEmpresa smallint 2 0 0
+Condicion IdCondicion smallint 2 0 0
+Condicion Descripcion text 16 1 0
+Condicion IdIdioma smallint 2 0 0
+Condicion IdUsuario smallint 2 0 0
+Condicion FechaBitacora datetime 8 0 0
+Continente IdContinente smallint 2 0 0
+Continente Descripcion varchar 20 1 0
+CotizacionCaract IdCaracteristica varchar 10 0 0
+CotizacionCaract IdTipoCaracteristica int 4 0 0
+CotizacionCaract IdProducto varchar 20 0 0
+CotizacionCaract IdCotizacion decimal 9 0 0
+CotizacionCaract IdIdioma smallint 2 0 0
+CotizacionCaract Renglon smallint 2 0 0
+cotizacioncriterio idcotizacion decimal 9 1 0
+cotizacioncriterio idverdescuento smallint 2 1 0
+cotizacioncriterio idverdescripcion smallint 2 1 0
+cotizacioncriterio idverclave smallint 2 1 0
+cotizacioncriterio idverfoto smallint 2 1 0
+cotizacioncriterio idvernombre smallint 2 1 0
+cotizacioncriterio idverliga smallint 2 1 0
+CotizacionD IdCotizacion decimal 9 0 0
+CotizacionD Renglon smallint 2 0 0
+CotizacionD IdProducto varchar 20 0 0
+CotizacionD IdIdioma int 4 1 0
+CotizacionD Cantidad decimal 9 1 0
+CotizacionD PrecioUnitLP decimal 9 1 0
+CotizacionD PrecioUnitMod decimal 9 1 0
+CotizacionD Descuento decimal 5 1 0
+CotizacionD Impuesto decimal 9 1 0
+CotizacionD IdStatus smallint 2 1 0
+CotizacionD IdUsuario smallint 2 1 0
+CotizacionD FechaBitacora datetime 8 1 0
+CotizacionD Editable bit 1 1 0
+CotizacionGastosEnvio IdCotizacion decimal 9 0 0
+CotizacionGastosEnvio IdGastosEnvio decimal 9 0 0
+CotizacionGastosEnvio GastosEnvio float 8 1 0
+CotizacionGastosEnvio ImGastosEnvio decimal 9 1 0
+CotizacionM IdCotizacion decimal 9 0 0
+CotizacionM IdStatus int 4 0 0
+CotizacionM IdIdioma smallint 2 1 0
+CotizacionM IdCliente varchar 6 1 0
+CotizacionM IdDistribuidor varchar 6 1 0
+CotizacionM IdVendedor varchar 6 1 0
+CotizacionM FechaCotizacion datetime 8 1 0
+CotizacionM FechaVigencia datetime 8 1 0
+CotizacionM IdUsuario smallint 2 1 0
+CotizacionM FechaBitacora datetime 8 1 0
+CotizacionM IdMoneda smallint 2 1 0
+CotizacionM Fact decimal 9 1 0
+CotizacionM Importe decimal 9 1 0
+CotizacionM Descuento decimal 9 1 0
+CotizacionM GE decimal 9 1 0
+CotizacionM SE decimal 9 1 0
+CotizacionM Impuesto decimal 9 1 0
+CotizacionM Total decimal 9 1 0
+CotizacionM SecondQuoteSigner varchar 6 1 0
+CotizacionM UniqueKey varchar 15 1 0
+CotizacionPedido IdCotizacion decimal 9 0 0
+CotizacionPedido IdPedido decimal 9 0 0
+CotizacionPedido IdCliente varchar 6 0 0
+CotizacionPromocion IdCotizacion decimal 9 0 0
+CotizacionPromocion Idproducto varchar 20 1 0
+CotizacionPromocion Consecutivo int 4 0 0
+CotizacionPromocion Idtipopromo int 4 0 0
+CotizacionPromocion Descripcion varchar 50 0 0
+CotizacionSeguroE IdCotizacion decimal 9 0 0
+CotizacionSeguroE SeguroEnvio int 4 1 0
+CotizacionSeguroE CostoSeguroEnvio decimal 9 1 0
+CotizacionSeguroE ImCostoSeguroEnvio decimal 9 1 0
+CuentasBanco IdCuenta char 10 0 0
+CuentasBanco IdEmpresa smallint 2 0 0
+CuentasBanco NumeroCuenta varchar 25 1 0
+CuentasBanco NombreBanco varchar 25 1 0
+CuentasBanco Sucursal varchar 50 1 0
+CuentasBanco PropietarioCuenta varchar 50 1 0
+CuentasBanco MostrarCuenta bit 1 0 0
+customTaxDropdown id int 4 0 1
+customTaxDropdown country_id int 4 0 0
+customTaxDropdown customDropdown_id int 4 1 0
+customTaxDropdown dropdownNames varchar -1 1 0
+customTaxDropdown dropdownValues varchar -1 1 0
+customTaxDropdown dropdownValues_id int 4 0 0
+customTaxDropdown activeStatus bit 1 0 0
+customTaxDropdown businessType varchar 50 0 0
+customTaxDropdown updated_date datetime 8 0 0
+customTaxDropdown updated_by varchar -1 0 0
+customTaxDropdown created_date datetime 8 0 0
+customTaxDropdowns id int 4 0 1
+customTaxDropdowns country_id int 4 0 0
+customTaxDropdowns dropdownNames varchar -1 1 0
+customTaxDropdowns dropdownValues varchar -1 1 0
+customTaxDropdowns updated_date datetime 8 0 0
+customTaxDropdowns updated_by varchar -1 0 0
+customTaxDropdowns created_date datetime 8 0 0
+deletedInvoice idpedido varchar 50 1 0
+deletedInvoice paymentDate datetime 8 0 0
+deletedInvoice amountPaid varchar 50 1 0
+deletedInvoice paymentType varchar 50 1 0
+deletedInvoice paymentNotes varchar 50 1 0
+deletedInvoice paymentInvoiceNo varchar 50 1 0
+deletedInvoice paymentPercentage varchar 50 1 0
+deletedInvoice personid varchar 50 1 0
+deletedInvoice invoicePDF varchar 200 1 0
+deletedInvoice invoiceXML varchar 200 1 0
+deletedInvoice saveUrl varchar 200 1 0
+deletedInvoice cancelUrl varchar 200 1 0
+deletedInvoice preInvoice varchar 200 1 0
+deletedInvoice acrId int 4 1 0
+Domicilio IdTipoDomicilio int 4 0 0
+Domicilio IdCliente varchar 6 0 0
+Domicilio NombreRecibe varchar 60 0 0
+Domicilio IdColonia int 4 0 0
+Domicilio Calle varchar 100 0 0
+Domicilio NumeroExt varchar 10 1 0
+Domicilio NumeroInt varchar 10 1 0
+Domicilio Tel1 varchar 15 1 0
+Domicilio IdUsuario smallint 2 0 0
+Domicilio FechaBitacora datetime 8 0 0
+dtproperties id int 4 0 1
+dtproperties objectid int 4 1 0
+dtproperties property varchar 64 0 0
+dtproperties value varchar 255 1 0
+dtproperties uvalue nvarchar 510 1 0
+dtproperties lvalue image 16 1 0
+dtproperties version int 4 0 0
+dupliate_cliente IdCategoriaCte varchar 3 0 0
+dupliate_cliente IdCliente varchar 6 0 0
+dupliate_cliente IdDistribuidor varchar 6 1 0
+dupliate_cliente RazonSocial varchar 100 0 0
+dupliate_cliente Paterno varchar 30 1 0
+dupliate_cliente Materno varchar 30 1 0
+dupliate_cliente RegFedCont varchar 25 0 0
+dupliate_cliente Tel1 varchar 15 0 0
+dupliate_cliente PersonaFisMor varchar 1 0 0
+dupliate_cliente Email varchar 60 0 0
+dupliate_cliente Fax varchar 15 0 0
+dupliate_cliente Contacto varchar 40 1 0
+dupliate_cliente IdUsuario smallint 2 0 0
+dupliate_cliente Login varchar 14 1 0
+dupliate_cliente Password varchar 10 0 0
+dupliate_cliente LoginIP varchar 20 1 0
+dupliate_cliente FechaBitacora datetime 8 0 0
+dupliate_cliente FechaRegistro datetime 8 0 0
+dupliate_cliente Distribuidor decimal 9 1 0
+dupliate_cliente Consulta decimal 9 1 0
+dupliate_cliente Idzona int 4 1 0
+dupliate_cliente Logotipo varchar -1 1 0
+dupliate_cliente IdMoneda smallint 2 1 0
+dupliate_cliente Active bit 1 0 0
+dupliate_cliente AdminIPExempt bit 1 0 0
+dupliate_cliente EmailActive int 4 1 0
+dupliate_cliente PaisCountry varchar 6 1 0
+dupliate_cliente tax_id int 4 1 0
+dupliate_cliente businessLogo varchar -1 1 0
+dupliate_cliente lattitude varchar -1 1 0
+dupliate_cliente longitude varchar -1 1 0
+EmailParameters email_parameter_id int 4 0 1
+EmailParameters user_id int 4 1 0
+EmailParameters date_created datetime 8 1 0
+EmailParameters start_date_range datetime 8 1 0
+EmailParameters end_date_range datetime 8 1 0
+EmailParameters subject varchar -1 1 0
+EmailParameters message varchar -1 1 0
+EmailParameters email_from varchar 255 1 0
+EmailParameters email_cc varchar 255 1 0
+EmailParameters process_started int 4 1 0
+EmailParameters process_completed int 4 1 0
+EmailParameters process_stopped int 4 1 0
+EmailParameters process_start_time datetime 8 1 0
+EmailParameters process_end_time datetime 8 1 0
+EmailParameters unique_code varchar 64 1 0
+EmailParameters search_type int 4 1 0
+EmailParameters type_2_pais int 4 1 0
+EmailParameters type_2_estado int 4 1 0
+EmailParameters type_2_giro varchar 64 1 0
+EmailParameters type_2_tamano varchar 64 1 0
+EmailParameters type_2_medio varchar 64 1 0
+EmailParameters type_2_categoria varchar 64 1 0
+EmailParameters type_3_mdistribuidor varchar 64 1 0
+EmailParameters type_3_distribuidor varchar 64 1 0
+EmailParameters type_3_vendedor varchar 64 1 0
+EmailParameters type_3_cliente varchar 64 1 0
+EmailParameters type_1_option varchar 64 1 0
+EmailParameters dato_entered varchar -1 1 0
+EmailParameters date_begin_processing datetime 8 1 0
+EmailParameters promotion_type int 4 1 0
+EmailParameters invitation_type int 4 1 0
+EmailParameters active int 4 1 0
+EmailParameters last_user_completed varchar 6 1 0
+EmailParameters hidden int 4 1 0
+Empresa IdEmpresa smallint 2 0 0
+Empresa RazonSocial varchar 60 1 0
+Empresa Domicilio1 varchar 60 1 0
+Empresa Domicilio2 varchar 60 1 0
+Empresa CP varchar 5 1 0
+Empresa RFC varchar 15 1 0
+Empresa Tel1 varchar 15 1 0
+Empresa Tel2 varchar 15 1 0
+Empresa Fax varchar 15 1 0
+Empresa RutaUpload varchar 100 1 0
+Empresa Email varchar 60 1 0
+Empresa IdUsuario smallint 2 0 0
+Empresa FechaBitacora datetime 8 0 0
+Empresa Catalogo varchar 1 1 0
+Empresa PPrecio smallint 2 1 0
+Empresa MostrarCuenta smallint 2 1 0
+Empresa Catentabla bit 1 0 0
+Empresa numproductos int 4 0 0
+Empresa Prodentabla bit 1 0 0
+Empresa Concantidad bit 1 0 0
+Empresa MiniImagen bit 1 0 0
+Empresa CategoriaEntrada bit 1 0 0
+Empresa Comentarioproducto bit 1 1 0
+Empresa solicitudejemplar bit 1 1 0
+Empresa IdMoneda smallint 2 1 0
+Empresa CampoAdicional bit 1 0 0
+Empresa OverImagen bit 1 1 0
+Estado IdPais int 4 0 0
+Estado IdEstado int 4 0 0
+Estado Descripcion varchar 50 0 0
+Estado Abreviatura varchar 5 1 0
+Estado Lada decimal 5 1 0
+Estado GastoEnvio decimal 9 1 0
+Estado latitude float 8 1 0
+Estado longitude float 8 1 0
+Estado population bigint 8 1 0
+Estado userNumber nchar 20 1 0
+Estado userName varchar 50 1 0
+Estado lastUpdation datetime 8 1 0
+Estado Activo smallint 2 1 0
+Etapa IdEtapa smallint 2 0 0
+Etapa Descripcion varchar 120 1 0
+Example id int 4 0 1
+Example name varchar 50 1 0
+Foo i char 1 1 0
+FormaPago IdCategoria varchar 10 0 0
+FormaPago IdFormaPago varchar 10 0 0
+FormaPago DescFormaPago varchar 50 0 0
+FormaPago Imagen varchar 40 1 0
+FormaPago TipoCaptura varchar 1 1 0
+FormaPago Textos varchar 30 1 0
+GastosEnvio IdGastosEnvio decimal 9 0 0
+GastosEnvio Ididioma smallint 2 0 0
+GastosEnvio Descripcion varchar 50 1 0
+GastosEnvio idimpuesto int 4 1 0
+GastosEnvio Imagen varchar 40 1 0
+GastosEnvioD IdCategoria varchar 10 0 0
+GastosEnvioD IdGastosEnvio decimal 9 0 0
+GastosEnvioReferencia IdGastosEnvio decimal 9 0 0
+GastosEnvioReferencia IdIdioma smallint 2 0 0
+GastosEnvioReferencia IdTipoGastosEnvio smallint 2 1 0
+GastosEnvioReferencia Costo decimal 9 0 0
+GastosEnvioReferencia Variacion smallint 2 0 0
+GastosEnvioReferencia LimiteI decimal 9 1 0
+GastosEnvioReferencia LimiteS decimal 9 0 0
+GastosEnvioReferencia Adicional decimal 9 1 0
+Idioma IdIdioma smallint 2 0 0
+Idioma Descripcion varchar 30 1 0
+Idioma ecubicaje varchar 100 1 0
+Idioma Peso varchar 20 1 0
+Impuesto IdImpuesto int 4 0 0
+Impuesto Descripcion varchar 40 1 0
+ImpuestoMatris IdImpuesto int 4 0 0
+ImpuestoMatris IdZona int 4 0 0
+ImpuestoMatris Porcentaje float 8 0 0
+ImpuestoMatris userNumber nchar 100 1 0
+ImpuestoMatris userName varchar 50 1 0
+ImpuestoMatris lastUpdation datetime 8 1 0
+inventorylog idwarehouse int 4 1 0
+inventorylog idcountry int 4 1 0
+inventorylog idproduct nvarchar 100 1 0
+inventorylog zone varchar 50 1 0
+inventorylog asile varchar 50 1 0
+inventorylog shelfnumber varchar 50 1 0
+inventorylog location int 4 1 0
+inventorylog minimum int 4 1 0
+inventorylog maximum int 4 1 0
+inventorylog instock int 4 1 0
+inventorylog transit int 4 1 0
+inventorylog totalstock int 4 1 0
+inventorylog backorder int 4 1 0
+inventorylog userid int 4 1 0
+inventorylog lastupdate datetime 8 1 0
+inventorylog rack varchar 50 1 0
+inventorylog bin varchar 50 1 0
+inventorylog previousreorderpoint int 4 1 0
+inventorylog reorderpoint int 4 1 0
+inventorylog previouszone varchar 50 1 0
+inventorylog previousasile varchar 50 1 0
+inventorylog previousshelfnumber varchar 50 1 0
+inventorylog previouslocation int 4 1 0
+inventorylog previousminimum int 4 1 0
+inventorylog previousmaximum int 4 1 0
+inventorylog previousinstock int 4 1 0
+inventorylog previoustransit int 4 1 0
+inventorylog previousrack varchar 50 1 0
+inventorylog previousbin varchar 50 1 0
+inventorylog previoustotalstock int 4 1 0
+inventorylog familyline varchar 10 1 0
+inventorylog productline varchar 10 1 0
+inventorylog Repair int 4 0 0
+inventorylog Borrowed int 4 0 0
+inventorylog Damaged int 4 0 0
+inventorylog Previousrepair int 4 0 0
+inventorylog Previousborrowed int 4 0 0
+inventorylog Previousdamaged int 4 0 0
+inventorystocktransit Id int 4 0 1
+inventorystocktransit productid varchar 30 1 0
+inventorystocktransit transit int 4 1 0
+inventorystocktransit repair int 4 1 0
+inventorystocktransit borrowed int 4 1 0
+inventorystocktransit damaged int 4 1 0
+inventorystocktransit modificationdatetime datetime 8 1 0
+inventorystocktransit idwarehouse int 4 1 0
+inventorystocktransit totalstock int 4 1 0
+Invitaciones IdInvitacion decimal 9 0 0
+Invitaciones IdPromocion decimal 9 0 0
+Invitaciones FecEnvio datetime 8 0 0
+Invitaciones QuienEnvia varchar 60 0 0
+Invitaciones Tema varchar 100 0 0
+Invitaciones Comentario text 16 0 0
+ip_status id int 4 0 1
+ip_status ipAddress nchar 100 0 0
+ip_status idcliente varchar 6 1 0
+ip_status blackList bit 1 0 0
+ip_status whiteList bit 1 0 0
+ip_status rangeStatus bit 1 1 0
+ip_status idDistributor varchar 6 1 0
+ip_status disabledById varchar 50 1 0
+ip_status disabledByName varchar 255 1 0
+ip_status lastUpdated datetime 8 1 0
+lastUpdationProductView country_id int 4 1 0
+lastUpdationProductView market_id int 4 1 0
+lastUpdationProductView family_code char 5 1 0
+lastUpdationProductView product_code varchar 15 1 0
+lastUpdationProductView user_name varchar 100 1 0
+lastUpdationProductView user_number int 4 1 0
+lastUpdationProductView last_updation datetime 8 1 0
+ListaimpresaD IdCliente varchar 6 0 0
+ListaimpresaD IdLista decimal 9 0 0
+ListaimpresaD IdCategoria varchar 10 0 0
+ListaimpresaD IdSubCat varchar 10 0 0
+ListaimpresaD IdSubSubCat varchar 10 0 0
+ListaimpresaM IdCliente varchar 6 0 0
+ListaimpresaM IdLista decimal 9 0 0
+ListaimpresaM Descripcion varchar 60 0 0
+ListaimpresaM Guardar int 4 0 0
+ListaimpresaM FecLista datetime 8 0 0
+ListaPreciosCatCte IdCategoriaCte varchar 3 0 0
+ListaPreciosCatCte IdListadPrecios varchar 3 0 0
+ListaPreciosD IdListadPrecios varchar 3 0 0
+ListaPreciosD IdProducto varchar 20 0 0
+ListaPreciosD PrecioUnit decimal 9 1 0
+ListaPreciosD IdUsuario smallint 2 0 0
+ListaPreciosD FechaBitacora datetime 8 0 0
+ListaPreciosM IdListadPrecios varchar 3 0 0
+ListaPreciosM Descripcion varchar 40 0 0
+ListaPreciosM VigenciaInicial datetime 8 0 0
+ListaPreciosM VigenciaFinal datetime 8 0 0
+ListaPreciosM idlistapreciosorigen varchar 3 1 0
+ListaPreciosM IdUsuario smallint 2 0 0
+ListaPreciosM FechaBitacora datetime 8 0 0
+ListaPreciosM Autorizacion int 4 1 0
+logForUrlHits idLog int 4 0 1
+logForUrlHits IpAddress nvarchar 100 1 0
+logForUrlHits dateTime datetime 8 0 0
+logging_Url_Hits id int 4 0 1
+logging_Url_Hits date_time datetime 8 0 0
+logging_Url_Hits ipAddress nchar 100 0 0
+logging_Url_Hits logged_in int 4 0 0
+logging_Url_Hits botDetection varchar 50 0 0
+logging_Url_Hits idcliente varchar 6 1 0
+logging_Url_Hits idDistributor varchar 6 1 0
+logging_Url_Hits url_Hit varchar -1 0 0
+logging_Url_Hits is_disabled bit 1 0 0
+logging_Url_Hits client_no varchar 6 1 0
+logging_Url_Hits client_name varchar 255 1 0
+marketHistory ID int 4 0 1
+marketHistory historyCountryID int 4 1 0
+marketHistory historycountrypriceA varchar 50 1 0
+marketHistory historycountrypriceB varchar 50 1 0
+marketHistory historycountrypriceC varchar 50 1 0
+marketHistory historycountrypriceD varchar 50 1 0
+marketHistory historycountrypriceE varchar 50 1 0
+marketHistory historywithouttax varchar 50 1 0
+marketHistory historytotaltax varchar 50 1 0
+marketHistory historyrealcost varchar 50 1 0
+marketHistory historygrossprofit float 8 1 0
+marketHistory historyordernumber varchar 50 0 0
+marketHistory lastupdatetime datetime 8 0 0
+marketHistory historyrequest varchar 50 1 0
+marketHistory marketplaceid varchar 50 1 0
+marketHistory marketplaceComments varchar 100 1 0
+marketHistory ispaid bit 1 0 0
+marketHistory groupClass varchar 50 1 0
+marketHistory productId varchar 50 1 0
+marketHistory historygrossprofitpercent varchar 50 1 0
+marketplace marketplaceid int 4 0 1
+marketplace countryID int 4 0 0
+marketplace marketplacename nvarchar 100 1 0
+marketplace marketplacelogo nvarchar 100 1 0
+marketplace userid nchar 20 1 0
+marketplace lastupdate datetime 8 0 0
+marketplace isactive bit 1 0 0
+marketplace marketplaceorder varchar 50 1 0
+marketplace totalwithtax varchar 50 1 0
+marketplace totalwithouttax varchar 50 1 0
+marketplace totalrealcost varchar 50 1 0
+marketplace marketpriceadder varchar 50 1 0
+marketplace shippingcostadd varchar 50 1 0
+marketplace shippingcostsub varchar 50 1 0
+marketplace commisionsub varchar 50 1 0
+marketplace additionalshipping varchar 50 1 0
+marketplace grossprofit varchar 50 1 0
+marketprice marketcountryid int 4 1 0
+marketprice Id int 4 0 1
+marketprice marketcountrypriceA varchar 50 1 0
+marketprice marketcountrypriceB varchar 50 1 0
+marketprice marketcountrypriceC varchar 50 1 0
+marketprice marketcountrypriceD varchar 50 1 0
+marketprice marketcountrypriceE varchar 50 1 0
+marketprice marketID int 4 1 0
+marketprice markettotaltax varchar 50 1 0
+marketprice marketwithouttax varchar 50 1 0
+marketprice marketrealcost varchar 50 1 0
+marketprice marketgrossprofit varchar 50 1 0
+marketprice datetime datetime 8 1 0
+MasterDiscount MasterDiscount decimal 5 0 0
+Moneda IdMoneda smallint 2 0 0
+Moneda Clave varchar 5 1 0
+Moneda Descripcion varchar 40 1 0
+Municipio IdPais int 4 0 0
+Municipio IdEstado int 4 0 0
+Municipio IdMunicipio int 4 0 0
+Municipio Descripcion varchar 50 0 0
+Municipio Rango2 varchar 5 1 0
+Municipio Rango1 varchar 5 1 0
+newTaxTable country_id int 4 1 0
+newTaxTable state_id int 4 1 0
+newTaxTable idzona int 4 1 0
+newTaxTable IdImpuesto int 4 1 0
+newTaxTable tax_name varchar 50 1 0
+newTaxTable tax_abbrevation varchar 50 1 0
+newTaxTable tax_percentage float 8 1 0
+newTaxTable user_number bigint 8 1 0
+newTaxTable user_name varchar 100 1 0
+newTaxTable last_update datetime 8 1 0
+newTaxTable tax_id int 4 0 1
+newTaxTable active bit 1 1 0
+newTaxTable2 country_id int 4 1 0
+newTaxTable2 state_id int 4 1 0
+newTaxTable2 tax_name varchar 50 1 0
+newTaxTable2 tax_abbrevation varchar 50 1 0
+newTaxTable2 tax_percentage float 8 1 0
+newTaxTable2 user_number bigint 8 1 0
+newTaxTable2 user_name varchar 100 1 0
+newTaxTable2 last_update datetime 8 1 0
+newTaxTable2 tax_id int 4 0 1
+newTaxTable2 active bit 1 1 0
+newZipcodeTable id int 4 0 1
+newZipcodeTable country int 4 1 0
+newZipcodeTable states int 4 1 0
+newZipcodeTable zipcode varchar 255 1 0
+newZipcodeTable city varchar 50 1 0
+newZipcodeTable county varchar 50 1 0
+newZipcodeTable colony varchar 255 1 0
+newZipcodeTable userid int 4 1 0
+newZipcodeTable username varchar 255 1 0
+newZipcodeTable lastupdation datetime 8 1 0
+newZipcodeTable active int 4 1 0
+NotaCliente IdCliente varchar 6 0 0
+NotaCliente Orden int 4 0 0
+NotaCliente IdIdioma int 4 0 0
+NotaCliente Titulo varchar 150 1 0
+NotaCliente Comentario text 16 1 0
+NotaCliente Status bit 1 1 0
+NotaCliente Editable bit 1 1 0
+NotaCotizacion IdCotizacion varchar 6 0 0
+NotaCotizacion Orden int 4 0 0
+NotaCotizacion Titulo varchar 150 1 0
+NotaCotizacion Comentario text 16 1 0
+Notacotizacionhistorial IdCotizacion varchar 6 0 0
+Notacotizacionhistorial Orden int 4 0 0
+Notacotizacionhistorial Titulo varchar 150 1 0
+Notacotizacionhistorial Comentario text 16 1 0
+NotaCotizacionTemp IdCotizacion varchar 6 0 0
+NotaCotizacionTemp Orden int 4 0 0
+NotaCotizacionTemp Titulo varchar 150 1 0
+NotaCotizacionTemp Comentario text 16 1 0
+NotaPedido IdPedido varchar 6 0 0
+NotaPedido Orden int 4 0 0
+NotaPedido Titulo varchar 150 1 0
+NotaPedido Comentario text 16 1 0
+Nuevo idproducto varchar 20 0 0
+Nuevo Fecha char 10 0 0
+pagetracking tracking_id int 4 0 1
+pagetracking ip_address varchar 255 1 0
+pagetracking date_added datetime 8 1 0
+pagetracking page_requested varchar -1 1 0
+pagetracking query_string varchar -1 1 0
+pagetracking browser varchar -1 1 0
+pagetracking session_info varchar -1 1 0
+Pais IdContinente smallint 2 1 0
+Pais IdIdioma int 4 0 0
+Pais IdPais int 4 0 0
+Pais Descripcion varchar 50 0 0
+Pais CE bit 1 0 0
+Pais Espanol int 4 1 0
+Pais shortcode varchar 10 1 0
+Pais animatedflag varchar 50 1 0
+Pais latitude varchar 50 1 0
+Pais longitude varchar 50 1 0
+Pais nstates varchar 50 1 0
+Pais staticflag varchar 50 1 0
+Pais activestore bit 1 0 0
+Pais activemenu bit 1 0 0
+Pais isdelete bit 1 0 0
+Pais userId int 4 1 0
+Pais userName varchar 255 1 0
+Pais lastUpdation datetime 8 1 0
+PedidoCambioStatus IdPedido decimal 9 0 0
+PedidoCambioStatus IdCliente varchar 6 0 0
+PedidoCambioStatus TipoCliente varchar 2 0 0
+PedidoCambioStatus CambioStatus decimal 9 0 0
+PedidoCaract IdProducto varchar 20 0 0
+PedidoCaract Renglon smallint 2 0 0
+PedidoCaract IdCaracteristica varchar 10 0 0
+PedidoCaract IdPedido decimal 9 0 0
+PedidoCaract IdTipoCaracteristica int 4 0 0
+PedidoCaract IdIdioma smallint 2 0 0
+PedidoD Renglon smallint 2 0 0
+PedidoD IdPedido decimal 9 0 0
+PedidoD IdIdioma smallint 2 1 0
+PedidoD IdProducto varchar 20 0 0
+PedidoD Cantidad int 4 1 0
+PedidoD PrecioUnit decimal 9 1 0
+PedidoD Impuesto decimal 9 1 0
+PedidoD IdStatus smallint 2 1 0
+PedidoD IdUsuario smallint 2 0 0
+PedidoD FechaBitacora datetime 8 0 0
+PedidoD pItemDiscount decimal 5 1 0
+PedidoDomTemp iddomicilio int 4 0 1
+PedidoDomTemp iordertemp int 4 1 0
+PedidoDomTemp idcolonia int 4 1 0
+PedidoFormaPago IdPedido decimal 9 0 0
+PedidoFormaPago SeguroEnvio int 4 1 0
+PedidoFormaPago CostoSeguroEnvio decimal 9 1 0
+PedidoFormaPago TipoCaptura varchar 1 1 0
+PedidoGastosEnvio IdPedido decimal 9 0 0
+PedidoGastosEnvio IdGastosEnvio decimal 9 0 0
+PedidoGastosEnvio GastosEnvio float 8 1 0
+PedidoM IdStatus smallint 2 1 0
+PedidoM IdPedido decimal 9 0 0
+PedidoM IdIdioma smallint 2 1 0
+PedidoM IdCliente varchar 6 0 0
+PedidoM IdDistribuidor varchar 6 1 0
+PedidoM Fecha datetime 8 1 0
+PedidoM IdUsuario smallint 2 0 0
+PedidoM FechaBitacora datetime 8 0 0
+PedidoM IdGastosEnvio decimal 9 1 0
+PedidoM Impuestoge int 4 1 0
+PedidoM Gastosenvio decimal 9 1 0
+PedidoM Descuento int 4 1 0
+PedidoM IdMoneda smallint 2 1 0
+PedidoM Fact decimal 9 1 0
+PedidoM FormaPago varchar 50 1 0
+PedidoM Total decimal 9 1 0
+PedidoM InvoiceFull bit 1 0 0
+PedidoM InvoicePartial bit 1 0 0
+PedidoM PreviousIdStatus smallint 2 1 0
+PedidoPromocion IdPedido decimal 9 0 0
+PedidoPromocion Idproducto varchar 20 1 0
+PedidoPromocion Consecutivo int 4 0 0
+PedidoPromocion Idtipopromo int 4 1 0
+PedidoPromocion Descripcion varchar 50 0 0
+Pregunta IdPregunta int 4 0 0
+Pregunta IdIdioma smallint 2 0 0
+Pregunta pregunta varchar 50 1 0
+Pregunta FechaInicio datetime 8 1 0
+Pregunta fechafin datetime 8 1 0
+ProdIdioma IdIdioma smallint 2 0 0
+ProdIdioma IdProducto varchar 20 0 0
+ProdIdioma IdSubSubCat varchar 10 0 0
+ProdIdioma IdSubCat varchar 10 0 0
+ProdIdioma IdCategoria varchar 10 0 0
+ProdIdioma Nombre varchar 100 1 0
+ProdIdioma Cubicaje varchar 30 1 0
+ProdIdioma Peso varchar 10 1 0
+ProdIdioma DescCorta varchar 350 1 0
+ProdIdioma Caracteristicas text 16 1 0
+ProdIdioma Liga varchar 150 1 0
+ProdIdioma Caracteristica2 text 16 1 0
+ProdIdioma Caracteristica3 text 16 1 0
+prodidioma_bkp IdIdioma smallint 2 0 0
+prodidioma_bkp IdProducto varchar 20 0 0
+prodidioma_bkp IdSubSubCat varchar 10 0 0
+prodidioma_bkp IdSubCat varchar 10 0 0
+prodidioma_bkp IdCategoria varchar 10 0 0
+prodidioma_bkp Nombre varchar 100 1 0
+prodidioma_bkp Cubicaje varchar 30 1 0
+prodidioma_bkp Peso varchar 10 1 0
+prodidioma_bkp DescCorta varchar 350 1 0
+prodidioma_bkp Caracteristicas text 16 1 0
+prodidioma_bkp Liga varchar 150 1 0
+prodidioma_bkp Caracteristica2 text 16 1 0
+prodidioma_bkp Caracteristica3 text 16 1 0
+Producto IdProveedor varchar 100 0 0
+Producto IdProducto varchar 20 0 0
+Producto Existe bit 1 1 0
+Producto Publicar bit 1 1 0
+Producto IdImpuesto int 4 0 0
+Producto Imagen varchar -1 1 0
+Producto IdUsuario smallint 2 1 0
+Producto FechaBitacora datetime 8 0 0
+Producto Anexo1 varchar 50 1 0
+productViewApproval countryId int 4 1 0
+productViewApproval familyShortCode char 5 1 0
+productViewApproval productShortCode char 5 1 0
+productViewApproval test bit 1 1 0
+productViewApproval url_Approval_countryId3_marketId33 bit 1 1 0
+productViewApproval url_Approval_countryId3_marketId48 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId36 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId6 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId59 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId5 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId29 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId37 bit 1 1 0
+productViewApproval url_Approval_countryId2_marketId32 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId4 bit 1 1 0
+productViewApproval url_Approval_countryId1_marketId42 bit 1 1 0
+productViewHeaders id int 4 1 0
+productViewHeaders test varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId3_marketId33 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId3_marketId48 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId5 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId58 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId6 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId36 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId29 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId50 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId37 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId38 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId59 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId4 varchar -1 1 0
+productViewHeaders marketplaceUrl_countryId1_marketId42 varchar -1 1 0
+Programa IdPrograma int 4 0 0
+Programa Descripcion varchar 30 1 0
+promociones IdPromocion decimal 9 0 0
+promociones Descripcion varchar 100 0 0
+promociones FecIniPro datetime 8 0 0
+promociones FecFinPro datetime 8 0 0
+promociones EnvioMail varchar 2 0 0
+promociones NoVisitas decimal 9 0 0
+promociones Obsequio varchar 100 0 0
+PromocionFijaCotizacion IdCotizacion decimal 9 0 0
+PromocionFijaCotizacion IdProducto varchar 20 0 0
+PromocionFijaCotizacion DescuentoFijo decimal 9 0 0
+PromocionFijaPedido IdPedido decimal 9 0 0
+PromocionFijaPedido IdProducto varchar 20 0 0
+PromocionFijaPedido DescuentoFijo decimal 9 0 0
+PromocionFijaProducto IdProducto varchar 20 0 0
+PromocionFijaProducto DescuentoFijo decimal 9 0 0
+PromocionFijaProducto IdUsuario smallint 2 0 0
+PromocionM IdIdioma smallint 2 0 0
+PromocionM IdPromocion decimal 9 0 0
+PromocionM IdCategoriaCte varchar 3 0 0
+PromocionM IdTipoPromo int 4 0 0
+PromocionM Descripcion varchar 40 0 0
+PromocionM Vigenciainicial datetime 8 0 0
+PromocionM VigenciaFinal datetime 8 0 0
+PromocionM Valor decimal 9 1 0
+PromocionM IdUsuario smallint 2 0 0
+PromocionM FechaBitacora datetime 8 0 0
+PromocionProd IdPromocion decimal 9 0 0
+PromocionProd IdProducto varchar 20 0 0
+PromocionProd IdIdioma smallint 2 0 0
+PromocionProd Cantidad decimal 9 0 0
+PromocionProd Cobrar smallint 2 1 0
+PromocionProd IdUsuario smallint 2 0 0
+PromocionProd FechaBitacora datetime 8 0 0
+Proveedor IdProveedor varchar 100 0 0
+Proveedor Descripcion varchar 100 0 0
+Proveedor IdCliente varchar 6 1 0
+Proveedor telmobil varchar 100 1 0
+Proveedor website varchar 100 1 0
+Proveedor skype varchar 100 1 0
+Providerd IdProvider varchar 100 0 0
+Providerd IdCountry int 4 1 0
+ProviderProduct idempresa int 4 1 0
+ProviderProduct ididioma smallint 2 1 0
+ProviderProduct idcategoria varchar 10 1 0
+ProviderProduct titcategoria varchar 100 1 0
+ProviderProduct idproveedor varchar 100 1 0
+Publicidad IdIdioma int 4 0 0
+Publicidad IdPublicidad varchar 3 0 0
+Publicidad Tipo decimal 9 0 0
+Publicidad Publicidad varchar 50 0 0
+Report ID int 4 0 1
+Report Type nvarchar 60 0 0
+Report Start datetime 8 0 0
+Report End datetime 8 0 0
+Report SamplingInterval nvarchar 20 0 0
+Report Title nvarchar 160 0 0
+Report Creation datetime 8 0 0
+Report LastRefresh datetime 8 0 0
+Report High int 4 1 0
+Report Low int 4 1 0
+Report Average int 4 1 0
+Report ZeroesBeforeHired bit 1 0 0
+Report HighColor nvarchar 12 0 0
+Report LowColor nvarchar 12 0 0
+Report AverageColor nvarchar 12 0 0
+Report TotalColor nvarchar 12 1 0
+Report SecondQuoteSigner nchar 20 1 0
+ReportClient ID int 4 0 1
+ReportClient ReportID int 4 0 0
+ReportClient IdCliente nvarchar 12 0 0
+ReportClient MonthHired smallint 2 0 0
+ReportClient Color nvarchar 12 0 0
+ReportData ID int 4 0 1
+ReportData ReportID int 4 0 0
+ReportData IdCliente nvarchar 12 0 0
+ReportData SampleNumber smallint 2 0 0
+ReportData SampleDate datetime 8 0 0
+ReportData SampleValue decimal 9 1 0
+ReportData Monthly smallint 2 0 0
+ReportData ThreeMonthly smallint 2 0 0
+ReportData FourMonthly smallint 2 0 0
+ReportData SixMonthly smallint 2 0 0
+ReportData SampleAttribute nvarchar 30 1 0
+REspuesta IdPregunta int 4 0 0
+REspuesta IdRespuesta int 4 0 0
+REspuesta IdIdioma smallint 2 0 0
+REspuesta Respuesta varchar 50 1 0
+saalert idalert int 4 0 0
+saalert descalert varchar 60 1 0
+saalert toalert varchar 250 1 0
+saalert fromalert varchar 250 1 0
+saalert subjectalert varchar 250 1 0
+saalert ccalert varchar 250 1 0
+sacotizacionseguimiento idempresa int 4 0 0
+sacotizacionseguimiento ididioma smallint 2 0 0
+sacotizacionseguimiento idcotseguimiento int 4 0 0
+sacotizacionseguimiento idstatuscotizacion int 4 0 0
+sacotizacionseguimiento idpersonafismor varchar 1 0 0
+sacotizacionseguimiento fecregistrocotseguimiento datetime 8 0 0
+sacotizacionseguimiento diascotseguimiento smallint 2 1 0
+sacotizacionseguimiento idemailfromcotseguimiento smallint 2 1 0
+sacotizacionseguimiento emailfromcotseguimiento varchar 100 1 0
+sacotizacionseguimiento asuntocotseguimiento varchar 150 1 0
+sacotizacionseguimiento cocotseguimiento varchar 250 1 0
+sacotizacionseguimiento titcotseguimiento varchar 150 1 0
+sacotizacionseguimiento logocotseguimiento smallint 2 1 0
+sacotizacionseguimiento feccotseguimiento smallint 2 1 0
+sacotizacionseguimiento saludocotseguimiento varchar 250 1 0
+sacotizacionseguimiento botoncancotseguimiento smallint 2 1 0
+sacotizacionseguimiento botonguacotseguimiento smallint 2 1 0
+sacotizacionseguimiento botoncomcotseguimiento smallint 2 1 0
+sacotizacionseguimiento idnotascotseguimiento smallint 2 1 0
+sacotizacionseguimiento notascotseguimiento varchar 1000 1 0
+sacotizacionseguimiento cuerpocotseguimiento varchar 1000 1 0
+sacotizacionseguimiento despedidacotseguimiento varchar 1000 1 0
+sacotizacionseguimiento cuerpo2cotseguimiento varchar 1000 1 0
+sacotizacionseguimiento idusuario int 4 0 0
+sacotizacionseguimientobitacora idempresa int 4 0 0
+sacotizacionseguimientobitacora ididioma smallint 2 0 0
+sacotizacionseguimientobitacora idcotseguimiento int 4 0 0
+sacotizacionseguimientobitacora idcotizacion int 4 0 0
+sacotizacionseguimientobitacora idcotseguimientoregistro int 4 0 1
+sacotizacionseguimientobitacora idstatuscotizacion int 4 0 0
+sacotizacionseguimientobitacora fecstatuscotizacionregistro datetime 8 0 0
+sacotizacionseguimientobitacora fecstatuscotizacionenvio datetime 8 0 0
+sacotizacionseguimientobitacora idstatusmailcotizacion int 4 0 0
+sacotizacionseguimientobitacora idstatuscotseguimiento smallint 2 1 0
+sacotizacionseguimientod idempresa int 4 0 0
+sacotizacionseguimientod ididioma smallint 2 0 0
+sacotizacionseguimientod idcotseguimiento int 4 0 0
+sacotizacionseguimientod idcotizacion int 4 0 0
+sacotizacionseguimientod idstatuscotizacion int 4 0 0
+sacotizacionseguimientod fecstatuscotizacionenvio datetime 8 0 0
+sacotizacionseguimientod idstatusmailcotizacion int 4 0 0
+sacotizacionseguimientod idstatuscotseguimiento smallint 2 1 0
+sacotizacionseguimientoperfil idempresa int 4 0 0
+sacotizacionseguimientoperfil ididioma smallint 2 0 0
+sacotizacionseguimientoperfil idcotseguimiento int 4 0 0
+sacotizacionseguimientoperfil idusuarioperfil smallint 2 0 0
+sacross idcountry int 4 1 0
+sacross idfamily varchar 10 1 0
+sacross idline varchar 50 1 0
+sacross idstatus smallint 2 1 0
+saeanproduct ideanfile int 4 0 0
+saeanproduct idsec int 4 0 0
+saeanproduct idproduct varchar 30 0 0
+saeanproduct idean varchar 20 0 0
+saeanproduct statusean smallint 2 1 0
+saEmailToFriendCounter id int 4 0 1
+saEmailToFriendCounter emailaddress nvarchar 500 1 0
+saEmailToFriendCounter counter int 4 1 0
+saEmailToFriendCounter LastSentDataTime datetime 8 1 0
+saempresa idempresa int 4 0 0
+saempresa idpais int 4 0 0
+saempresa idestado int 4 0 0
+saempresa ididioma smallint 2 0 0
+saempresa rzempresa varchar 100 1 0
+saempresa dom1empresa varchar 60 1 0
+saempresa dom2empresa varchar 60 1 0
+saempresa cpempresa varchar 10 1 0
+saempresa rfcempresa varchar 15 1 0
+saempresa tel1empresa varchar 60 1 0
+saempresa tel2empresa varchar 60 1 0
+saempresa faxempresa varchar 60 1 0
+saempresa email1empresa varchar 100 1 0
+saempresa email2empresa varchar 100 1 0
+saempresa idusuario int 4 0 0
+saempresa fecregistroempresa datetime 8 0 0
+saempresa idstatusempresa smallint 2 1 0
+saempresa idmoneda smallint 2 1 0
+saempresa idimpuesto smallint 2 0 0
+saempresa iddescuendoempresa varchar 3 1 0
+saempresa idimpuestozonafiscal smallint 2 0 0
+saempresa ididiomapreferenciaa smallint 2 1 0
+saempresa ididiomapreferenciab smallint 2 1 0
+saempresa dirseo varchar 30 1 0
+saempresa categoriarelacion varchar 10 1 0
+saempresa prefijoproducto varchar 5 1 0
+saempresa_bkp idempresa int 4 0 0
+saempresa_bkp idpais int 4 0 0
+saempresa_bkp idestado int 4 0 0
+saempresa_bkp ididioma smallint 2 0 0
+saempresa_bkp rzempresa varchar 100 1 0
+saempresa_bkp dom1empresa varchar 60 1 0
+saempresa_bkp dom2empresa varchar 60 1 0
+saempresa_bkp cpempresa varchar 10 1 0
+saempresa_bkp rfcempresa varchar 15 1 0
+saempresa_bkp tel1empresa varchar 60 1 0
+saempresa_bkp tel2empresa varchar 60 1 0
+saempresa_bkp faxempresa varchar 60 1 0
+saempresa_bkp email1empresa varchar 100 1 0
+saempresa_bkp email2empresa varchar 100 1 0
+saempresa_bkp idusuario int 4 0 0
+saempresa_bkp fecregistroempresa datetime 8 0 0
+saempresa_bkp idstatusempresa smallint 2 1 0
+saempresa_bkp idmoneda smallint 2 1 0
+saempresa_bkp idimpuesto smallint 2 0 0
+saempresa_bkp iddescuendoempresa varchar 3 1 0
+saempresa_bkp idimpuestozonafiscal smallint 2 0 0
+saempresa_bkp ididiomapreferenciaa smallint 2 1 0
+saempresa_bkp ididiomapreferenciab smallint 2 1 0
+saempresa_bkp dirseo varchar 30 1 0
+saempresa_bkp categoriarelacion varchar 10 1 0
+saempresa_bkp prefijoproducto varchar 5 1 0
+saequivalence idequivalencetype smallint 2 0 0
+saequivalence idinformationtype smallint 2 0 0
+saequivalence idinformation smallint 2 0 0
+saequivalence idequivalence int 4 0 0
+saequivalence idequivalenceref varchar 100 0 0
+saequivalenceref idcompany smallint 2 0 0
+saequivalenceref idlanguaje smallint 2 0 0
+saequivalenceref idinformationtype smallint 2 0 0
+saequivalenceref idinformation smallint 2 0 0
+saequivalenceref idequivalence int 4 0 0
+saequivalenceref idequivalenceref varchar 100 0 0
+saequivalencerefrespaldo idinformationtype smallint 2 0 0
+saequivalencerefrespaldo idinformation smallint 2 0 0
+saequivalencerefrespaldo idequivalence varchar 100 0 0
+saequivalencerefrespaldo idequivalenceref varchar 100 0 0
+saequivalencetype idequivalencetype smallint 2 0 0
+saequivalencetype idinformationtype smallint 2 0 0
+saequivalencetype idinformation smallint 2 0 0
+saequivalencetype idlanguaje smallint 2 1 0
+saequivalencetype descequivalencetype varchar 30 0 0
+saestado idpais int 4 0 0
+saestado idestado int 4 0 0
+saestado ididioma smallint 2 0 0
+saestado descestado varchar 60 0 0
+saestado claveestado varchar 10 1 0
+saestado idstatusestado smallint 2 1 0
+sagtin idgtinfile int 4 0 0
+sagtin descgtinfile varchar 100 1 0
+sagtin dategtinfile datetime 8 1 0
+sagtin personadded varchar 50 1 0
+sagtinproduct idgtinfile int 4 0 0
+sagtinproduct idsec int 4 0 0
+sagtinproduct idproduct varchar 30 0 0
+sagtinproduct idgtin varchar 20 0 0
+sagtinproduct statusgtin smallint 2 1 0
+sagtinproduct20200822 idgtinfile int 4 0 0
+sagtinproduct20200822 idsec int 4 0 0
+sagtinproduct20200822 idproduct varchar 30 0 0
+sagtinproduct20200822 idgtin varchar 20 0 0
+sagtinproduct20200822 statusgtin smallint 2 1 0
+sagtintemp idgtinfile int 4 0 0
+sagtintemp idsec int 4 0 0
+sagtintemp idgtin varchar 20 0 0
+sagtintemp statusgtin smallint 2 1 0
+saidioma ididioma smallint 2 0 0
+saidioma claveidioma varchar 2 1 0
+saidioma descidioma varchar 30 0 0
+salistaprecios idempresa int 4 0 0
+salistaprecios idlistaprecios smallint 2 0 0
+salistaprecios idmoneda smallint 2 1 0
+salistaprecios desclistaprecios varchar 60 0 0
+salistaprecios fecinilistaprecios datetime 8 0 0
+salistaprecios fecfinlistaprecios datetime 8 0 0
+salistaprecios idusuario int 4 0 0
+salistaprecios fecregistrolistaprecios datetime 8 0 0
+salistaprecios idautorizacion smallint 2 1 0
+salistapreciosbitacora idempresa int 4 0 0
+salistapreciosbitacora idlistadprecios smallint 2 0 0
+salistapreciosbitacora idproducto varchar 30 0 0
+salistapreciosbitacora precioproducto decimal 9 1 0
+salistapreciosbitacora idusuario int 4 0 0
+salistapreciosbitacora fecregistroprecio datetime 8 0 0
+salistaprecioscategoriacliente idcategoriacte varchar 3 0 0
+salistapreciosd idempresa int 4 0 0
+salistapreciosd idlistadprecios smallint 2 0 0
+salistapreciosd idproducto varchar 30 0 0
+salistapreciosd precioproducto decimal 9 1 0
+samarketplace idfeed int 4 1 0
+samarketplace idproduct varchar 10 1 0
+samarketplace RealCostFeed decimal 9 1 0
+samarketplace TotalCostFeed decimal 9 1 0
+samarketplace MarketPlaceMultiplier decimal 9 1 0
+samarketplace MarketPlaceAdder decimal 9 1 0
+samarketplace CreditCardMultiplier decimal 9 1 0
+samarketplace CreditCardAdder decimal 9 1 0
+samarketplace TaxMultiplier decimal 9 1 0
+samarketplace TaxAdder decimal 9 1 0
+samarketplace VenDepotMultiplier decimal 9 1 0
+samarketplace VenDepotAdder decimal 9 1 0
+samarketplace CostWithoutShipping decimal 9 1 0
+samarketplace VolumeWeight decimal 9 1 0
+samarketplace ShippingMultiplier decimal 9 1 0
+samarketplace ShippingAdder decimal 9 1 0
+samarketplace MarketPlacePrice decimal 9 1 0
+samarketplace VentdepotPriceList decimal 9 1 0
+samarketplaceShipping idfeed int 4 1 0
+samarketplaceShipping idMP smallint 2 0 0
+samarketplaceShipping ShippingCostWise decimal 9 1 0
+samarketplaceShipping CostRangeMinimum decimal 9 1 0
+samarketplaceShipping CostRangeMaximum decimal 9 1 0
+samarketplaceShipping AmountMultiplier decimal 9 1 0
+samarketplaceShipping AmountAdder decimal 9 1 0
+samarketplaceShipping ShippingVolumeWeightMinimum decimal 9 1 0
+samarketplaceShipping ShippingVolumeWeightMaximum decimal 9 1 0
+samarketplaceShipping VolumeWeightMultiplier decimal 9 1 0
+samarketplaceShipping VolumeWeightAdder decimal 9 1 0
+samarketplaceShipping VolumeWeightFactor decimal 9 1 0
+samoneda idempresa int 4 0 0
+samoneda idmoneda smallint 2 0 0
+samoneda clavemoneda varchar 10 0 0
+samoneda descmoneda varchar 30 1 0
+samoneda factormoneda decimal 9 1 0
+samonedatipocambio idempresa int 4 0 0
+samonedatipocambio idmoneda smallint 2 0 0
+samonedatipocambio idmonedasecuencia int 4 0 0
+samonedatipocambio fecregistromoneda datetime 8 0 0
+samonedatipocambio factormoneda decimal 9 1 0
+sapais idpais int 4 0 0
+sapais ididioma smallint 2 0 0
+sapais clavepais varchar 2 1 0
+sapais descpais varchar 60 0 0
+sapais imgpais varchar 60 1 0
+sapais idstatuspais smallint 2 1 0
+sapricelist idpricelist int 4 1 0
+sapricelist discountlist int 4 1 0
+sapricelist notetitle varchar 300 1 0
+sapricelist note varchar 1000 1 0
+saproductcost idcompany int 4 0 0
+saproductcost idproduct varchar 30 0 0
+saproductcost providerprice decimal 9 1 0
+saproductcost idcurrencyA smallint 2 1 0
+saproductcost idcurrencyB smallint 2 1 0
+saproductcost factorcurrency decimal 9 1 0
+saproductcost factordiscount decimal 9 1 0
+saproductcost adddiscount decimal 9 1 0
+saproductcost productcost decimal 9 1 0
+saproductcost factorcustom decimal 9 1 0
+saproductcost addcustom decimal 9 1 0
+saproductcost customsubtotal decimal 9 1 0
+saproductcost shippingcost decimal 9 1 0
+saproductcost factorshipping decimal 9 1 0
+saproductcost addshipping decimal 9 1 0
+saproductcost shippingsubtotal decimal 9 1 0
+saproductcost totalcost decimal 9 1 0
+saproductcost shippingcostlocalcurrency decimal 9 1 0
+saproductcost costsubtotal decimal 9 1 0
+saproductcost uppricingmarker decimal 9 1 0
+saproductcost priceproduct decimal 9 1 0
+saproductcost fecregistrocost datetime 8 1 0
+saproductcostconfigalert idalertprovider smallint 2 0 1
+saproductcostconfigalert emailalertprovider varchar 100 1 0
+saproductcostconfigalert daysalertprovider smallint 2 1 0
+saproductcostconfigalert counterdaysalertprovider smallint 2 1 0
+saproductcostdata IdIdioma smallint 2 0 0
+saproductcostdata IdSubSubCat varchar 10 0 0
+saproductcostdata IdSubCat varchar 10 0 0
+saproductcostdata IdCategoria varchar 10 0 0
+saproductcostdata urlprovider varchar 1500 1 0
+saproductcostdata obsprovider varchar 1000 1 0
+saproductcostdata dateurlprovider datetime 8 1 0
+saproductcostdata statusurlprovider smallint 2 1 0
+saproductcostdata autoemail smallint 2 1 0
+saproductcostdata fecalertprovider datetime 8 1 0
+saproductcostdata daysalertprovider smallint 2 1 0
+saproductcostdata statusalertprovider smallint 2 1 0
+saproductcostdata idusuario int 4 1 0
+saproductcostdata urlprovider2 varchar 1500 1 0
+saproductcostdata urlprovider3 varchar 1500 1 0
+saproductcostlog idcompany int 4 0 0
+saproductcostlog idproduct varchar 30 0 0
+saproductcostlog idproductcostsequence int 4 0 1
+saproductcostlog providerprice decimal 9 1 0
+saproductcostlog idcurrencyA smallint 2 1 0
+saproductcostlog idcurrencyB smallint 2 1 0
+saproductcostlog factorcurrency decimal 9 1 0
+saproductcostlog factordiscount decimal 9 1 0
+saproductcostlog adddiscount decimal 9 1 0
+saproductcostlog productcost decimal 9 1 0
+saproductcostlog factorcustom decimal 9 1 0
+saproductcostlog addcustom decimal 9 1 0
+saproductcostlog customsubtotal decimal 9 1 0
+saproductcostlog shippingcost decimal 9 1 0
+saproductcostlog factorshipping decimal 9 1 0
+saproductcostlog addshipping decimal 9 1 0
+saproductcostlog shippingsubtotal decimal 9 1 0
+saproductcostlog totalcost decimal 9 1 0
+saproductcostlog shippingcostlocalcurrency decimal 9 1 0
+saproductcostlog costsubtotal decimal 9 1 0
+saproductcostlog uppricingmarker decimal 9 1 0
+saproductcostlog priceproduct decimal 9 1 0
+saproductcostlog priceproductlog decimal 9 1 0
+saproductcostlog fecregistrocost datetime 8 1 0
+saproductcostlog idusuario int 4 1 0
+saproductcostlogv2 idcompany int 4 0 0
+saproductcostlogv2 idproduct varchar 30 0 0
+saproductcostlogv2 idproductcostsequence int 4 0 1
+saproductcostlogv2 providerlistprice decimal 9 1 0
+saproductcostlogv2 idcurrencyA smallint 2 1 0
+saproductcostlogv2 idcurrencyB smallint 2 1 0
+saproductcostlogv2 exchangerateA decimal 9 1 0
+saproductcostlogv2 providerdiscountmultiplier decimal 9 1 0
+saproductcostlogv2 provideradder decimal 9 1 0
+saproductcostlogv2 productcost decimal 9 1 0
+saproductcostlogv2 customscostin decimal 9 1 0
+saproductcostlogv2 customscurrencyin smallint 2 1 0
+saproductcostlogv2 exchangerateB decimal 9 1 0
+saproductcostlogv2 customsmultiplier decimal 9 1 0
+saproductcostlogv2 customsadderin decimal 9 1 0
+saproductcostlogv2 customscost decimal 9 1 0
+saproductcostlogv2 suggestedcustomsmultiplier decimal 9 1 0
+saproductcostlogv2 customsprice decimal 9 1 0
+saproductcostlogv2 couriercostin decimal 9 1 0
+saproductcostlogv2 currencyincourier smallint 2 1 0
+saproductcostlogv2 exchangerateC decimal 9 1 0
+saproductcostlogv2 couriermultiplier decimal 9 0 0
+saproductcostlogv2 courieradderin decimal 9 1 0
+saproductcostlogv2 couriercost decimal 9 1 0
+saproductcostlogv2 suggestedcouriermultiplier decimal 9 1 0
+saproductcostlogv2 shippingprice decimal 9 1 0
+saproductcostlogv2 totalcost decimal 9 1 0
+saproductcostlogv2 uppricingproductonlymultiplier decimal 9 1 0
+saproductcostlogv2 productonlyprice decimal 9 1 0
+saproductcostlogv2 listprice decimal 9 1 0
+saproductcostlogv2 listpricelog decimal 9 1 0
+saproductcostlogv2 shippingorcustomsupmarker decimal 9 1 0
+saproductcostlogv2 suggestedshippingorcustomsmultiplier decimal 9 1 0
+saproductcostlogv2 fecregistrocost datetime 8 1 0
+saproductcostlogv2 idusuario int 4 1 0
+saproductcostlogv2x idcompany int 4 0 0
+saproductcostlogv2x idproduct varchar 30 0 0
+saproductcostlogv2x idproductcostsequence int 4 0 0
+saproductcostlogv2x providerlistprice decimal 9 1 0
+saproductcostlogv2x idcurrencyA smallint 2 1 0
+saproductcostlogv2x idcurrencyB smallint 2 1 0
+saproductcostlogv2x exchangerateA decimal 9 1 0
+saproductcostlogv2x providerdiscountmultiplier decimal 9 1 0
+saproductcostlogv2x provideradder decimal 9 1 0
+saproductcostlogv2x productcost decimal 9 1 0
+saproductcostlogv2x customscostin decimal 9 1 0
+saproductcostlogv2x customscurrencyin smallint 2 1 0
+saproductcostlogv2x exchangerateB decimal 9 1 0
+saproductcostlogv2x customsmultiplier decimal 9 1 0
+saproductcostlogv2x customsadderin decimal 9 1 0
+saproductcostlogv2x customscost decimal 9 1 0
+saproductcostlogv2x suggestedcustomsmultiplier decimal 9 1 0
+saproductcostlogv2x customsprice decimal 9 1 0
+saproductcostlogv2x couriercostin decimal 9 1 0
+saproductcostlogv2x currencyincourier smallint 2 1 0
+saproductcostlogv2x exchangerateC decimal 9 1 0
+saproductcostlogv2x couriermultiplier decimal 9 0 0
+saproductcostlogv2x courieradderin decimal 9 1 0
+saproductcostlogv2x couriercost decimal 9 1 0
+saproductcostlogv2x suggestedcouriermultiplier decimal 9 1 0
+saproductcostlogv2x shippingprice decimal 9 1 0
+saproductcostlogv2x totalcost decimal 9 1 0
+saproductcostlogv2x uppricingproductonlymultiplier decimal 9 1 0
+saproductcostlogv2x productonlyprice decimal 9 1 0
+saproductcostlogv2x listprice decimal 9 1 0
+saproductcostlogv2x listpricelog decimal 9 1 0
+saproductcostlogv2x shippingorcustomsupmarker decimal 9 1 0
+saproductcostlogv2x suggestedshippingorcustomsmultiplier decimal 9 1 0
+saproductcostlogv2x fecregistrocost datetime 8 1 0
+saproductcostlogv2x idusuario int 4 1 0
+saproductcostv2 idcompany int 4 0 0
+saproductcostv2 idproduct varchar 30 0 0
+saproductcostv2 providerlistprice decimal 9 1 0
+saproductcostv2 idcurrencyA smallint 2 1 0
+saproductcostv2 idcurrencyB smallint 2 1 0
+saproductcostv2 exchangerateA decimal 9 1 0
+saproductcostv2 providerdiscountmultiplier decimal 9 1 0
+saproductcostv2 provideradder decimal 9 1 0
+saproductcostv2 productcost decimal 9 1 0
+saproductcostv2 customscostin decimal 9 1 0
+saproductcostv2 customscurrencyin smallint 2 1 0
+saproductcostv2 exchangerateB decimal 9 1 0
+saproductcostv2 customsmultiplier decimal 9 1 0
+saproductcostv2 customsadderin decimal 9 1 0
+saproductcostv2 customscost decimal 9 1 0
+saproductcostv2 suggestedcustomsmultiplier decimal 9 1 0
+saproductcostv2 customsprice decimal 9 1 0
+saproductcostv2 couriercostin decimal 9 1 0
+saproductcostv2 currencyincourier smallint 2 1 0
+saproductcostv2 exchangerateC decimal 9 1 0
+saproductcostv2 couriermultiplier decimal 9 0 0
+saproductcostv2 courieradderin decimal 9 1 0
+saproductcostv2 couriercost decimal 9 1 0
+saproductcostv2 suggestedcouriermultiplier decimal 9 1 0
+saproductcostv2 shippingprice decimal 9 1 0
+saproductcostv2 totalcost decimal 9 1 0
+saproductcostv2 uppricingproductonlymultiplier decimal 9 1 0
+saproductcostv2 productonlyprice decimal 9 1 0
+saproductcostv2 listprice decimal 9 1 0
+saproductcostv2 shippingorcustomsupmarker decimal 9 1 0
+saproductcostv2 suggestedshippingorcustomsmultiplier decimal 9 1 0
+saproductcostv2 fecregistrocost datetime 8 1 0
+saproductcostv2 realcostvalue decimal 9 1 0
+saproductcross IdIdioma smallint 2 0 0
+saproductcross idcross int 4 0 1
+saproductcross IdCategoria varchar 10 0 0
+saproductcross IdSubCat varchar 10 0 0
+saproductcross IdSubSubCat varchar 10 0 0
+saproductcross idproduct varchar 30 0 0
+saproductcross idproductcross varchar 30 1 0
+saproductcross idusuario int 4 1 0
+saproductcross idnivel smallint 2 1 0
+saproductcross fecregproduct datetime 8 1 0
+saproductcurrency idcompany int 4 0 0
+saproductcurrency idcurrency smallint 2 0 0
+saproductcurrency keycurrency varchar 10 0 0
+saproductcurrency desccurrency varchar 30 0 0
+saproductexchange idcompany int 4 0 0
+saproductexchange idcurrencyA smallint 2 0 0
+saproductexchange idcurrencyB smallint 2 0 0
+saproductexchange factorcurrency decimal 9 0 0
+saproductexchangelog idcompany int 4 0 0
+saproductexchangelog idproductcurrencysequence int 4 0 0
+saproductexchangelog idcurrencyA smallint 2 0 0
+saproductexchangelog idcurrencyB smallint 2 0 0
+saproductexchangelog keycurrencyA varchar 10 0 0
+saproductexchangelog keycurrencyB varchar 10 0 0
+saproductexchangelog factorcurrency decimal 9 0 0
+saproductexchangelog dateregistrycurrency datetime 8 0 0
+saproducto idempresa int 4 0 0
+saproducto idproducto varchar 30 0 0
+saproducto idstatusproducto smallint 2 1 0
+saproducto idusuario int 4 0 0
+saproducto imgproducto varchar 60 1 0
+saproducto fecregistroproducto datetime 8 0 0
+saproducto idproductoproveedor varchar 80 1 0
+saproducto idproveedor varchar 100 1 0
+saproducto Anexo1 varchar 80 1 0
+saproductoaccesorio idempresa int 4 0 0
+saproductoaccesorio idproducto varchar 30 0 0
+saproductoaccesorio idproductoaccesorioconsecutivo smallint 2 0 0
+saproductoaccesorio idproductoaccesorio varchar 30 0 0
+saproductoaccesorio fecregistroproductoacceso datetime 8 0 0
+saproductoaccesorio idusuario int 4 0 0
+saproductocategoria idempresa int 4 0 0
+saproductocategoria ididioma smallint 2 0 0
+saproductocategoria idseccionpresentacion smallint 2 1 0
+saproductocategoria idnivelcategoria int 4 0 0
+saproductocategoria idcategoriaorigen1 varchar 20 0 0
+saproductocategoria idcategoriaorigen2 varchar 20 0 0
+saproductocategoria idcategoria varchar 10 0 0
+saproductocategoria titcategoria varchar 100 1 0
+saproductocategoria desccategoria varchar 1100 1 0
+saproductocategoria imgcategoria varchar 100 1 0
+saproductocategoria idpresentacion smallint 2 1 0
+saproductocategoria ideditable smallint 2 1 0
+saproductocategoria feccategorizacion datetime 8 0 0
+saproductocategoria idinformacionunidadgeneral smallint 2 1 0
+saproductocategoria idusuario int 4 0 0
+saproductocategoria ShowVendorCode bit 1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId6 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId58 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId36 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId29 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId50 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId41 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId4 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId5 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId51 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId49 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId38 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId42 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId34 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId37 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId3_marketId48 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId3_marketId33 varchar -1 1 0
+saproductocategoria approval bit 1 1 0
+saproductocategoria marketplaceUrl_countryId1_marketId59 varchar -1 1 0
+saproductocategoria marketplaceUrl_countryId3_marketId60 varchar -1 1 0
+saproductocategoria_bkp idempresa int 4 0 0
+saproductocategoria_bkp ididioma smallint 2 0 0
+saproductocategoria_bkp idseccionpresentacion smallint 2 1 0
+saproductocategoria_bkp idnivelcategoria int 4 0 0
+saproductocategoria_bkp idcategoriaorigen1 varchar 20 0 0
+saproductocategoria_bkp idcategoriaorigen2 varchar 20 0 0
+saproductocategoria_bkp idcategoria varchar 10 0 0
+saproductocategoria_bkp titcategoria varchar 100 1 0
+saproductocategoria_bkp desccategoria varchar 1100 1 0
+saproductocategoria_bkp imgcategoria varchar 100 1 0
+saproductocategoria_bkp idpresentacion smallint 2 1 0
+saproductocategoria_bkp ideditable smallint 2 1 0
+saproductocategoria_bkp feccategorizacion datetime 8 0 0
+saproductocategoria_bkp idinformacionunidadgeneral smallint 2 1 0
+saproductocategoria_bkp idusuario int 4 0 0
+saproductocategoria_bkp ShowVendorCode bit 1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId6 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId58 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId36 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId29 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId50 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId41 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId4 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId5 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId51 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId49 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId38 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId42 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId34 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId37 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId3_marketId48 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId3_marketId33 varchar -1 1 0
+saproductocategoria_bkp approval bit 1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId1_marketId59 varchar -1 1 0
+saproductocategoria_bkp marketplaceUrl_countryId3_marketId60 varchar -1 1 0
+saproductocategoria20201015 idempresa int 4 0 0
+saproductocategoria20201015 ididioma smallint 2 0 0
+saproductocategoria20201015 idseccionpresentacion smallint 2 1 0
+saproductocategoria20201015 idnivelcategoria int 4 0 0
+saproductocategoria20201015 idcategoriaorigen1 varchar 20 0 0
+saproductocategoria20201015 idcategoriaorigen2 varchar 20 0 0
+saproductocategoria20201015 idcategoria varchar 10 0 0
+saproductocategoria20201015 titcategoria varchar 100 1 0
+saproductocategoria20201015 desccategoria varchar 1100 1 0
+saproductocategoria20201015 imgcategoria varchar 100 1 0
+saproductocategoria20201015 idpresentacion smallint 2 1 0
+saproductocategoria20201015 ideditable smallint 2 1 0
+saproductocategoria20201015 feccategorizacion datetime 8 0 0
+saproductocategoria20201015 idinformacionunidadgeneral smallint 2 1 0
+saproductocategoria20201015 idusuario int 4 0 0
+saproductocategoria20201015 ShowVendorCode bit 1 1 0
+saproductocategoriaproducto idempresa int 4 0 0
+saproductocategoriaproducto idnivelcategoria int 4 0 0
+saproductocategoriaproducto idcategoriaorigen1 varchar 20 0 0
+saproductocategoriaproducto idcategoriaorigen2 varchar 20 0 0
+saproductocategoriaproducto idcategoria varchar 10 0 0
+saproductocategoriaproducto ididioma smallint 2 0 0
+saproductocategoriaproducto idproducto varchar 30 0 0
+saproductocategoriaproducto idusuario int 4 0 0
+saproductocostobitacora idcostobitacora int 4 1 0
+saproductocostobitacora idempresa int 4 0 0
+saproductocostobitacora idproducto varchar 30 0 0
+saproductocostobitacora idmoneda smallint 2 1 0
+saproductocostobitacora factormoneda decimal 5 1 0
+saproductocostobitacora factorutilidad decimal 5 1 0
+saproductocostobitacora costoproducto decimal 9 1 0
+saproductocostobitacora precioproducto decimal 9 1 0
+saproductocostobitacora fecbitacora datetime 8 1 0
+saproductocostobitacora idusuario smallint 2 1 0
+saproductod idempresa int 4 0 0
+saproductod ididioma smallint 2 0 0
+saproductod idproducto varchar 30 0 0
+saproductod descproducto varchar 100 1 0
+saproductod desccproducto varchar 350 1 0
+saproductod groupNum int 4 1 0
+saproductod sdQuantity int 4 1 0
+saproductod editStatus int 4 0 0
+saproductogenera idempresa int 4 1 0
+saproductogenera idcat varchar 10 1 0
+saproductogenera idcats varchar 10 1 0
+saproductogenera statuscat smallint 2 1 0
+saproductoinformacion idempresa int 4 0 0
+saproductoinformacion ididioma smallint 2 0 0
+saproductoinformacion idtipoinformacion smallint 2 0 0
+saproductoinformacion idinformacion smallint 2 0 0
+saproductoinformacion idinformacionorden smallint 2 0 0
+saproductoinformacion descinformacion varchar 100 0 0
+saproductoinformacion iconInformacion varchar 150 1 0
+saproductoinformacioncategoria idempresa int 4 0 0
+saproductoinformacioncategoria ididioma smallint 2 0 0
+saproductoinformacioncategoria idnivelcategoria int 4 0 0
+saproductoinformacioncategoria idcategoriaorigen1 varchar 20 0 0
+saproductoinformacioncategoria idcategoriaorigen2 varchar 20 0 0
+saproductoinformacioncategoria idcategoria varchar 10 0 0
+saproductoinformacioncategoria idtipoinformacion smallint 2 0 0
+saproductoinformacioncategoria idinformacion smallint 2 0 0
+saproductoinformacioncategoria idtipoinformacionunidad smallint 2 1 0
+saproductoinformacioncategoria titinformacioncategoria varchar 250 1 0
+saproductoinformacioncategoria descinformacioncategoria text 16 1 0
+saproductoinformacioncategoria imgidinformacioncategoria varchar 150 1 0
+saproductoinformacioncategoria idstatusinformacioncategoria smallint 2 1 0
+saproductoinformacionproducto idempresa int 4 0 0
+saproductoinformacionproducto ididioma smallint 2 0 0
+saproductoinformacionproducto idproducto varchar 30 0 0
+saproductoinformacionproducto idtipoinformacion smallint 2 0 0
+saproductoinformacionproducto idinformacion smallint 2 0 0
+saproductoinformacionproducto idtipoinformacionunidad smallint 2 0 0
+saproductoinformacionproducto titinformacionproducto varchar 250 1 0
+saproductoinformacionproducto descinformacionproducto text 16 1 0
+saproductoinformacionproducto imginformacionproducto varchar 250 1 0
+saproductoinformacionproducto idstatusinformacionproducto smallint 2 1 0
+saproductoinformacionproductorespaldoleadtime idempresa int 4 0 0
+saproductoinformacionproductorespaldoleadtime ididioma smallint 2 0 0
+saproductoinformacionproductorespaldoleadtime idproducto varchar 30 0 0
+saproductoinformacionproductorespaldoleadtime idtipoinformacion smallint 2 0 0
+saproductoinformacionproductorespaldoleadtime idinformacion smallint 2 0 0
+saproductoinformacionproductorespaldoleadtime idtipoinformacionunidad smallint 2 0 0
+saproductoinformacionproductorespaldoleadtime titinformacionproducto varchar 250 1 0
+saproductoinformacionproductorespaldoleadtime descinformacionproducto text 16 1 0
+saproductoinformacionproductorespaldoleadtime imginformacionproducto varchar 250 1 0
+saproductoinformacionproductorespaldoleadtime idstatusinformacionproducto smallint 2 1 0
+saproductoinformaciontipo idempresa int 4 0 0
+saproductoinformaciontipo ididioma smallint 2 0 0
+saproductoinformaciontipo idtipoinformacion smallint 2 0 0
+saproductoinformaciontipo idtipoinformacionorden smallint 2 0 0
+saproductoinformaciontipo idtipoinformacionlocalizacion smallint 2 1 0
+saproductoinformaciontipo desctipoinformacion varchar 100 1 0
+saproductoinformaciontipo idinformacionformato smallint 2 1 0
+saproductoinformaciontipo idinformacionseparador varchar 10 1 0
+saproductoinformacionunidad idempresa int 4 0 0
+saproductoinformacionunidad ididioma smallint 2 0 0
+saproductoinformacionunidad idinformacionunidad smallint 2 0 0
+saproductoinformacionunidad descinformacionunidad varchar 30 1 0
+saproductoinformacionunidad descinformacionunidad2 varchar 30 1 0
+saproductoinformacionunidad factorinformacionunidad decimal 9 1 0
+saproductphoto idempresa int 4 0 0
+saproductphoto idnivelcategoria int 4 0 0
+saproductphoto idcategoriaorigen1 varchar 20 0 0
+saproductphoto idcategoriaorigen2 varchar 20 0 0
+saproductphoto idcategoria varchar 10 0 0
+saproductphoto ididioma smallint 2 0 0
+saproductphoto idprocess smallint 2 0 0
+saproductphoto idproductphoto smallint 2 0 0
+saproductphoto idproducta int 4 0 0
+saproductphoto idproductb int 4 0 0
+saproductphoto descproductphoto varchar 200 0 0
+saproductphoto fecregproductphoto datetime 8 0 0
+saproductphoto idusuario int 4 0 0
+saproductphoto2 idempresa int 4 0 0
+saproductphoto2 idnivelcategoria int 4 0 0
+saproductphoto2 idcategoriaorigen1 varchar 20 0 0
+saproductphoto2 idcategoriaorigen2 varchar 20 0 0
+saproductphoto2 idcategoria varchar 10 0 0
+saproductphoto2 ididioma smallint 2 0 0
+saproductphoto2 idprocess smallint 2 0 0
+saproductphoto2 idproductphoto smallint 2 0 0
+saproductphoto2 idgroup int 4 0 0
+saproductphoto2 idproducta int 4 0 0
+saproductphoto2 idproductb int 4 0 0
+saproductphoto2 descproductphoto varchar 200 0 0
+saproductphoto2 fecregproductphoto datetime 8 0 0
+saproductphoto2 idusuario int 4 0 0
+saproductphotofl idempresa int 4 0 0
+saproductphotofl ididioma smallint 2 0 0
+saproductphotofl idprocess smallint 2 0 0
+saproductphotofl idproductfl smallint 2 0 0
+saproductphotofl idfamily varchar 30 0 0
+saproductphotofl idline varchar 30 0 0
+saproductphotofl descproductphoto varchar 200 0 0
+saproductphotofl idlock smallint 2 1 0
+saproductphotofl fecregproductphoto datetime 8 0 0
+saproductphotofl idusuario int 4 0 0
+saproductphotoinfo idempresa int 4 0 0
+saproductphotoinfo ididioma smallint 2 0 0
+saproductphotoinfo idproductphoto smallint 2 0 0
+saproductphotoinfo idtypephoto smallint 2 1 0
+saproductphotoinfo idmetakeyword int 4 1 0
+saproductphotoinfo titphoto varchar 50 1 0
+saproductphotoinfo obsphoto varchar 500 0 0
+saproductphotoinfo fecobsphoto datetime 8 0 0
+saproductphotoinfo idusuario int 4 0 0
+saproductphotop idempresa int 4 0 0
+saproductphotop ididioma smallint 2 0 0
+saproductphotop idprocess smallint 2 0 0
+saproductphotop idproductphoto smallint 2 0 0
+saproductphotop idproduct varchar 30 0 0
+saproductphotop descproductphoto varchar 200 0 0
+saproductphotop idlock smallint 2 1 0
+saproductphotop fecregproductphoto datetime 8 0 0
+saproductphotop idusuario int 4 0 0
+saproductpo idcompany int 4 0 0
+saproductpo idorder int 4 0 0
+saproductpo idsequence smallint 2 0 0
+saproductpo idproduct varchar 30 0 0
+saproductpo stockorderactual int 4 1 0
+saproductpo stockorderpo int 4 1 0
+saproductpo stockorderpointernal int 4 1 0
+saproductpo productcost decimal 9 1 0
+saproductpo idstatusstockpo smallint 2 1 0
+saproductpo idstatusstockpointernal smallint 2 1 0
+saproductpo idinout smallint 2 1 0
+saproductpo iduser varchar 20 1 0
+saproductpo feclogstockpo datetime 8 1 0
+saproductpo feclogstockpointernal datetime 8 1 0
+saproductpoinfo ididioma smallint 2 1 0
+saproductpoinfo pdfnameA varchar 50 1 0
+saproductpoinfo pdfsignA varchar 50 1 0
+saproductpoinfo pdfnameB varchar 50 1 0
+saproductpoinfo pdfsignB varchar 50 1 0
+saproductpoinfo pdfnameC varchar 50 1 0
+saproductpoinfo pdfsignC varchar 50 1 0
+saproductpoinfo pdfemailA varchar 100 1 0
+saproductpoinfo pdfemailB varchar 100 1 0
+saproductpoinfo pdfemailC varchar 100 1 0
+saproductpolog idproductpolog int 4 0 1
+saproductpolog idcompany int 4 0 0
+saproductpolog idorder int 4 0 0
+saproductpolog idsequence smallint 2 0 0
+saproductpolog idproduct varchar 30 0 0
+saproductpolog stockorderactual int 4 1 0
+saproductpolog stockorderpo int 4 1 0
+saproductpolog idstatusstockpo smallint 2 1 0
+saproductpolog idinout smallint 2 1 0
+saproductpolog idinternal smallint 2 1 0
+saproductpolog iduser varchar 20 1 0
+saproductpolog feclogstockpo datetime 8 1 0
+saproductpospecial idcompany int 4 0 0
+saproductpospecial idorder int 4 0 0
+saproductpospecial idproduct varchar 30 0 0
+saproductpospecial idprovider varchar 6 1 0
+saproductpospecial descproductespecial varchar 500 1 0
+saproductpostatus idstatusstockpo smallint 2 0 0
+saproductpostatus descstatusstockpo varchar 30 1 0
+saproductpostatus idorderstatusstockpo smallint 2 1 0
+saproductpostatus statuspocolor varchar 10 1 0
+saproductpostatus idstatusstatusstockpo smallint 2 1 0
+saproductpostatus idinout smallint 2 1 0
+saproductstock idcompany int 4 0 0
+saproductstock idproduct varchar 30 0 0
+saproductstock currentstock int 4 1 0
+saproductstock minimumstock int 4 1 0
+saproductstock maximunstock int 4 1 0
+saproductstock idwarehouse int 4 0 0
+saproductstock zone varchar 30 1 0
+saproductstock aisle varchar 30 1 0
+saproductstock shelfnumber varchar 30 1 0
+saproductstock location int 4 1 0
+saproductstock idstatusstock smallint 2 1 0
+saproductstock iduser varchar 20 1 0
+saproductstock feclogstock datetime 8 1 0
+saproductstock rack varchar 50 1 0
+saproductstock bin varchar 50 1 0
+saproductstock reorderpoint varchar 50 1 0
+saproductstocklog idstocklog int 4 0 1
+saproductstocklog idcompany int 4 0 0
+saproductstocklog idorder int 4 1 0
+saproductstocklog idproduct varchar 30 0 0
+saproductstocklog movproduct int 4 1 0
+saproductstocklog typemov smallint 2 1 0
+saproductstocklog idstatusmovstock smallint 2 1 0
+saproductstocklog idwarehouse smallint 2 1 0
+saproductstocklog iduser varchar 20 1 0
+saproductstocklog feclogmovstock datetime 8 1 0
+saproductstocklog feclogconstock datetime 8 1 0
+saproductstockpo idcompany int 4 0 0
+saproductstockpo idproduct varchar 30 0 0
+saproductstockpo stockorder int 4 1 0
+saproductstockpo stockpo int 4 1 0
+saproductstockpo stockpomax int 4 1 0
+saproductstockpo idstatusproductpo smallint 2 1 0
+saproductstockpo iduser varchar 20 1 0
+saproductstockpo feclogstockpo datetime 8 1 0
+saproductstockpolog idcompany int 4 0 0
+saproductstockpolog idorder int 4 1 0
+saproductstockpolog idsequence smallint 2 1 0
+saproductstockpolog idstatusstockpo smallint 2 1 0
+saproductstockpolog pointernal smallint 2 1 0
+saproductstockpolog iduser varchar 20 1 0
+saproductstockpolog feclogstockpo datetime 8 1 0
+saproductstockwarehouse idwarehouse int 4 0 0
+saproductstockwarehouse warehousename varchar 100 0 0
+saproductstockwarehouse streetnumber varchar 100 0 0
+saproductstockwarehouse city varchar 100 0 0
+saproductstockwarehouse zc varchar 10 0 0
+saproductstockwarehouse country int 4 1 0
+saproductstockwarehouse state int 4 1 0
+saproductstockwarehouse stateb varchar 100 1 0
+saproductstockwarehouse contacta varchar 100 1 0
+saproductstockwarehouse emaila varchar 100 0 0
+saproductstockwarehouse skypea varchar 100 0 0
+saproductstockwarehouse telephonea varchar 100 1 0
+saproductstockwarehouse mobilea varchar 100 1 0
+saproductstockwarehouse contactb varchar 100 1 0
+saproductstockwarehouse emailb varchar 100 1 0
+saproductstockwarehouse skypeb varchar 100 1 0
+saproductstockwarehouse telephoneb varchar 100 1 0
+saproductstockwarehouse mobileb varchar 100 1 0
+saproductstockwarehouse isactive bit 1 0 0
+saproductstockwarehouse latitude varchar 50 1 0
+saproductstockwarehouse longitude varchar 50 1 0
+saproductstockwarehouse warehouseupdatetime datetime 8 0 0
+saproductstockwarehouse personupdatedId int 4 1 0
+saproductstockwhlog idstocwhklog int 4 0 1
+saproductstockwhlog idcompany int 4 0 0
+saproductstockwhlog idorder int 4 1 0
+saproductstockwhlog idproduct varchar 30 0 0
+saproductstockwhlog movproduct int 4 1 0
+saproductstockwhlog typemov smallint 2 1 0
+saproductstockwhlog idstatusmovstock smallint 2 1 0
+saproductstockwhlog idwarehouse smallint 2 1 0
+saproductstockwhlog iduser varchar 20 1 0
+saproductstockwhlog feclogmovstock datetime 8 1 0
+saproductstockwhlog feclogconstock datetime 8 1 0
+saproductstockwhlog movproductbackorder int 4 1 0
+saproductstockwhlog feclogmovbackorder datetime 8 1 0
+saproductstockwhlog idstatusmovbackorder smallint 2 1 0
+saseo idempresa int 4 0 0
+saseo ididioma smallint 2 0 0
+saseo idnivelcategoria int 4 0 0
+saseo idcategoriaorigen1 varchar 20 0 0
+saseo idcategoriaorigen2 varchar 20 0 0
+saseo idcategoria varchar 10 0 0
+saseo metahref varchar 100 1 0
+saseo metakeywords varchar 2000 1 0
+saseo metadescription varchar 1000 1 0
+saseo metatitle varchar 1000 1 0
+saseo idstatusmeta smallint 2 1 0
+saseo idusuario int 4 0 0
+saseo feclogmeta datetime 8 1 0
+saseo idupdatemeta smallint 2 1 0
+saseoalert idempresa int 4 0 0
+saseoalert ididioma smallint 2 0 0
+saseoalert idnivelcategoria int 4 0 0
+saseoalert idcategoriaorigen1 varchar 20 0 0
+saseoalert idcategoriaorigen2 varchar 20 0 0
+saseoalert idcategoria varchar 10 0 0
+saseoalert metakeywords varchar 2000 1 0
+saseoalert idstatusalertkeyword smallint 2 1 0
+saseoalert idusuario int 4 0 0
+saseoalert feclogmeta datetime 8 1 0
+saseobackup idempresa int 4 0 0
+saseobackup ididioma smallint 2 0 0
+saseobackup idnivelcategoria int 4 0 0
+saseobackup idcategoriaorigen1 varchar 20 0 0
+saseobackup idcategoriaorigen2 varchar 20 0 0
+saseobackup idcategoria varchar 10 0 0
+saseobackup metahref varchar 100 1 0
+saseobackup metakeywords varchar 2000 1 0
+saseobackup metadescription varchar 1000 1 0
+saseobackup metatitle varchar 1000 1 0
+saseobackup idstatusmeta smallint 2 1 0
+saseobackup idusuario int 4 0 0
+saseobackup feclogmeta datetime 8 1 0
+saseobackup idupdatemeta smallint 2 1 0
+saseocategory idempresa int 4 0 0
+saseocategory ididioma smallint 2 0 0
+saseocategory idnivelcategoria int 4 0 0
+saseocategory idcategoriaorigen1 varchar 20 0 0
+saseocategory idcategoriaorigen2 varchar 20 0 0
+saseocategory idcategoria varchar 10 0 0
+saseocategory categoryML varchar 200 1 0
+saseocategory categoryG varchar 200 1 0
+saseocategory categorySF varchar 200 1 0
+saseocategory categoryA varchar 200 1 0
+saseocategory categoryAcc varchar 200 1 0
+saseocategory categoryTar varchar 200 1 0
+saseocategory categorySat varchar 200 1 0
+saseocategory categoryBra varchar 200 1 0
+saseocategory categoryEB varchar 200 1 0
+saseocategory categoryRT varchar 200 1 0
+saseocategory categoryLPPa varchar 200 1 0
+saseocategory categoryLPIt varchar 200 1 0
+saseocategory categoryLPPr varchar 200 1 0
+saseocategory categoryCSCat varchar 200 1 0
+saseocategory categoryGS1 varchar 200 1 0
+saseocategory categoryCoppel varchar 200 1 0
+saseocategory categoryShopee varchar 200 1 0
+saseocategory categoryWalmart varchar 200 1 0
+saseocategory categoryElektra varchar 200 1 0
+saseocategory categoryShein varchar 200 1 0
+saseocategory categoryAliexpress varchar 200 1 0
+saseocategory idusuario int 4 0 0
+saseocategory feclogcategory datetime 8 1 0
+saseocategoryvar idcategory int 4 1 0
+saseocategoryvar idcategorysec int 4 1 0
+saseocategoryvar thecategory varchar 250 1 0
+saseofeed idfeed int 4 1 0
+saseofeed feedreference varchar 50 1 0
+saseofeed feedcolor varchar 6 1 0
+saseofeed mercadolibreupmark decimal 9 1 0
+saseofeed ventdepotupmark decimal 9 1 0
+saseofeed shippingupmark decimal 9 1 0
+saseofeed taxesupmark decimal 9 1 0
+saseofeed mercadolibreadjustpricelist decimal 9 1 0
+saseofeed mercadolibreshippingadder decimal 9 1 0
+saseofeed MPM decimal 9 1 0
+saseofeed MPA decimal 9 1 0
+saseofeed CCM decimal 9 1 0
+saseofeed CCA decimal 9 1 0
+saseofeed VDM decimal 9 1 0
+saseofeed VDA decimal 9 1 0
+saseofeed TXM decimal 9 1 0
+saseofeed TXA decimal 9 1 0
+saseofeed notetitle varchar 300 1 0
+saseofeed note varchar 1000 1 0
+saseofeed image1 varchar 100 1 0
+saseofeed textimage1 varchar 500 1 0
+saseofeed image2 varchar 100 1 0
+saseofeed textimage2 varchar 500 1 0
+saseofeed image3 varchar 100 1 0
+saseofeed textimage3 varchar 500 1 0
+saseofeed image4 varchar 100 1 0
+saseofeed textimage4 varchar 500 1 0
+saseofeed image5 varchar 100 1 0
+saseofeed textimage5 varchar 500 1 0
+saseofeed image6 varchar 100 1 0
+saseofeed textimage6 varchar 500 1 0
+saseofeed compareatprice smallint 2 1 0
+saseofeed day1 smallint 2 1 0
+saseofeed day2 smallint 2 1 0
+saseofeed time1 varchar 10 1 0
+saseofeed min1 smallint 2 1 0
+saseofeed day1status smallint 2 1 0
+saseofeed day2status smallint 2 1 0
+saseofeedfactor idempresa int 4 0 0
+saseofeedfactor idfeed int 4 0 0
+saseofeedfactor ididioma smallint 2 0 0
+saseofeedfactor idnivelcategoria int 4 0 0
+saseofeedfactor idcategoriaorigen1 varchar 20 0 0
+saseofeedfactor idcategoriaorigen2 varchar 20 0 0
+saseofeedfactor idcategoria varchar 10 0 0
+saseofeedfactor factorA decimal 9 1 0
+saseofeedfactor idusuario int 4 0 0
+saseofeedfactor feclogcategory datetime 8 1 0
+saseofeedfactorA idfeed int 4 1 0
+saseofeedfactorA feedreference varchar 50 1 0
+saseofeedfamily idcategoria varchar 10 0 0
+saseofeedfamily titcategoria varchar 100 1 0
+saseofeedfamilytotal IdSubCat varchar 30 0 0
+saseofeedfamilytotal catname varchar 100 1 0
+saseofeedfamilytotal total int 4 1 0
+saseofeedfile idfeed int 4 1 0
+saseofeedfile feeddesc varchar 30 1 0
+saseofeedfile idfeedfile int 4 1 0
+saseofeedfile feedfile varchar 200 1 0
+saseofeedfile feedregs int 4 1 0
+saseofeedfile2 idfeed int 4 1 0
+saseofeedfile2 feeddesc varchar 30 1 0
+saseofeedfile2 idfeedfile int 4 1 0
+saseofeedfile2 idfeedfamily varchar 30 1 0
+saseofeedfile2 idfeedsecuence int 4 1 0
+saseofeedfile2 family varchar 200 1 0
+saseofeedfile2 feedfile varchar 200 1 0
+saseofeedfile2 feedregs int 4 1 0
+saseokeywordv2 idempresa int 4 0 0
+saseokeywordv2 ididioma smallint 2 0 0
+saseokeywordv2 idnivelcategoria int 4 0 0
+saseokeywordv2 idcategoriaorigen1 varchar 20 0 0
+saseokeywordv2 idcategoriaorigen2 varchar 20 0 0
+saseokeywordv2 idcategoria varchar 10 0 0
+saseokeywordv2 idkeyword varchar 300 0 0
+saseokeywordv2 keyworddesc varchar 1000 1 0
+saseometa idempresa int 4 0 0
+saseometa ididioma smallint 2 0 0
+saseometa metarevisit varchar 100 1 0
+saseometa metalanguage varchar 100 1 0
+saseometa metarobots varchar 100 1 0
+saseometa metadistribution varchar 100 1 0
+saseometa metaclassification varchar 250 1 0
+saseometa metarating varchar 100 1 0
+saseometa metacopyright varchar 250 1 0
+saseometa metaverify varchar 500 1 0
+saseometa metaauthor varchar 250 1 0
+saseometa metadocrights varchar 100 1 0
+saseometa metadescription varchar 100 1 0
+saseometa metakeywords varchar 100 1 0
+saseometa metatitle varchar 100 1 0
+saseometa metahref varchar 100 1 0
+saseometa idusuario int 4 0 0
+saseov2 idempresa int 4 0 0
+saseov2 ididioma smallint 2 0 0
+saseov2 idnivelcategoria int 4 0 0
+saseov2 idcategoriaorigen1 varchar 20 0 0
+saseov2 idcategoriaorigen2 varchar 20 0 0
+saseov2 idcategoria varchar 10 0 0
+saseov2 metatitlev2 varchar 300 1 0
+saseov2 metadescriptionv2 varchar 1000 1 0
+saseov2 metaurlv2 varchar 300 1 0
+saseov2 idstatusmeta smallint 2 1 0
+saseov2 idusuario int 4 0 0
+satemplategrupo idtemplategrupo int 4 0 0
+satemplategrupo desctemplategrupo varchar 150 1 0
+satemplatetextos idtemplategrupo int 4 0 0
+satemplatetextos idtemplate int 4 0 1
+satemplatetextos urltemplate varchar 100 1 0
+satemplatetextos desctemplate varchar 150 1 0
+satemplatetextosd idtemplategrupo int 4 0 0
+satemplatetextosd idtemplate int 4 0 0
+satemplatetextosd idtexto int 4 0 0
+satemplatetextosd ididioma smallint 2 0 0
+satemplatetextosd idclasetexto smallint 2 1 0
+satemplatetextosd desctexto varchar 8000 1 0
+satemplatetextosd_2 idtemplategrupo int 4 0 0
+satemplatetextosd_2 idtemplate int 4 0 0
+satemplatetextosd_2 idtexto int 4 0 0
+satemplatetextosd_2 ididioma smallint 2 0 0
+satemplatetextosd_2 idclasetexto smallint 2 1 0
+satemplatetextosd_2 desctexto varchar 8000 1 0
+saupc idupcfile int 4 0 0
+saupc descupcfile varchar 100 1 0
+saupc dateupcfile date 3 1 0
+saupc20200822 idupcfile int 4 0 0
+saupc20200822 idsec int 4 0 0
+saupc20200822 idproduct varchar 30 0 0
+saupc20200822 idupc varchar 20 0 0
+saupc20200822 statusupc smallint 2 1 0
+saupcproduct idupcfile int 4 0 0
+saupcproduct idsec int 4 0 0
+saupcproduct idproduct varchar 30 0 0
+saupcproduct idupc varchar 20 0 0
+saupcproduct statusupc smallint 2 1 0
+saupcproductx idproduct varchar 60 0 0
+saupcproductx idproductorigin varchar 60 0 0
+saupcproductx idsec smallint 2 1 0
+saupcproductx idupc varchar 20 0 0
+saupcproductx statusupc smallint 2 1 0
+saupcproductx dateupc datetime 8 1 0
+saupctemp idupcfile int 4 0 0
+saupctemp idsec int 4 0 0
+saupctemp idupc varchar 20 0 0
+saupctemp statusupc smallint 2 1 0
+sausuarioperfil idempresa int 4 0 0
+sausuarioperfil ididioma smallint 2 0 0
+sausuarioperfil idusuarioperfil smallint 2 0 0
+sausuarioperfil descusuarioperfil varchar 60 1 0
+sausuarioperfil idprioridadusuarioperfil smallint 2 1 0
+selectedCustomDropdown id int 4 0 1
+selectedCustomDropdown dropdownNamesID int 4 0 0
+selectedCustomDropdown selectedValueID int 4 0 0
+selectedCustomDropdown formID int 4 0 0
+selectedCustomDropdown idCliente int 4 0 0
+StatusCliente IdStatus smallint 2 0 0
+StatusCliente IdIdioma smallint 2 0 0
+StatusCliente Descripcion varchar 100 1 0
+StatusCliente idstatuscliente smallint 2 1 0
+StatusCotizacion IdStatus smallint 2 0 0
+StatusCotizacion IdIdioma smallint 2 0 0
+StatusCotizacion Descripcion varchar 75 1 0
+StatusCotizacion idstatuscotizacion smallint 2 1 0
+StatusPedido IdStatus smallint 2 0 0
+StatusPedido Descripcion varchar 120 1 0
+StatusPedido ididioma smallint 2 0 0
+SubCatProd IdCategoria varchar 10 0 0
+SubCatProd IdIdioma smallint 2 0 0
+SubCatProd IdSubCat varchar 10 0 0
+SubCatProd Descripcion varchar 70 1 0
+SubCatProd DescLarga varchar 1000 1 0
+SubCatProd Imagen varchar 100 1 0
+SubCatProd ECubicaje varchar 100 1 0
+SubCatProd Catentabla bit 1 0 0
+SubCatProd numproductos int 4 0 0
+SubCatProd Prodentabla bit 1 0 0
+SubCatProd Concantidad bit 1 0 0
+SubCatProd Editable bit 1 0 0
+SubSubCatProd IdSubCat varchar 10 0 0
+SubSubCatProd IdCategoria varchar 10 0 0
+SubSubCatProd IdIdioma smallint 2 0 0
+SubSubCatProd IdSubSubCat varchar 10 0 0
+SubSubCatProd Descripcion varchar 60 1 0
+SubSubCatProd DescLarga varchar 1000 1 0
+SubSubCatProd Imagen varchar 100 1 0
+SubSubCatProd ECubicaje varchar 100 1 0
+SubSubCatProd numproductos int 4 0 0
+SubSubCatProd Prodentabla bit 1 0 0
+SubSubCatProd Concantidad bit 1 0 0
+SubSubCatProd Editable bit 1 0 0
+SubSubCatProd ShowVendorCode bit 1 0 0
+sysdiagrams name sysname 256 0 0
+sysdiagrams principal_id int 4 0 0
+sysdiagrams diagram_id int 4 0 1
+sysdiagrams version int 4 1 0
+sysdiagrams definition varbinary -1 1 0
+Tarjeta NumeroTarjeta varchar 30 0 0
+Tarjeta IdTipoTarjeta smallint 2 1 0
+Tarjeta IdCliente varchar 6 1 0
+Tarjeta Propietario varchar 60 1 0
+Tarjeta Propietario2 varchar 60 1 0
+Tarjeta Inicio varchar 15 1 0
+Tarjeta Vigencia varchar 8 1 0
+Tarjeta Banco varchar 20 1 0
+TarjetaD Calle varchar 60 1 0
+TarjetaD Ciudad varchar 60 1 0
+TarjetaD Estado varchar 60 1 0
+TarjetaD IdPais int 4 1 0
+TarjetaD CP varchar 25 1 0
+TarjetaD NumTarjeta varchar 25 1 0
+TarjetaD IdCliente varchar 6 1 0
+TarjetaD IdPedido decimal 9 1 0
+Tbl_Country id int 4 0 1
+Tbl_Country country_name varchar 100 1 0
+Tbl_Country country_iso_code_2 char 2 1 0
+Tbl_Country country_iso_code_3 char 3 1 0
+Tbl_Country flag_picture char 1 1 0
+Tbl_Country active_in_registry char 1 1 0
+Tbl_Country active char 1 1 0
+Tbl_Currency id int 4 0 1
+Tbl_Currency title nvarchar 100 1 0
+Tbl_Currency code char 3 1 0
+Tbl_Currency symbol_left nvarchar 100 1 0
+Tbl_Currency symbol_right nvarchar 100 1 0
+Tbl_Currency decimal_point char 1 1 0
+Tbl_Currency thousands_point char 1 1 0
+Tbl_Currency decimal_places char 1 1 0
+Tbl_Currency value_currency float 8 1 0
+Tbl_Currency last_updated datetime 8 1 0
+Tbl_Language id int 4 0 1
+Tbl_Language title nvarchar 100 1 0
+Tbl_Language active char 1 1 0
+Tbl_State id int 4 0 0
+Tbl_State country_id int 4 1 0
+Tbl_State language_id int 4 1 0
+Tbl_State name nvarchar 100 1 0
+Tbl_State code nvarchar 100 1 0
+Tbl_State Active char 1 1 0
+Tbl_Users ID int 4 0 1
+Tbl_Users UserName nvarchar 100 0 0
+Tbl_Users Password nvarchar 100 0 0
+Tbl_Users EmailAddress varchar 100 1 0
+Tbl_Users Title nvarchar 20 1 0
+Tbl_Users FirstName nvarchar 100 0 0
+Tbl_Users MiddleName nvarchar 100 1 0
+Tbl_Users LastName nvarchar 100 0 0
+Tbl_Users Address1 nvarchar 200 1 0
+Tbl_Users Address2 nvarchar 200 1 0
+Tbl_Users Address3 nvarchar 200 1 0
+Tbl_Users City nvarchar 100 1 0
+Tbl_Users State nvarchar 100 1 0
+Tbl_Users ZipCode nvarchar 40 1 0
+Tbl_Users Country nvarchar 100 1 0
+Tbl_Users DOB datetime 8 1 0
+Tbl_Users SSN varchar 50 1 0
+Tbl_Users RoleID int 4 1 0
+Tbl_Users CreatedDateTime datetime 8 1 0
+Tbl_Users LastLoginDateTime datetime 8 1 0
+Tbl_Users Active char 1 1 0
+TemplateNotas Orden int 4 0 0
+TemplateNotas IdIdioma int 4 0 0
+TemplateNotas Titulo varchar 150 1 0
+TemplateNotas Comentario text 16 1 0
+TemplateNotas Obligatoria int 4 1 0
+TempTableToKeep TempTable varchar 100 0 0
+TempTableToKeep DateToDelete datetime 8 0 0
+test_by_kabeer column1 bigint 8 1 0
+test_by_kabeer column2 binary 50 1 0
+test_by_kabeer column3 bit 1 1 0
+test_by_kabeer column4 char 10 1 0
+test_by_kabeer column5 date 3 1 0
+TestUpdate id int 4 0 1
+TestUpdate taxid int 4 1 0
+TestUpdate stateid int 4 1 0
+TestUpdate countryid int 4 1 0
+TestUpdate zoneid int 4 1 0
+TestUpdate userid varchar 6 1 0
+Textos Ididioma smallint 2 0 0
+Textos Template smallint 2 0 0
+Textos Secuencia smallint 2 0 0
+Textos clase varchar 10 0 0
+Textos Descripcion varchar 8000 1 0
+TextosM Template smallint 2 0 0
+TextosM Descripcion varchar 20 1 0
+TextosM infotemplate varchar 200 1 0
+TextosM statustemplate smallint 2 1 0
+Theme id int 4 0 1
+Theme idempresa int 4 1 0
+Theme name nvarchar 510 1 0
+Theme scheduleDates nvarchar -1 1 0
+Theme imgHeader nvarchar 300 1 0
+Theme imgFooter nvarchar 300 1 0
+Theme imgBody nvarchar 300 1 0
+Theme ColorHeaderText nchar 12 1 0
+Theme ColorFooterText nchar 12 1 0
+Theme ColorBodyText nchar 12 1 0
+Theme ColorTitleText nchar 12 1 0
+Theme ColorNavText nchar 12 1 0
+Theme ColorNavBack nchar 12 1 0
+Theme ColorNavSelect nchar 12 1 0
+Theme activate bit 1 1 0
+Theme repeat bit 1 1 0
+Theme defaultTheme bit 1 1 0
+TipoCambio IdMoneda smallint 2 1 0
+TipoCambio Fecha datetime 8 0 0
+TipoCambio Fact decimal 9 1 0
+TipoCaracteristica IdTipoCaracteristica int 4 0 0
+TipoCaracteristica Descripcion varchar 40 1 0
+TipoCaracteristica ididioma smallint 2 0 0
+TipoDomicilio IdTipoDomicilio int 4 0 0
+TipoDomicilio Descripcion varchar 50 1 0
+TipoGastosEnvio IdTipoGastosEnvio smallint 2 0 0
+TipoGastosEnvio Descripcion varchar 50 0 0
+TipoPromocion IdTipoPromo int 4 0 0
+TipoPromocion Descripcion varchar 30 1 0
+TipoTarjeta IdCategoria varchar 10 0 0
+TipoTarjeta IdTipoTarjeta smallint 2 0 0
+TipoTarjeta Descripcion varchar 20 1 0
+TlBiPedCot IdConPedCot int 4 0 1
+TlBiPedCot IdPedCot int 4 0 0
+TlBiPedCot IdtipoPedCot int 4 0 0
+TlBiPedCot idCliente varchar 6 1 0
+TlBiPedCot FecBitPedCot datetime 8 1 0
+tlordtra idempresa int 4 0 0
+tlordtra ididioma int 4 0 0
+tlordtra idordtra int 4 0 0
+tlordtra idordtratipo varchar 4 1 0
+tlordtra idordtraprioriodad varchar 4 1 0
+tlordtra idordtrarepeticion varchar 4 1 0
+tlordtra idordtrastatus varchar 4 1 0
+tlordtra fecordtraini datetime 8 0 0
+tlordtra fecordtrafin datetime 8 0 0
+tlordtra refordtra text 16 1 0
+tlordtra fecordtracaducidad datetime 8 1 0
+tlordtra fecordtra datetime 8 0 0
+tlordtra anexoordtra int 4 1 0
+tlordtra ordtrastatus int 4 1 0
+tlordtraarchivo idempresa int 4 0 0
+tlordtraarchivo ididioma int 4 0 0
+tlordtraarchivo idordtra int 4 0 0
+tlordtraarchivo idordtraarchivo int 4 0 0
+tlordtraarchivo tamordtraarchivo varchar 60 0 0
+tlordtraarchivo nomordtraarchivo varchar 150 1 0
+tlordtraarchivo nomordtraarchivo2 varchar 150 1 0
+tlordtrabitacora idempresa int 4 0 0
+tlordtrabitacora ididioma int 4 0 0
+tlordtrabitacora idordtra int 4 0 0
+tlordtrabitacora idordtrasecuencia int 4 0 0
+tlordtrabitacora idordtrastatus varchar 4 0 0
+tlordtrabitacora fecordtrastatus datetime 8 0 0
+tlordtrabitacora descordtrastatus text 16 1 0
+tlordtrabitacora idcliente varchar 6 1 0
+tlordtracliente idempresa int 4 0 0
+tlordtracliente ididioma int 4 0 0
+tlordtracliente idordtra int 4 0 0
+tlordtracliente idordttratipocliente int 4 0 0
+tlordtracliente idcliente varchar 6 0 0
+tlordtracliente idordtrasecuenciacliente int 4 0 0
+tlordtracliente idordtrastatus int 4 1 0
+tlordtracliente ordtraclientestatus int 4 1 0
+tlordtracliente fecrevordtra datetime 8 0 0
+tlordtraprioridad idempresa int 4 0 0
+tlordtraprioridad ididioma int 4 0 0
+tlordtraprioridad idordtraprioriodad varchar 4 0 0
+tlordtraprioridad descordtraprioridad varchar 60 0 0
+tlordtraprioridad valordtraprioridad int 4 1 0
+tlordtraprioridad frecordtraprioridad int 4 1 0
+tlordtrarepeticion idempresa int 4 0 0
+tlordtrarepeticion ididioma int 4 0 0
+tlordtrarepeticion idordtrarepeticion varchar 4 0 0
+tlordtrarepeticion descordtrarepeticion varchar 60 0 0
+tlordtrarepeticion valordtrarepeticion int 4 1 0
+tlordtrarepeticion frecordtrarepeticion int 4 1 0
+tlordtrastatus idempresa int 4 0 0
+tlordtrastatus ididioma int 4 0 0
+tlordtrastatus idordtrastatus varchar 4 0 0
+tlordtrastatus descordtrastatus varchar 60 0 0
+tlordtratipo idempresa int 4 0 0
+tlordtratipo ididioma int 4 0 0
+tlordtratipo idordtratipo varchar 4 0 0
+tlordtratipo descordtratipo varchar 60 0 0
+tlordtrausuario idempresa int 4 0 0
+tlordtrausuario idcliente varchar 6 0 0
+tlordtrausuario fecregcliente datetime 8 0 0
+tlordtrausuario idcliente2 varchar 6 1 0
+tlordtrausuario idclientestatus int 4 1 0
+tlpedidoinst idpedcot smallint 2 0 0
+tlpedidoinst idrefpedcot decimal 9 0 0
+tlpedidoinst idinstalacion smallint 2 1 0
+TLPRODUCTO IDPRODUCTO int 4 1 0
+TLPRODUCTO NOMBRE varchar 30 1 0
+TLPRODUCTO DESCRIPCION text 16 1 0
+TLPRODUCTO PRECIO decimal 9 1 0
+tlpromocion idreftienda varchar 10 0 0
+tlpromocion idpromocion int 4 0 0
+tlpromocion idrefpromocion varchar 60 0 0
+tlpromocion idtipopromocion smallint 2 0 0
+tlpromocion pordesc int 4 1 0
+tlpromocion vigproini datetime 8 0 0
+tlpromocion vigprofin datetime 8 0 0
+tlpromocion idusuario smallint 2 1 0
+tlpromocion fecpromocion datetime 8 0 0
+tlpromocionbono idreftienda varchar 10 0 0
+tlpromocionbono idpromocionbono int 4 0 0
+tlpromocionbono refdesc int 4 1 0
+tlpromocionbono bonodesc int 4 1 0
+tlpromocionbono idusuario smallint 2 1 0
+tlpromocionbono fecpromocion datetime 8 0 0
+tlpromocionbonod idreftienda varchar 10 0 0
+tlpromocionbonod idpromocionbono int 4 0 0
+tlpromocionbonod idpedido decimal 9 0 0
+tlpromocionbonod cantdesc decimal 9 1 0
+tlpromocionbonod pordesc decimal 9 1 0
+tlpromocionpedcot idreftienda varchar 10 0 0
+tlpromocionpedcot idpromocion int 4 0 0
+tlpromocionpedcot idrefpedcod decimal 9 0 0
+tlpromocionpedcot idpedcod smallint 2 1 0
+tlpromocionpedcot pordesc int 4 1 0
+tlpromocionpedcot cantdesc decimal 9 1 0
+tlpromocionregalo idreftienda varchar 10 0 0
+tlpromocionregalo idpromocionregalo int 4 0 0
+tlpromocionregalo rangoinf decimal 9 1 0
+tlpromocionregalo rangosup decimal 9 1 0
+tlpromocionregalo descregalo varchar 150 1 0
+tlpromocionregalo idusuario smallint 2 1 0
+tlpromocionregalo fecpromocion datetime 8 0 0
+tlpromocionregalod idreftienda varchar 10 0 0
+tlpromocionregalod idpromocionregalo int 4 0 0
+tlpromocionregalod idpedido decimal 9 0 0
+tlpromocionregalod descregalo varchar 150 1 0
+tlproveedorarchivo idempresa int 4 0 0
+tlproveedorarchivo ididioma int 4 0 0
+tlproveedorarchivo idproveedor varchar 6 0 0
+tlproveedorarchivo idsecuencia int 4 0 0
+tlproveedorarchivo fecarchivo datetime 8 0 0
+tlproveedorarchivo refproveearchivo varchar 150 1 0
+tlproveedorarchivo tamproveearchivo varchar 60 0 0
+tlproveedorarchivo nomproveearchivo varchar 150 1 0
+tlproveedorarchivo nomproveearchivo2 varchar 150 1 0
+tlproveedorbitacora idempresa int 4 0 0
+tlproveedorbitacora ididioma int 4 0 0
+tlproveedorbitacora idproveedor varchar 6 0 0
+tlproveedorbitacora idproveedorsecuencia int 4 0 0
+tlproveedorbitacora idtipobitacora smallint 2 0 0
+tlproveedorbitacora idproveedorstatus varchar 4 1 0
+tlproveedorbitacora fecproveedorstatus datetime 8 0 0
+tlproveedorbitacora descproveedorstatus text 16 1 0
+TLPROVEEDORCONTACTO idempresa int 4 0 0
+TLPROVEEDORCONTACTO ididioma int 4 0 0
+TLPROVEEDORCONTACTO idproveedor varchar 6 0 0
+TLPROVEEDORCONTACTO idcontacto int 4 0 0
+TLPROVEEDORCONTACTO nomcontacto varchar 100 0 0
+TLPROVEEDORCONTACTO emailcontacto varchar 100 0 0
+TLPROVEEDORCONTACTO cargocontacto varchar 60 0 0
+TLPROVEEDORCONTACTO pedemacontacto smallint 2 1 0
+TLPROVEEDORD idempresa int 4 0 0
+TLPROVEEDORD ididioma int 4 0 0
+TLPROVEEDORD idproveedor varchar 6 0 0
+TLPROVEEDORSTATUS idempresa int 4 0 0
+TLPROVEEDORSTATUS ididioma int 4 0 0
+TLPROVEEDORSTATUS idproveedorstatus varchar 4 0 0
+TLPROVEEDORSTATUS descproveedorstatus varchar 60 0 0
+TLPROVEEDORTELEFONO idempresa int 4 0 0
+TLPROVEEDORTELEFONO ididioma int 4 0 0
+TLPROVEEDORTELEFONO idproveedor varchar 6 0 0
+TLPROVEEDORTELEFONO idcontacto int 4 0 0
+TLPROVEEDORTELEFONO idtelefono int 4 0 0
+TLPROVEEDORTELEFONO desctelefono varchar 15 1 0
+TLPROVEEDORTELEFONO tipotelefono smallint 2 1 0
+TLPROVEEDORUSUARIO idempresa int 4 0 0
+TLPROVEEDORUSUARIO idcliente varchar 6 0 0
+TLPROVEEDORUSUARIO fecregcliente datetime 8 0 0
+TLPROVEEDORUSUARIO idcliente2 varchar 6 1 0
+TLPROVEEDORUSUARIO idclientestatus int 4 1 0
+tltienda idreftienda varchar 10 0 0
+tltienda desctienda varchar 150 1 0
+Usuario IdUsuario int 4 0 0
+Usuario Password varchar 10 0 0
+Usuario Login varchar 10 1 0
+Usuario Descripcion varchar 50 0 0
+Usuario LoginIP varchar 50 1 0
+Usuario Active smallint 2 1 0
+Usuario AdminIPExempt bit 1 0 0
+UsuarioLog IdUsuario smallint 2 0 0
+UsuarioLog feclog datetime 8 0 0
+UsuarioLog datoip varchar 20 0 0
+UsuarioLog datopos int 4 0 0
+UsuarioLogIP IdUsuario smallint 2 0 0
+UsuarioLogIP datoip varchar 20 0 0
+USUARIOSINVITADOS IDINVITACION decimal 9 0 0
+USUARIOSINVITADOS IDPROMOCION decimal 9 0 0
+USUARIOSINVITADOS IDUSUARIO varchar 6 0 0
+USUARIOSINVITADOS SEENVIO varchar 2 0 0
+Usuariosmail IdCliente varchar 6 1 0
+Usuariosmail Fecha datetime 8 1 0
+Usuariosmail IdPromocion int 4 1 0
+Usuariosmail IdInvitacion int 4 1 0
+Usuariosmail IdUsuario varchar 6 1 0
+Vendedor IdCliente varchar 6 0 0
+Vendedor IdDistribuidor varchar 6 0 0
+zipcodeBoxTable countryId int 4 1 0
+zipcodeBoxTable box1 nvarchar -1 1 0
+zipcodeBoxTable box2 nvarchar -1 1 0
+zipcodeBoxTable box3 nvarchar -1 1 0
+zona_mapping country_id int 4 0 0
+zona_mapping state_id int 4 0 0
+zona_mapping idzona int 4 1 0
+ZonaFiscal Idzona int 4 0 0
+ZonaFiscal Descripcion varchar 50 0 0
+ZonaFiscal taxAbbr varchar 50 1 0
+ZonaFiscal userNumber nchar 20 1 0
+ZonaFiscal userName varchar 100 1 0
+ZonaFiscal lastUpdation datetime 8 1 0
+ZonaFiscal active bit 1 0 0
+ZonaFiscal idpais int 4 1 0
+ZonaFiscal idestado int 4 1 0
+zphothogallery id int 4 1 0
+zphothogallery idproducto varchar 50 1 0
+zphothogallery fam varchar 50 1 0
+zphothogallery lin varchar 50 1 0
+zphothogallery idimagen int 4 1 0
+zphothogallery imagen varchar 500 1 0
+zphothogallery fech varchar 500 1 0
+zphothogallery estatus varchar 50 1 0
+zphothogallery directorio varchar 500 1 0
+ 
+=== PRIMARY / FOREIGN KEYS ===
+fk parent_table parent_col ref_table ref_col
+-- ------------ ---------- --------- -------
+FK_ReportClient_Report ReportClient ReportID Report ID
+FK_ReportData_Report ReportData ReportID Report ID
+FK_SACOTIZA_REFERENCE_SAUSUARI14 sacotizacionseguimientoperfil idempresa sausuarioperfil idempresa
+FK_SACOTIZA_REFERENCE_SACOTIZA11 sacotizacionseguimientoperfil idempresa sacotizacionseguimiento idempresa
+FK_SACOTIZA_REFERENCE_SAUSUARI14 sacotizacionseguimientoperfil ididioma sausuarioperfil ididioma
+FK_SACOTIZA_REFERENCE_SACOTIZA11 sacotizacionseguimientoperfil ididioma sacotizacionseguimiento ididioma
+FK_SACOTIZA_REFERENCE_SACOTIZA11 sacotizacionseguimientoperfil idcotseguimiento sacotizacionseguimiento idcotseguimiento
+FK_SACOTIZA_REFERENCE_SAUSUARI14 sacotizacionseguimientoperfil idusuarioperfil sausuarioperfil idusuarioperfil

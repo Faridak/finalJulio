@@ -23,6 +23,14 @@ $action = $input['action'] ?? '';
 $productId = intval($input['product_id'] ?? 0);
 $quantity = intval($input['quantity'] ?? 1);
 
+// Mirror cart mutations to the DB for logged-in users (survives logout/devices).
+register_shutdown_function(function () use ($pdo, $action) {
+    if (in_array($action, ['add', 'update', 'remove', 'clear'], true) && isLoggedIn()) {
+        require_once __DIR__ . '/../services/CartService.php';
+        try { (new CartService($pdo))->persist($_SESSION['user_id']); } catch (\Throwable $e) { /* best effort */ }
+    }
+});
+
 // Helper function to get product from DB
 function getProductFromDB($pdo, $id) {
     $stmt = $pdo->prepare("
@@ -46,28 +54,20 @@ function getProductFromDB($pdo, $id) {
     return $product;
 }
 
-// Helper to calculate total from DB prices
+// Helper to calculate total from EFFECTIVE prices (discounts/bulk/promos),
+// matching what OrderProcessor will actually charge.
 function getCartTotalFromDB($pdo) {
     if (empty($_SESSION['cart'])) return 0;
-    
+
+    require_once __DIR__ . '/../services/PricingService.php';
+    $pricing = new PricingService($pdo);
+
     $total = 0;
-    $ids = array_keys($_SESSION['cart']);
-    
-    if (empty($ids)) return 0;
-    
-    $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-    $sql = "SELECT id, price FROM products WHERE id IN ($placeholders)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($ids);
-    $products = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // [id => price]
-    
     foreach ($_SESSION['cart'] as $id => $qty) {
-        if (isset($products[$id])) {
-            $total += $products[$id] * $qty;
-        }
+        $ep = $pricing->effectivePrice((int) $id, (int) $qty);
+        if (!empty($ep['unit_effective'])) $total += (float) $ep['unit_effective'] * $qty;
     }
-    
-    return $total;
+    return round($total, 2);
 }
 
 
@@ -224,19 +224,24 @@ switch ($action) {
                 $productMap[$p['id']] = $p;
             }
             
+            require_once __DIR__ . '/../services/PricingService.php';
+            $pricingSvc = new PricingService($pdo);
             foreach ($cart as $id => $qty) {
                 if (isset($productMap[$id])) {
                     $p = $productMap[$id];
                     // Handle image fallback
                     $img = !empty($p['image_url']) ? $p['image_url'] : 'assets/images/placeholder.jpg';
-                    
+                    $ep = $pricingSvc->effectivePrice((int) $id, (int) $qty);
+                    $unit = (float) ($ep['unit_effective'] ?? $p['price']);
+
                     $cartDetails[] = [
                         'product_id' => $id,
                         'name' => $p['name'],
-                        'price' => $p['price'],
+                        'price' => $unit,
+                        'base_price' => ($ep['discount'] ?? 0) > 0 ? (float) $p['price'] : null,
                         'image_url' => $img,
                         'quantity' => $qty,
-                        'subtotal' => $p['price'] * $qty,
+                        'subtotal' => $unit * $qty,
                         'stock' => $p['inventory']
                     ];
                 }

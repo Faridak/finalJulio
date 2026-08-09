@@ -4,7 +4,7 @@ require_once '../config/database.php';
 $error = '';
 
 // Redirect if already logged in as merchant
-if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'merchant') {
+if (isset($_SESSION['user_id']) && ($_SESSION['user_role'] ?? '') === 'merchant') {
     header('Location: dashboard.php');
     exit;
 }
@@ -20,10 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
         
         if ($user && password_verify($password, $user['password'])) {
+            session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
-            
+            $_SESSION['user_role'] = $user['role'];
+
             header('Location: dashboard.php');
             exit;
         } else {
@@ -41,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merchant Login - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->

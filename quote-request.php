@@ -4,10 +4,11 @@ session_start();
 require_once 'config/database.php';
 require_once 'includes/security.php';
 
-// CSRF validation temporarily disabled
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-//     die('CSRF token mismatch');
-// }
+// CSRF validation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
+    http_response_code(419);
+    die('CSRF token mismatch. Please refresh the page and try again.');
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -26,33 +27,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Handle file upload
     $specifications_file = null;
+    $upload_error = null;
     if (isset($_FILES['specifications_file']) && $_FILES['specifications_file']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = 'uploads/specifications/';
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
+        $file = $_FILES['specifications_file'];
+
+        // Whitelist of allowed document/image types for specifications.
+        $allowedTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ];
+        $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx'];
+        $maxSize = 10 * 1024 * 1024; // 10MB
+
+        $validationErrors = Security::validateFileUpload($file, $allowedTypes, $maxSize);
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($extension, $allowedExtensions, true)) {
+            $validationErrors[] = 'File type is not allowed.';
         }
-        
-        $file_name = uniqid() . '_' . basename($_FILES['specifications_file']['name']);
-        $target_file = $upload_dir . $file_name;
-        
-        if (move_uploaded_file($_FILES['specifications_file']['tmp_name'], $target_file)) {
-            $specifications_file = $target_file;
+
+        if (empty($validationErrors)) {
+            $upload_dir = 'uploads/specifications/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+
+            // Force a safe, generated filename with a whitelisted extension.
+            $file_name = bin2hex(random_bytes(16)) . '.' . $extension;
+            $target_file = $upload_dir . $file_name;
+
+            if (move_uploaded_file($file['tmp_name'], $target_file)) {
+                $specifications_file = $target_file;
+            } else {
+                $upload_error = 'Failed to save the uploaded file.';
+            }
+        } else {
+            $upload_error = implode(' ', $validationErrors);
         }
     }
-    
-    try {
-        // Insert quote request
-        $stmt = $pdo->prepare("INSERT INTO quotes (user_id, product_type, specifications, specifications_file, quantity, preferred_timeline) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$user_id, $product_type, $specifications, $specifications_file, $quantity, $timeline]);
-        $quote_id = $pdo->lastInsertId();
-        
-        // Create notification for sales team
-        $stmt = $pdo->prepare("INSERT INTO quote_notifications (quote_id, user_id, notification_type, message) SELECT ?, id, 'quote_submitted', CONCAT('New quote request submitted for ', ?) FROM users WHERE role = 'admin' LIMIT 1");
-        $stmt->execute([$quote_id, $product_type]);
-        
-        $success_message = "Your quote request has been submitted successfully! Our sales team will review it shortly.";
-    } catch (PDOException $e) {
-        $error_message = "Error submitting quote request: " . $e->getMessage();
+
+    if ($upload_error) {
+        $error_message = $upload_error;
+    } else {
+        try {
+            // Insert quote request
+            $stmt = $pdo->prepare("INSERT INTO quotes (user_id, product_type, specifications, specifications_file, quantity, preferred_timeline) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$user_id, $product_type, $specifications, $specifications_file, $quantity, $timeline]);
+            $quote_id = $pdo->lastInsertId();
+
+            // Create notification for sales team
+            $stmt = $pdo->prepare("INSERT INTO quote_notifications (quote_id, user_id, notification_type, message) SELECT ?, id, 'quote_submitted', CONCAT('New quote request submitted for ', ?) FROM users WHERE role = 'admin' LIMIT 1");
+            $stmt->execute([$quote_id, $product_type]);
+
+            $success_message = "Your quote request has been submitted successfully! Our sales team will review it shortly.";
+        } catch (PDOException $e) {
+            error_log('Quote request insert failed: ' . $e->getMessage());
+            $error_message = "There was an error submitting your quote request. Please try again.";
+        }
     }
 }
 ?>
@@ -63,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Engineering Quote - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <?php include 'includes/header.php'; ?>
@@ -87,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                <?= Security::getCSRFInput() ?>
                 <div>
                     <label for="product_type" class="block text-sm font-medium text-gray-700 mb-1">Product Type *</label>
                     <input type="text" id="product_type" name="product_type" required

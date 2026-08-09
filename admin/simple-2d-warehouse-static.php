@@ -11,8 +11,8 @@ requireRole('admin');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple 2D Warehouse Visualization - Static</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
     <style>
         .rack-container {
             border: 2px solid #3b82f6;
@@ -116,6 +116,7 @@ requireRole('admin');
     </style>
 </head>
 <body class="bg-gray-100">
+<?php include __DIR__ . '/nav.php'; ?>
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">

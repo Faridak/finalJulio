@@ -6,15 +6,18 @@
 
 class OrderProcessor {
     private $pdo;
-    
+    private $pricing;
+
     public function __construct($pdo) {
         $this->pdo = $pdo;
+        require_once __DIR__ . '/../services/PricingService.php';
+        $this->pricing = new PricingService($pdo);
     }
     
     /**
      * Process a new order
      */
-    public function createOrder($userId, $cartItems, $shippingInfo, $paymentMethod = 'credit_card') {
+    public function createOrder($userId, $cartItems, $shippingInfo, $paymentMethod = 'credit_card', $promoCode = null) {
         try {
             $this->pdo->beginTransaction();
             
@@ -36,14 +39,18 @@ class OrderProcessor {
                     throw new Exception("Insufficient stock for product ID {$item['product_id']}. Available: {$product['inventory']}");
                 }
                 
-                $itemTotal = $product['price'] * $item['quantity'];
+                // Charge the EFFECTIVE price (timed discounts, bulk tiers,
+                // promotions) — what the customer saw on the product page.
+                $ep = $this->pricing->effectivePrice($item['product_id'], $item['quantity']);
+                $unitPrice = round((float) ($ep['unit_effective'] ?? $product['price']), 2);
+                $itemTotal = $unitPrice * $item['quantity'];
                 $subtotal += $itemTotal;
-                
+
                 $itemsToProcess[] = [
                     'product_id' => $item['product_id'],
                     'merchant_id' => $product['merchant_id'],
                     'qty' => $item['quantity'],
-                    'price' => $product['price'],
+                    'price' => $unitPrice,
                     'total' => $itemTotal
                 ];
             }
@@ -52,22 +59,45 @@ class OrderProcessor {
             // For MVP, we will assume single order for now or assign to first merchant found
             // Real implementation might need split orders or a platform 'orders' table.
             // Let's assume we create one order record.
-            $merchantId = $itemsToProcess[0]['merchant_id']; 
-            
-            $shippingCost = 10.00; // Flat rate for MVP
-            $tax = $subtotal * 0.08; // 8% Tax
-            $total = $subtotal + $shippingCost + $tax;
+            $merchantId = $itemsToProcess[0]['merchant_id'];
+
+            // Our own shipping calculation: DHL chargeable weight + distance
+            // from the warehouse, priced from shipping_rate_rules.
+            require_once __DIR__ . '/../services/ShippingCalculatorService.php';
+            $destAddress = trim(($shippingInfo['address'] ?? '') . ', ' . ($shippingInfo['city'] ?? '') . ' ' . ($shippingInfo['zip'] ?? ''), ', ');
+            $country = strtoupper($shippingInfo['country'] ?? 'MX');
+            $quote = (new ShippingCalculatorService($this->pdo))
+                ->quote($itemsToProcess, $destAddress, $country, $subtotal);
+            $shippingCost = (float) $quote['total'];
+
+            // Promo code (marketing): validated against fresh cart prices; the
+            // discount reduces the taxable subtotal.
+            $discount = 0.0; $appliedCode = null;
+            if ($promoCode) {
+                require_once __DIR__ . '/../services/PromoCodeService.php';
+                $promoSvc = new PromoCodeService($this->pdo);
+                $chk = $promoSvc->validate($promoCode, $userId,
+                    array_map(fn($i) => ['product_id' => $i['product_id'], 'quantity' => $i['qty'], 'price' => $i['price']], $itemsToProcess));
+                if (!$chk['valid']) throw new Exception('Promo code: ' . $chk['error']);
+                $discount = min((float) $chk['discount'], $subtotal);
+                $appliedCode = strtoupper(trim($promoCode));
+                $promoSvc->redeem($appliedCode);
+            }
+
+            $tax = ($subtotal - $discount) * 0.08; // 8% tax on the discounted amount
+            $total = $subtotal - $discount + $shippingCost + $tax;
             
             // 3. Create Order
             $stmt = $this->pdo->prepare("
                 INSERT INTO orders (
-                    user_id, merchant_id, subtotal, shipping_cost, tax, total, 
+                    user_id, merchant_id, subtotal, shipping_cost, tax, total,
+                    promo_code, discount_amount,
                     status, payment_status, payment_method, shipping_address, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, NOW())
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending', ?, ?, NOW())
             ");
-            
+
             $addressString = $shippingInfo['address'] . ", " . $shippingInfo['city'] . ", " . $shippingInfo['zip'];
-            
+
             $stmt->execute([
                 $userId,
                 $merchantId,
@@ -75,6 +105,8 @@ class OrderProcessor {
                 $shippingCost,
                 $tax,
                 $total,
+                $appliedCode,
+                $discount,
                 $paymentMethod,
                 $addressString
             ]);

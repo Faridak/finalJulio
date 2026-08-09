@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once 'includes/security.php';
 
 // Require login - using the existing isLoggedIn() function
 if (!isset($_SESSION['user_id'])) {
@@ -24,9 +25,9 @@ $orders = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <?php include 'includes/navigation.php'; ?>
@@ -146,16 +147,29 @@ $orders = $stmt->fetchAll();
                                 </div>
                                 
                                 <div class="mt-2 sm:mt-0 flex space-x-4">
-                                    <a href="order-details.php?id=<?= $order['id'] ?>" 
+                                    <a href="order-details.php?id=<?= $order['id'] ?>"
                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         View Details
                                     </a>
+
+                                    <form method="POST" action="buy-again.php" class="inline">
+                                        <?= Security::getCSRFInput() ?>
+                                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Buy Again</button>
+                                    </form>
                                     
                                     <?php if ($order['status'] === 'pending'): ?>
                                         <button onclick="cancelOrder(<?= $order['id'] ?>)"
                                                 class="text-red-600 hover:text-red-800 text-sm font-medium">
                                             Cancel Order
                                         </button>
+                                    <?php endif; ?>
+
+                                    <?php if (in_array($order['status'], ['delivered', 'shipped', 'processing'], true)): ?>
+                                        <a href="request-return.php?order_id=<?= $order['id'] ?>"
+                                           class="text-amber-600 hover:text-amber-800 text-sm font-medium">
+                                            Request Return
+                                        </a>
                                     <?php endif; ?>
                                 </div>
                             </div>

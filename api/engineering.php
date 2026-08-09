@@ -6,12 +6,12 @@ session_start();
 require_once '../config/database.php';
 require_once '../includes/security.php';
 
-// CSRF validation temporarily disabled
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-//     http_response_code(403);
-//     echo json_encode(['error' => 'CSRF token mismatch']);
-//     exit;
-// }
+// CSRF validation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'CSRF token mismatch']);
+    exit;
+}
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {

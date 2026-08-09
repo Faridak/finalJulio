@@ -87,9 +87,9 @@ $locations = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enhanced Inventory Management - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
     <style>
         .bin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 3px; }
         .bin-cell { aspect-ratio: 1; border: 2px solid #e5e7eb; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; cursor: pointer; transition: all 0.2s; }

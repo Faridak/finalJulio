@@ -75,3 +75,21 @@ dump.rdb
 
 # Apache
 .htaccess.local
+# ---- VentDepot: large assets & data that must NEVER go to GitHub ----
+# Product images (deployed separately via rsync/tar, not git)
+uploads/legacy/
+uploads/legacy-imagenes/
+uploads/thumbs/
+uploads/stores/*/
+uploads/avatars/*
+!uploads/.htaccess
+# Database dumps / backups
+backups/
+*.sql
+*.sql.gz
+# Rescued legacy data (kept on dev machine only)
+legacy-imagenes/
+linode-rescue/
+# Deploy secrets
+deploy/DB_PASSWORD.txt
+.env.production

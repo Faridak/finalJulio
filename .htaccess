@@ -1,0 +1,39 @@
+# VentDepot production hardening
+
+# Disable directory listings
+Options -Indexes
+
+# Block access to sensitive files
+<FilesMatch "(^\.env|\.env\..*|composer\.(json|lock)|\.gitignore|.*\.(log|sql|bak|backup|tar\.gz|zip|md|txt))$">
+    Require all denied
+</FilesMatch>
+
+# Block dotfiles (e.g. .git)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Prevent PHP execution in upload directories
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^uploads/.*\.(php|phtml|php[0-9]|pht)$ - [F,L,NC]
+    RewriteRule ^public/uploads/.*\.(php|phtml|php[0-9]|pht)$ - [F,L,NC]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Hide PHP version
+<IfModule mod_php.c>
+    php_flag expose_php Off
+    php_flag display_errors Off
+</IfModule>
+
+# Tool directories are never served over HTTP (CLI / deploy only)
+<IfModule mod_rewrite.c>
+    RewriteRule ^(migration|scripts|tests|cron|backups|deploy)(/|$) - [F,L]
+</IfModule>

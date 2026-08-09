@@ -10,7 +10,7 @@ require_once '../../../classes/CurrencyConverter.php';
 header('Content-Type: application/json');
 
 // Check if user is authenticated
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit;

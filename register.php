@@ -12,12 +12,13 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF Protection temporarily disabled
-    // if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-    //     Security::logSecurityEvent('csrf_token_mismatch', ['page' => 'register']);
-    //     die('CSRF token mismatch');
-    // }
-    
+    // CSRF Protection
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
+        Security::logSecurityEvent('csrf_token_mismatch', ['page' => 'register']);
+        http_response_code(419);
+        die('CSRF token mismatch. Please refresh the page and try again.');
+    }
+
     // Rate limiting
     if (!Security::checkRateLimit('register', 5, 3600)) { // 5 attempts per hour
         $error = 'Too many registration attempts. Please wait before trying again.';
@@ -92,8 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -112,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <!-- Registration Form -->
             <form class="mt-8 space-y-6" method="POST">
+                <?= Security::getCSRFInput() ?>
                 <?php if ($error): ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                         <?= htmlspecialchars($error) ?>

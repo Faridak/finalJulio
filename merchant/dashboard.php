@@ -70,10 +70,10 @@ $topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Merchant Dashboard - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <!-- Merchant Navigation -->
@@ -99,6 +99,7 @@ $topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div x-show="open" @click.away="open = false" 
                              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                             <a href="../index.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">View Store</a>
+                            <a href="earnings.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Earnings</a>
                             <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                             <a href="../logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
                         </div>

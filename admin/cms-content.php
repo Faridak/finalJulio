@@ -115,14 +115,15 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Management - VentDepot Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
     <style>
         [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50 h-screen flex overflow-hidden" x-data="{ sidebarOpen: false }">
+<?php include __DIR__ . '/nav.php'; ?>
     <!-- Sidebar -->
     <?php include 'includes/sidebar.php'; ?>
 

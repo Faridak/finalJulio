@@ -57,6 +57,7 @@ $topProducts = $metricsMonitor->getTopSellingProducts(10, '30d');
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
     <div class="container-fluid">
         <div class="row">
             <?php include 'sidebar.php'; ?>

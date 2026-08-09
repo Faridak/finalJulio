@@ -123,6 +123,7 @@ $recentEvents = $webhookManager->getRecentEvents(50);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
     <div class="container-fluid">
         <div class="row">
             <?php include 'sidebar.php'; ?>

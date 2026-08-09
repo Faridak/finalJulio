@@ -5,7 +5,7 @@ require_once '../classes/TaxManager.php';
 
 // Check if user is authenticated
 session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: ../login.php');
     exit;
 }
@@ -28,6 +28,7 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->

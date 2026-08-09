@@ -5,7 +5,7 @@ require_once 'includes/security.php';
 require_once 'includes/AnalyticsSystem.php';
 
 // Check if user is merchant
-if (!isLoggedIn() || $_SESSION['role'] !== 'merchant') {
+if (!isLoggedIn() || ($_SESSION['user_role'] ?? '') !== 'merchant') {
     header('Location: login.php');
     exit;
 }
@@ -36,8 +36,8 @@ if (isset($_GET['export'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics Dashboard - Merchant Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
 </head>

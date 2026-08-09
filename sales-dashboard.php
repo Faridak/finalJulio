@@ -4,10 +4,11 @@ session_start();
 require_once 'config/database.php';
 require_once 'includes/security.php';
 
-// CSRF validation temporarily disabled
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-//     die('CSRF token mismatch');
-// }
+// CSRF validation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    die('CSRF token mismatch');
+}
 
 // Check if user is logged in and is admin/sales
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'merchant')) {
@@ -226,8 +227,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Dashboard - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .image-preview-container {
@@ -285,6 +286,36 @@ try {
     </style>
 </head>
 <body class="bg-gray-50">
+    <script>
+        window.CSRF_TOKEN = <?= json_encode(Security::generateCSRFToken()) ?>;
+        (function () {
+            // Auto-inject the CSRF token into every same-origin POST form and fetch call.
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('form').forEach(function (form) {
+                    var method = (form.getAttribute('method') || 'get').toLowerCase();
+                    if (method === 'post' && !form.querySelector('input[name="csrf_token"]')) {
+                        var input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'csrf_token';
+                        input.value = window.CSRF_TOKEN;
+                        form.appendChild(input);
+                    }
+                });
+            });
+            var originalFetch = window.fetch;
+            window.fetch = function (resource, options) {
+                options = options || {};
+                if (options.method && options.method.toUpperCase() === 'POST') {
+                    if (options.body instanceof FormData) {
+                        if (!options.body.has('csrf_token')) {
+                            options.body.append('csrf_token', window.CSRF_TOKEN);
+                        }
+                    }
+                }
+                return originalFetch.call(this, resource, options);
+            };
+        })();
+    </script>
     <?php include 'includes/navigation.php'; ?>
     
     <div class="max-w-7xl mx-auto px-4 py-8">

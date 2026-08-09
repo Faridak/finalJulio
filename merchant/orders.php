@@ -12,19 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $orderId = intval($_POST['order_id'] ?? 0);
     $newStatus = $_POST['status'] ?? '';
     
-    if ($action === 'update_status' && $orderId > 0 && in_array($newStatus, ['pending', 'shipped', 'delivered', 'cancelled'])) {
-        // Verify order contains merchant's products
+    if ($action === 'update_status' && $orderId > 0 && in_array($newStatus, ['processing', 'shipped', 'delivered', 'cancelled'])) {
+        // A seller may only update THEIR sub-order (their items), not the whole
+        // multi-vendor order. The parent status rolls up automatically.
         $checkStmt = $pdo->prepare("
-            SELECT COUNT(*) FROM orders o 
-            JOIN products p ON p.merchant_id = ? 
-            WHERE o.id = ?
+            SELECT COUNT(*) FROM order_items oi JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ? AND p.merchant_id = ?
         ");
-        $checkStmt->execute([$merchantId, $orderId]);
-        
+        $checkStmt->execute([$orderId, $merchantId]);
+
         if ($checkStmt->fetchColumn() > 0) {
-            $updateStmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
-            $updateStmt->execute([$newStatus, $orderId]);
-            $success = 'Order status updated successfully.';
+            require_once '../services/MultiVendorService.php';
+            (new MultiVendorService($pdo))->updateSubStatus($orderId, $merchantId, $newStatus);
+            $success = 'Your part of the order was updated.';
         }
     }
 }
@@ -47,8 +47,8 @@ if (!empty($status)) {
 }
 
 if (!empty($search)) {
-    $whereConditions[] = '(u.email LIKE ? OR o.id LIKE ?)';
-    $params[] = "%$search%";
+    // Merchants may search by order id only — never by customer PII.
+    $whereConditions[] = 'o.id LIKE ?';
     $params[] = "%$search%";
 }
 
@@ -74,7 +74,7 @@ $totalPages = ceil($totalOrders / $perPage);
 
 // Get orders
 $sql = "
-    SELECT DISTINCT o.*, u.email as customer_email, u.id as customer_id
+    SELECT DISTINCT o.*, u.id as customer_id
     FROM orders o
     JOIN users u ON o.user_id = u.id
     JOIN order_items oi ON o.id = oi.order_id
@@ -94,9 +94,9 @@ $orders = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders - VentDepot Merchant</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -154,7 +154,7 @@ $orders = $stmt->fetchAll();
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                     <input type="text" name="search" id="search" value="<?= htmlspecialchars($search) ?>"
                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                           placeholder="Search by order ID or customer email...">
+                           placeholder="Search by order ID...">
                 </div>
                 
                 <div>
@@ -202,7 +202,8 @@ $orders = $stmt->fetchAll();
                                         Order #<?= str_pad($order['id'], 6, '0', STR_PAD_LEFT) ?>
                                     </h3>
                                     <p class="text-sm text-gray-600">
-                                        Customer: <?= htmlspecialchars($order['customer_email']) ?>
+                                        Customer: #VD-<?= str_pad($order['customer_id'] ?? $order['id'], 6, '0', STR_PAD_LEFT) ?>
+                                        <span class="text-xs text-gray-400">(details protected by VentDepot)</span>
                                     </p>
                                     <p class="text-sm text-gray-600">
                                         Placed: <?= date('M j, Y g:i A', strtotime($order['created_at'])) ?>
@@ -241,10 +242,15 @@ $orders = $stmt->fetchAll();
                         <div class="px-6 py-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <h4 class="font-medium text-gray-900 mb-2">Shipping Address</h4>
-                                    <p class="text-sm text-gray-600">
-                                        <?= nl2br(htmlspecialchars($order['shipping_address'])) ?>
-                                    </p>
+                                    <h4 class="font-medium text-gray-900 mb-2">Ship-to region</h4>
+                                    <?php
+                                        // Show only the region (city/state/country) — never the street,
+                                        // name, or contact details. VentDepot handles fulfilment & PII.
+                                        $parts = array_map('trim', explode(',', (string) $order['shipping_address']));
+                                        $region = count($parts) > 1 ? implode(', ', array_slice($parts, 1)) : '—';
+                                    ?>
+                                    <p class="text-sm text-gray-600"><?= htmlspecialchars($region) ?></p>
+                                    <p class="text-xs text-gray-400 mt-1">Full address, name &amp; contact are protected — fulfilment is managed by VentDepot.</p>
                                 </div>
                                 <div>
                                     <h4 class="font-medium text-gray-900 mb-2">Payment & Shipping</h4>

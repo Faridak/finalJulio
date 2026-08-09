@@ -76,10 +76,11 @@ $recentOrders = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($merchant['first_name'] . ' ' . $merchant['last_name']) ?> Store - VentDepot Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
+<?php include __DIR__ . '/nav.php'; ?>
     <!-- Navigation -->
     <nav class="bg-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4">

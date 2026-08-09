@@ -226,8 +226,8 @@ class ProductReviews {
                     SELECT AVG(rating) FROM product_reviews 
                     WHERE product_id = ? AND is_approved = TRUE
                 ),
-                review_count = (
-                    SELECT COUNT(*) FROM product_reviews 
+                total_reviews = (
+                    SELECT COUNT(*) FROM product_reviews
                     WHERE product_id = ? AND is_approved = TRUE
                 )
             WHERE id = ?

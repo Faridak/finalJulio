@@ -72,7 +72,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Three.js 3D Warehouse - VentDepot Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
     <!-- Note: Tailwind CDN is for development only. For production, install Tailwind CLI -->
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <!-- Three.js with proper ES modules setup -->
@@ -85,7 +85,7 @@ try {
       }
     }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
     <style>
         #three-container {
             position: relative;
@@ -150,6 +150,7 @@ try {
     </style>
 </head>
 <body class="bg-gray-50" x-data="threejsWarehouse()" x-init="init()">
+<?php include __DIR__ . '/nav.php'; ?>
     <!-- Fallback initialization script -->
     <script>
         // Ensure threejsWarehouse is available before Alpine.js initializes
@@ -878,7 +879,7 @@ try {
             
             // Load fallback Three.js (older version that works reliably)
             const threeScript = document.createElement('script');
-            threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+            threeScript.src = '../public/vendor/js/three.min.js';
             threeScript.onload = function() {
                 // Load OrbitControls after Three.js
                 const controlsScript = document.createElement('script');

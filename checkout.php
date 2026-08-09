@@ -13,6 +13,10 @@ if (!isLoggedIn()) {
     exit;
 }
 
+// The "mock" payment method captures raw card data and must never be
+// available in production (PCI). Only expose it outside production.
+$allowMockPayment = env('APP_ENV', 'production') !== 'production';
+
 // Get cart items or order ID
 $orderId = intval($_GET['order_id'] ?? 0);
 $cartItems = [];
@@ -48,33 +52,38 @@ if ($orderId > 0) {
         exit;
     }
     
-    // Calculate totals from cart
+    // Calculate totals from cart using EFFECTIVE prices (discounts/bulk/promos)
+    // — must match what OrderProcessor charges when the order is created.
+    require_once 'services/PricingService.php';
+    $pricingSvc = new PricingService($pdo);
     $cartItems = [];
     foreach ($_SESSION['cart'] as $productId => $quantity) {
         $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
         $stmt->execute([$productId]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if ($product) {
-            $itemTotal = $product['price'] * $quantity;
+            $ep = $pricingSvc->effectivePrice((int) $productId, (int) $quantity);
+            $unit = round((float) ($ep['unit_effective'] ?? $product['price']), 2);
+            $itemTotal = $unit * $quantity;
             $orderTotal += $itemTotal;
             // Map DB columns to cart structure
             $cartItems[] = [
                 'product_id' => $productId,
                 'product_name' => $product['name'],
-                'price' => $product['price'],
+                'price' => $unit,
                 'quantity' => $quantity,
                 'image_url' => !empty($product['image_url']) ? $product['image_url'] : 'assets/images/placeholder.jpg'
             ];
         }
     }
     
-    // Simple Shipping Calculation (Database doesn't have weights/dims yet)
-    // Flat rate $10 + $5 per item for now as per project requirements
-    $shippingBaseRate = 10.00;
-    $shippingPerItem = 5.00;
-    
-    $shippingCost = $shippingBaseRate + (count($cartItems) * $shippingPerItem);
+    // Shipping ESTIMATE for the summary (assumes Mexico until the address is
+    // entered); the exact cost is recalculated from the real address + country
+    // when the order is created (OrderProcessor).
+    require_once 'services/ShippingCalculatorService.php';
+    $estQuote = (new ShippingCalculatorService($pdo))->quote($cartItems, '', 'MX', $orderTotal);
+    $shippingCost = (float) $estQuote['total'];
     
     // Tax Calculation
     $taxAmount = $orderTotal * 0.08; // 8% tax
@@ -85,7 +94,7 @@ if ($orderId > 0) {
 $paymentGateway = new PaymentGateway($pdo);
 $creditCheck = new CreditCheck($pdo);
 $orderProcessor = new OrderProcessor($pdo);
-$paymentConfig = $paymentGateway->getPaymentMethodsConfig();
+$paymentConfig = $paymentGateway->getPaymentMethodsConfig($orderId ?: null);
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -96,11 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     
     if ($action === 'create_order' && $orderId === 0) {
-        // Collect shipping info
+        // Collect shipping info (country drives shipping calc + PayPal routing)
         $shippingInfo = [
            'address' => $_POST['address'] ?? '',
            'city' => $_POST['city'] ?? '',
-           'zip' => $_POST['zip'] ?? ''
+           'zip' => $_POST['zip'] ?? '',
+           'country' => strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $_POST['country'] ?? 'MX'), 0, 2)) ?: 'MX',
         ];
 
         // Check credit limit before creating order
@@ -111,11 +121,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         } else {
             // Create new order
             // Note: We pass $cartItems (structure with product_id, quantity) to OrderProcessor
-            $result = $orderProcessor->createOrder($_SESSION['user_id'], $cartItems, $shippingInfo);
+            $result = $orderProcessor->createOrder($_SESSION['user_id'], $cartItems, $shippingInfo, 'credit_card', trim($_POST['promo_code'] ?? '') ?: null);
 
             if ($result['success']) {
                 $orderId = $result['order_id'];
-                
+
+                // Shipping country — drives PayPal account routing (MX vs US).
+                $country = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $_POST['country'] ?? ''), 0, 2)) ?: null;
+                if ($country) {
+                    $pdo->prepare("UPDATE orders SET shipping_country = ? WHERE id = ?")->execute([$country, $orderId]);
+                }
+
+                // Hold the deducted stock for a limited window; it is restored
+                // automatically if the customer abandons before paying.
+                require_once 'services/ReservationService.php';
+                (new ReservationService($pdo))->record($orderId, $cartItems);
+
                 // If credit was applied, reserve it
                 if ($creditResult['credit_applied']) {
                     $reserveResult = $creditCheck->reserveCreditForOrder($_SESSION['user_id'], $orderTotal);
@@ -125,8 +146,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     }
                 }
                 
-                // Clear cart
-                unset($_SESSION['cart']);
+                // Clear cart (session + saved DB copy)
+                require_once 'services/CartService.php';
+                (new CartService($pdo))->clear($_SESSION['user_id']);
                 
                 // Redirect to checkout with order ID
                 header("Location: checkout.php?order_id=$orderId");
@@ -142,17 +164,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $paymentMethod = $_POST['payment_method'] ?? '';
         $paymentData = [];
         
-        if ($paymentMethod === 'stripe') {
+        if ($paymentMethod === 'oxxo') {
+            // Issue the cash voucher and send the customer to it — the order
+            // completes when the cash payment is confirmed.
+            require_once 'services/OxxoPaymentService.php';
+            $vx = (new OxxoPaymentService($pdo))->createVoucher($orderId);
+            if ($vx['success']) { header("Location: oxxo-voucher.php?order_id=$orderId"); exit; }
+            $error = $vx['error'];
+        } elseif ($paymentMethod === 'stripe') {
             $paymentData['payment_method_id'] = $_POST['stripe_payment_method_id'] ?? '';
         } elseif ($paymentMethod === 'paypal') {
             $paymentData['paypal_order_id'] = $_POST['paypal_order_id'] ?? '';
         } elseif ($paymentMethod === 'mock') {
-            $paymentData['card_number'] = $_POST['card_number'] ?? '';
-            $paymentData['expiry'] = $_POST['expiry'] ?? '';
+            if (!$allowMockPayment) {
+                $error = 'This payment method is not available.';
+                Security::logSecurityEvent('mock_payment_blocked', [
+                    'user_id' => $_SESSION['user_id'] ?? null,
+                    'order_id' => $orderId
+                ], 'warning');
+            } else {
+                $paymentData['card_number'] = $_POST['card_number'] ?? '';
+                $paymentData['expiry'] = $_POST['expiry'] ?? '';
+            }
         }
         
-        $result = $paymentGateway->processPayment($orderId, $paymentMethod, $paymentData);
-        
+        $result = empty($error)
+            ? $paymentGateway->processPayment($orderId, $paymentMethod, $paymentData)
+            : ['success' => false, 'error' => $error];
+
         if ($result['success']) {
             // Redirect to success page
             header("Location: order-confirmation.php?order_id=$orderId&transaction_id=" . $result['transaction_id']);
@@ -170,8 +209,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
     
     <!-- Stripe.js -->
     <?php if ($paymentConfig['stripe']['enabled']): ?>
@@ -180,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     <!-- PayPal SDK -->
     <?php if ($paymentConfig['paypal']['enabled']): ?>
-    <script src="https://www.paypal.com/sdk/js?client-id=<?= $paymentConfig['paypal']['client_id'] ?>&currency=USD"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=<?= urlencode($paymentConfig["paypal"]["client_id"]) ?>&currency=<?= urlencode($paymentConfig["paypal"]["currency"] ?? "USD") ?>"></script>
     <?php endif; ?>
 </head>
 <body class="bg-gray-50">
@@ -262,6 +301,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                             </div>
                         </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Promo code <span class="text-gray-400">(optional)</span></label>
+                            <input type="text" name="promo_code" placeholder="e.g. VERANO15"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 font-mono uppercase focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Country</label>
+                            <select name="country" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="MX">Mexico</option>
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="ES">Spain</option>
+                                <option value="OT">Other</option>
+                            </select>
+                        </div>
 
                         <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                             Continue to Payment
@@ -293,14 +348,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                         <div class="flex items-center">
                                             <i class="fab fa-paypal text-2xl text-blue-700 mr-3"></i>
                                             <div>
-                                                <div class="font-medium">PayPal</div>
-                                                <div class="text-sm text-gray-600">Pay with your PayPal account</div>
+                                                <div class="font-medium">PayPal or Card</div>
+                                                <div class="text-sm text-gray-600">PayPal account or debit/credit card (no account needed)</div>
                                             </div>
                                         </div>
                                     </label>
                                 <?php endif; ?>
 
-                                <!-- Mock Option -->
+                                <!-- OXXO cash voucher (Mexico) -->
+                                <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="radio" name="payment_method" value="oxxo" class="mr-3">
+                                    <div class="flex items-center">
+                                        <span class="text-xl font-black text-red-600 mr-3 tracking-tight">OXXO</span>
+                                        <div>
+                                            <div class="font-medium">Pago en efectivo en OXXO</div>
+                                            <div class="text-sm text-gray-600">Te damos una referencia — paga en cualquier tienda OXXO (72 h)</div>
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <!-- Mock Option (non-production only) -->
+                                <?php if ($allowMockPayment): ?>
                                 <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                                     <input type="radio" name="payment_method" value="mock" class="mr-3">
                                     <div class="flex items-center">
@@ -311,6 +379,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                         </div>
                                     </div>
                                 </label>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -355,7 +424,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                             </div>
                         <?php endif; ?>
 
-                        <!-- Mock Payment -->
+                        <!-- OXXO Payment -->
+                        <div id="oxxo-payment" class="payment-form hidden">
+                            <form method="POST">
+                                <?= Security::getCSRFInput() ?>
+                                <input type="hidden" name="action" value="process_payment">
+                                <input type="hidden" name="payment_method" value="oxxo">
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-900">
+                                    Te generamos una <b>referencia de pago</b>. Llévala (impresa o en tu teléfono) a cualquier
+                                    tienda OXXO y paga en efectivo. Tu pedido se procesa al confirmarse el pago
+                                    (normalmente el mismo día). La referencia vence en <b>72 horas</b>.
+                                </div>
+                                <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg">
+                                    Generar referencia OXXO
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Mock Payment (non-production only) -->
+                        <?php if ($allowMockPayment): ?>
                         <div id="mock-payment" class="payment-form hidden">
                             <form id="mock-payment-form" method="POST">
                                 <?= Security::getCSRFInput() ?>
@@ -392,8 +479,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                                 </button>
                             </form>
                         </div>
+                        <?php endif; ?>
                     </div>
-                    
+
                     <!-- Security Notice -->
                     <div class="mt-8 p-4 bg-gray-50 rounded-lg">
                         <div class="flex items-center text-sm text-gray-600">
@@ -420,6 +508,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     document.getElementById('paypal-payment').classList.remove('hidden');
                 } else if (this.value === 'mock') {
                     document.getElementById('mock-payment').classList.remove('hidden');
+                } else if (this.value === 'oxxo') {
+                    document.getElementById('oxxo-payment').classList.remove('hidden');
                 }
             });
         });
@@ -482,22 +572,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <?php endif; ?>
 
         <?php if ($paymentConfig['paypal']['enabled'] && $orderId > 0): ?>
-        // Initialize PayPal
+        // PayPal (Orders v2, server-authoritative):
+        //  1. createOrder -> OUR server creates the PayPal order with the amount
+        //     from the database (browser never sets the price).
+        //  2. Buyer approves in the PayPal popup.
+        //  3. onApprove -> we submit the approved order id; the SERVER captures
+        //     and verifies the amount before marking anything paid.
         paypal.Buttons({
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: '<?= number_format($orderTotal, 2, '.', '') ?>'
-                        }
-                    }]
+            createOrder: function() {
+                return fetch('api/paypal-create-order.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        order_id: <?= (int) $orderId ?>,
+                        csrf_token: <?= json_encode(Security::generateCSRFToken()) ?>
+                    })
+                }).then(r => r.json()).then(d => {
+                    if (!d.id) throw new Error(d.error || 'Could not start PayPal');
+                    return d.id;
                 });
             },
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(details) {
-                    document.getElementById('paypal-order-id').value = data.orderID;
-                    document.getElementById('paypal-payment-form').submit();
-                });
+            onApprove: function(data) {
+                // No client-side capture — the server captures & verifies.
+                document.getElementById('paypal-order-id').value = data.orderID;
+                document.getElementById('paypal-payment-form').submit();
             },
             onError: function(err) {
                 console.error('PayPal Error:', err);

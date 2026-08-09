@@ -47,6 +47,22 @@ $stmt->execute([$orderId]);
 $orderItems = $stmt->fetchAll();
 
 $confirmationNumber = 'VD-' . str_pad($orderId, 6, '0', STR_PAD_LEFT) . '-' . date('Y', strtotime($order['created_at']));
+
+// Shipment tracking events (per-seller shipments for multi-vendor orders).
+$trk = $pdo->prepare("
+    SELECT s.id shipment_id, s.tracking_number, s.status ship_status, s.estimated_delivery,
+           te.status ev_status, te.description, te.location, te.event_time
+    FROM shipments s
+    LEFT JOIN tracking_events te ON te.shipment_id = s.id
+    WHERE s.order_id = ?
+    ORDER BY s.id, te.event_time DESC
+");
+$trk->execute([$orderId]);
+$shipments = [];
+foreach ($trk->fetchAll(PDO::FETCH_ASSOC) as $t) {
+    $shipments[$t['shipment_id']]['info'] = $t;
+    if ($t['ev_status'] !== null || $t['description'] !== null) $shipments[$t['shipment_id']]['events'][] = $t;
+}
 ?>
 
 <!DOCTYPE html>
@@ -55,8 +71,8 @@ $confirmationNumber = 'VD-' . str_pad($orderId, 6, '0', STR_PAD_LEFT) . '-' . da
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order #<?= str_pad($orderId, 6, '0', STR_PAD_LEFT) ?> - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50 text-gray-800">
     <?php include 'includes/navigation.php'; ?>
@@ -70,7 +86,14 @@ $confirmationNumber = 'VD-' . str_pad($orderId, 6, '0', STR_PAD_LEFT) . '-' . da
                 <h1 class="text-3xl font-bold text-gray-900">Order Details</h1>
                 <p class="text-gray-600">Order #<?= str_pad($orderId, 6, '0', STR_PAD_LEFT) ?> • Placed on <?= date('M j, Y', strtotime($order['created_at'])) ?></p>
             </div>
-            <div>
+            <div class="flex gap-2">
+                <form method="POST" action="buy-again.php">
+                    <?= Security::getCSRFInput() ?>
+                    <input type="hidden" name="order_id" value="<?= $orderId ?>">
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow-sm inline-flex items-center">
+                        <i class="fas fa-redo mr-2"></i> Reorder all
+                    </button>
+                </form>
                 <button onclick="window.print()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded shadow-sm inline-flex items-center">
                     <i class="fas fa-print mr-2"></i> Print
                 </button>
@@ -103,6 +126,12 @@ $confirmationNumber = 'VD-' . str_pad($orderId, 6, '0', STR_PAD_LEFT) . '-' . da
                                 <div class="text-right">
                                     <p class="font-medium text-gray-900">$<?= number_format($item['price'] * $item['quantity'], 2) ?></p>
                                     <p class="text-sm text-gray-500">$<?= number_format($item['price'], 2) ?> each</p>
+                                    <form method="POST" action="buy-again.php" class="mt-2">
+                                        <?= Security::getCSRFInput() ?>
+                                        <input type="hidden" name="order_id" value="<?= $orderId ?>">
+                                        <input type="hidden" name="product_id" value="<?= (int)$item['product_id'] ?>">
+                                        <button class="text-blue-600 text-sm hover:underline"><i class="fas fa-redo mr-1"></i>Buy again</button>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -173,6 +202,32 @@ $confirmationNumber = 'VD-' . str_pad($orderId, 6, '0', STR_PAD_LEFT) . '-' . da
                         </ul>
                     </div>
                 </div>
+
+                <!-- Shipment tracking -->
+                <?php if ($shipments): ?>
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                    <h2 class="font-semibold text-gray-900 mb-4">Shipment Tracking</h2>
+                    <?php foreach ($shipments as $sid => $s): $i = $s['info']; ?>
+                        <div class="mb-4 last:mb-0">
+                            <div class="flex flex-wrap items-center gap-2 text-sm mb-2">
+                                <span class="font-mono bg-gray-100 px-2 py-0.5 rounded"><?= htmlspecialchars($i['tracking_number'] ?: 'Shipment #'.$sid) ?></span>
+                                <span class="px-2 py-0.5 rounded-full text-xs <?= $i['ship_status']==='delivered'?'bg-green-100 text-green-800':'bg-blue-100 text-blue-800' ?>"><?= htmlspecialchars($i['ship_status']) ?></span>
+                                <?php if ($i['estimated_delivery']): ?><span class="text-gray-500">ETA <?= date('M j', strtotime($i['estimated_delivery'])) ?></span><?php endif; ?>
+                            </div>
+                            <?php if (!empty($s['events'])): ?>
+                            <ul class="text-sm space-y-1 pl-1">
+                                <?php foreach ($s['events'] as $ev): ?>
+                                <li class="flex gap-2 text-gray-600">
+                                    <span class="text-gray-400 whitespace-nowrap"><?= $ev['event_time'] ? date('M j H:i', strtotime($ev['event_time'])) : '' ?></span>
+                                    <span><?= htmlspecialchars($ev['description'] ?: $ev['ev_status']) ?><?= $ev['location'] ? ' — '.htmlspecialchars($ev['location']) : '' ?></span>
+                                </li>
+                                <?php endforeach; ?>
+                            </ul>
+                            <?php else: ?><p class="text-sm text-gray-400">No carrier events yet.</p><?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Sidebar -->

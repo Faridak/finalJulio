@@ -1,3 +1,10 @@
+﻿<?php
+// Setup/seed script: CLI-only. Never expose over the web in production.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('This script can only be run from the command line.');
+}
+?>
 <?php
 require_once 'config/database.php';
 
@@ -13,9 +20,9 @@ try {
         $stmt->execute([$table]);
         if (!$stmt->fetch()) {
             $tablesExist = false;
-            echo "<p style='color: red;'>❌ Table '$table' does not exist</p>";
+            echo "<p style='color: red;'>âŒ Table '$table' does not exist</p>";
         } else {
-            echo "<p style='color: green;'>✅ Table '$table' exists</p>";
+            echo "<p style='color: green;'>âœ… Table '$table' exists</p>";
         }
     }
     
@@ -43,10 +50,10 @@ try {
             $stmt = $pdo->prepare("INSERT INTO inventory_locations (location_name, location_code, address, status) VALUES (?, ?, ?, 'active')");
             $stmt->execute(['Main Warehouse', 'WH001', '123 Industrial St, City, State 12345']);
             $locationId = $pdo->lastInsertId();
-            echo "<p>✅ Created sample warehouse location</p>";
+            echo "<p>âœ… Created sample warehouse location</p>";
         } else {
             $locationId = $location['id'];
-            echo "<p>✅ Using existing warehouse location</p>";
+            echo "<p>âœ… Using existing warehouse location</p>";
         }
         
         // Create zones
@@ -95,7 +102,7 @@ try {
                     }
                 }
             }
-            echo "<p>✅ Created Zone {$zone[0]} with 4 racks and 160 bins</p>";
+            echo "<p>âœ… Created Zone {$zone[0]} with 4 racks and 160 bins</p>";
         }
         
         echo "<h3>Sample Data Creation Complete!</h3>";
@@ -103,10 +110,10 @@ try {
         echo "<ul>";
         echo "<li>4 Warehouse Zones (Receiving, Storage, Picking, Shipping)</li>";
         echo "<li>16 Storage Racks (4 per zone)</li>";
-        echo "<li>640 Individual Bins (4 levels × 10 positions × 16 racks)</li>";
+        echo "<li>640 Individual Bins (4 levels Ã— 10 positions Ã— 16 racks)</li>";
         echo "</ul>";
     } else {
-        echo "<p style='color: green;'>✅ Sample data already exists ($zoneCount zones found)</p>";
+        echo "<p style='color: green;'>âœ… Sample data already exists ($zoneCount zones found)</p>";
     }
     
     // Show current stats
@@ -128,8 +135,8 @@ try {
     echo "<h3>Ready to Use!</h3>";
     echo "<p>Your visual inventory system is now ready with sample data.</p>";
     echo "<div style='margin: 20px 0;'>";
-    echo "<a href='visual-inventory-demo.php' style='background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-right: 10px;'>📊 View Demo Page</a>";
-    echo "<a href='admin/inventory-visual.php' style='background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;'>🏭 Open Visual Warehouse</a>";
+    echo "<a href='visual-inventory-demo.php' style='background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin-right: 10px;'>ðŸ“Š View Demo Page</a>";
+    echo "<a href='admin/inventory-visual.php' style='background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;'>ðŸ­ Open Visual Warehouse</a>";
     echo "</div>";
     
 } catch (Exception $e) {

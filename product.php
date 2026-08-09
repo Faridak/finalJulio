@@ -2,9 +2,13 @@
 require_once 'config/database.php';
 require_once 'includes/ProductReviews.php';
 require_once 'includes/dummy_data.php';
+require_once 'services/PricingService.php';
+require_once 'services/RelationshipService.php';
 
 // Initialize reviews system
 $reviewsSystem = new ProductReviews($pdo);
+$pricingSvc = new PricingService($pdo);
+$relSvc = new RelationshipService($pdo);
 
 // Get product ID from URL
 $productId = intval($_GET['id'] ?? 0);
@@ -14,8 +18,28 @@ if ($productId <= 0) {
     exit;
 }
 
-// Fetch product from dummy data
-$product = getDummyProduct($productId);
+/** Load a real product into the shape the page expects (falls back to dummy). */
+function loadRealProduct($pdo, $reviews, $pricingSvc, $id) {
+    $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ? LIMIT 1");
+    $stmt->execute([$id]);
+    $p = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$p) return false;
+    $eff = $pricingSvc->effectivePrice($id, 1);
+    $rating = method_exists($reviews, 'getProductRating') ? $reviews->getProductRating($id) : null;
+    $p['user_id']         = $p['merchant_id'] ?? null;
+    $p['price']           = $eff['unit_effective'];
+    $p['compare_price']   = ($eff['discount'] > 0) ? $eff['base'] : null; // strike-through original
+    $p['on_offer']        = $eff['applied'];
+    $p['average_rating']  = $rating['average'] ?? ($p['average_rating'] ?? 0);
+    $p['total_reviews']   = $rating['count'] ?? ($p['total_reviews'] ?? 0);
+    $p['image_url']       = $p['image_url'] ?: 'assets/images/placeholder.jpg';
+    $p['short_description'] = $p['short_description'] ?? '';
+    $p['quantity']        = (int) ($p['inventory'] ?? 0);   // template expects 'quantity'
+    return $p;
+}
+
+$product = loadRealProduct($pdo, $reviewsSystem, $pricingSvc, $productId);
+if (!$product) { $product = getDummyProduct($productId); } // graceful fallback
 
 if (!$product) {
     header('Location: index.php');
@@ -173,9 +197,9 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
     }
     </script>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
     <style>
         .product-image-main {
             aspect-ratio: 1/1;
@@ -212,16 +236,14 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
     <?php include 'includes/navigation.php'; ?>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Breadcrumbs -->
-        <nav class="mb-6">
-            <ol class="flex items-center space-x-2 text-sm text-gray-600">
-                <li><a href="index.php" class="hover:text-blue-600">Home</a></li>
-                <li><i class="fas fa-chevron-right text-xs"></i></li>
-                <li><a href="#" class="hover:text-blue-600"><?= htmlspecialchars($product['category'] ?? 'Category') ?></a></li>
-                <li><i class="fas fa-chevron-right text-xs"></i></li>
-                <li class="text-gray-900 truncate max-w-xs"><?= htmlspecialchars($product['name']) ?></li>
-            </ol>
-        </nav>
+        <!-- Breadcrumbs (real category trail) -->
+        <?php
+        require_once 'includes/breadcrumbs.php';
+        $crumbs = [['Home', 'index.php']];
+        if (!empty($product['category_id'])) $crumbs = array_merge($crumbs, categoryTrail($pdo, $product['category_id']));
+        $crumbs[] = [$product['name'], null];
+        echo renderBreadcrumbs($crumbs);
+        ?>
 
         <!-- Product Gallery and Info -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
@@ -353,9 +375,21 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                 
                 <!-- Wishlist and Share -->
                 <div class="flex items-center justify-between border-t border-b border-gray-200 py-4">
-                    <button class="flex items-center text-gray-600 hover:text-blue-600">
-                        <i class="far fa-heart mr-2"></i> Add to Wishlist
+                    <button id="wishlistBtn" onclick="toggleWishlist(<?= (int)$product['id'] ?>)" class="flex items-center text-gray-600 hover:text-blue-600">
+                        <i class="far fa-heart mr-2"></i> <span id="wishlistLabel">Add to Wishlist</span>
                     </button>
+                    <script>
+                    async function toggleWishlist(pid){
+                        const r = await fetch('api/wishlist.php',{method:'POST',headers:{'Content-Type':'application/json'},
+                            body: JSON.stringify({action:'toggle', product_id:pid, csrf_token: <?= json_encode(Security::generateCSRFToken()) ?>})});
+                        if (r.status === 401) { window.location = 'login.php?redirect=' + encodeURIComponent(location.pathname + location.search); return; }
+                        const d = await r.json();
+                        if (d.success) {
+                            document.getElementById('wishlistLabel').textContent = d.in_wishlist ? 'Saved to Wishlist ✓' : 'Add to Wishlist';
+                            document.querySelector('#wishlistBtn i').className = (d.in_wishlist ? 'fas' : 'far') + ' fa-heart mr-2' + (d.in_wishlist ? ' text-red-500' : '');
+                        }
+                    }
+                    </script>
                     <div class="flex items-center">
                         <span class="text-gray-600 mr-2">Share:</span>
                         <div class="flex space-x-2">
@@ -424,7 +458,7 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                 <!-- Description Tab -->
                 <div x-show="activeTab === 'description'">
                     <h3 class="text-lg font-semibold mb-4">Product Description</h3>
-                    <div class="prose max-w-none text-gray-700">
+                    <div class="prose max-w-none text-gray-700 break-words overflow-x-hidden">
                         <p><?= nl2br(htmlspecialchars($product['description'])) ?></p>
                     </div>
                     
@@ -764,6 +798,64 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                 </div>
             </div>
         </div>
+
+        <!-- Goes with it: components / accessories / material options -->
+        <?php
+        $goesWith = ['required' => [], 'optional' => [], 'alternatives' => []];
+        try { $goesWith = $relSvc->forOrder($productId); } catch (Exception $e) {}
+        $hasGoesWith = $goesWith['required'] || $goesWith['optional'] || $goesWith['alternatives'];
+        if ($hasGoesWith):
+            $renderCard = function ($r) {
+                $img = htmlspecialchars($r['image_url'] ?: 'assets/images/placeholder.jpg');
+                $name = htmlspecialchars($r['name']);
+                $sku = htmlspecialchars($r['sku'] ?? '');
+                $price = number_format((float) $r['effective_price'], 2);
+                echo '<div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">'
+                    . '<a href="product.php?id=' . (int) $r['id'] . '"><img src="' . $img . '" class="w-full h-32 object-cover" alt="' . $name . '"></a>'
+                    . '<div class="p-3 flex-1 flex flex-col">'
+                    . '<a href="product.php?id=' . (int) $r['id'] . '" class="text-sm font-medium text-gray-800 line-clamp-2 hover:text-blue-600">' . $name . '</a>'
+                    . '<div class="text-xs text-gray-400 font-mono">' . $sku . '</div>'
+                    . '<div class="mt-auto flex items-center justify-between pt-2">'
+                    . '<span class="font-bold text-gray-900">$' . $price . '</span>'
+                    . '<button onclick="addToCart(' . (int) $r['id'] . ')" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700">Add</button>'
+                    . '</div></div></div>';
+            };
+        ?>
+        <div class="mb-12">
+            <?php if ($goesWith['required']): ?>
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-1">⚡ Complete your purchase — fundamental parts</h2>
+                    <p class="text-sm text-gray-500 mb-4">These are required to use this item.</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <?php foreach ($goesWith['required'] as $r) $renderCard($r); ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($goesWith['alternatives']): ?>
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-3">Choose your option / material</h2>
+                    <div class="flex flex-wrap gap-2">
+                        <?php foreach ($goesWith['alternatives'] as $r): ?>
+                            <a href="product.php?id=<?= (int)$r['id'] ?>" class="border rounded-lg px-4 py-2 hover:border-blue-500 hover:bg-blue-50 text-sm">
+                                <span class="font-medium"><?= htmlspecialchars($r['note'] ?: $r['name']) ?></span>
+                                <span class="text-gray-500 ml-2">$<?= number_format((float)$r['effective_price'],2) ?></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($goesWith['optional']): ?>
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-3">Recommended accessories</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <?php foreach ($goesWith['optional'] as $r) $renderCard($r); ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
 
         <!-- Related Products -->
         <?php if (!empty($relatedProducts)): ?>

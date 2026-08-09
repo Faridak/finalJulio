@@ -5,7 +5,7 @@ require_once 'includes/security.php';
 require_once 'includes/AnalyticsSystem.php';
 
 // Check if user is admin
-if (!isLoggedIn() || $_SESSION['role'] !== 'admin') {
+if (!isLoggedIn() || ($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: login.php');
     exit;
 }
@@ -30,12 +30,13 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'refresh') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platform Analytics - Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body class="bg-gray-50">
+<?php include __DIR__ . '/nav.php'; ?>
     <?php include 'includes/navigation.php'; ?>
 
     <div class="max-w-7xl mx-auto px-4 py-8">

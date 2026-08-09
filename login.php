@@ -24,12 +24,13 @@ if (isset($_SESSION['pending_2fa_user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF Protection temporarily disabled
-    // if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-    //     Security::logSecurityEvent('csrf_token_mismatch', ['page' => 'login']);
-    //     die('CSRF token mismatch');
-    // }
-    
+    // CSRF Protection
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
+        Security::logSecurityEvent('csrf_token_mismatch', ['page' => 'login']);
+        http_response_code(419);
+        die('CSRF token mismatch. Please refresh the page and try again.');
+    }
+
     // Check if this is 2FA verification
     if (isset($_POST['verify_2fa']) && $pendingUserId) {
         $code = $_POST['verification_code'] ?? '';
@@ -57,7 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
-                
+
+                // Merge the guest cart with the user's saved cart
+                require_once __DIR__ . '/services/CartService.php';
+                (new CartService($pdo))->mergeOnLogin($user['id']);
+
                 // Create trusted device if requested
                 if ($trustDevice) {
                     $deviceName = 'Web Browser - ' . date('M j, Y');
@@ -97,8 +102,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         // Regular login process
-        // RATE LIMITING DISABLED COMPLETELY
-        
+        // Rate limit login attempts per IP (5 attempts / 15 minutes)
+        if (!Security::checkRateLimit('login', 5, 900)) {
+            Security::logSecurityEvent('login_rate_limited', [
+                'ip' => Security::getClientIP()
+            ], 'warning');
+            $error = 'Too many login attempts. Please try again later.';
+        }
+
         // Sanitize input
         $email = Security::sanitizeInput($_POST['email'] ?? '', 'email');
         $password = $_POST['password'] ?? '';
@@ -113,26 +124,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (!empty($errors)) {
             $error = implode(' ', $errors);
-        } else {
+        } elseif (empty($error)) {
             // Check user credentials
             $stmt = $pdo->prepare("SELECT id, email, password, role FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch();
-            
-            // DEBUG LOGGING
-            $logMsg = date('[Y-m-d H:i:s] ') . "Login attempt for: $email. User found: " . ($user ? 'Yes' : 'No') . ". ";
-            if ($user) {
-                $verify = password_verify($password, $user['password']);
-                $logMsg .= "Password verify: " . ($verify ? 'Pass' : 'FAIL') . ". Hash: " . substr($user['password'], 0, 10) . "...";
-            }
-            file_put_contents('login_debug.txt', $logMsg . "\n", FILE_APPEND);
-            
+
             if ($user && Security::verifyPassword($password, $user['password'])) {
                 // Login successful without 2FA
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
-                
+
+                // Merge the guest cart with the user's saved cart
+                require_once __DIR__ . '/services/CartService.php';
+                (new CartService($pdo))->mergeOnLogin($user['id']);
+
                 // Regenerate session ID for security
                 session_regenerate_id(true);
                 
@@ -170,8 +177,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- v2 -->
     <title>Login - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -198,6 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($show2FAForm): ?>
                 <!-- 2FA Verification Form -->
                 <form class="mt-8 space-y-6" method="POST">
+                    <?= Security::getCSRFInput() ?>
                     <input type="hidden" name="verify_2fa" value="1">
                     <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
                     
@@ -275,6 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
                 <!-- Regular Login Form -->
                 <form class="mt-8 space-y-6" method="POST">
+                    <?= Security::getCSRFInput() ?>
                     <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
                     
                     <?php if ($error): ?>
@@ -310,7 +319,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         
                         <div class="text-sm">
-                            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                            <a href="forgot-password.php" class="font-medium text-blue-600 hover:text-blue-500">
                                 Forgot your password?
                             </a>
                         </div>

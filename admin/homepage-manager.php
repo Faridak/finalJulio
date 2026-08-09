@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/assets/css/homepage.css">
 </head>
 <body>
+<?php include __DIR__ . '/nav.php'; ?>
     <header>
         <nav>
             <div class="logo">VentDepot Admin</div>

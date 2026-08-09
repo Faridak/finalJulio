@@ -62,8 +62,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase Order #<?= htmlspecialchars($po['po_number'] ?? 'N/A') ?> - VentDepot Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
     <style>
         @media print {
             .no-print { display: none !important; }
@@ -72,6 +72,7 @@ try {
     </style>
 </head>
 <body class="bg-gray-50">
+<?php include __DIR__ . '/nav.php'; ?>
     <div class="max-w-4xl mx-auto px-4 py-8">
         <!-- Header -->
         <div class="flex justify-between items-center mb-8">

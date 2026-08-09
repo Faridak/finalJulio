@@ -1,3 +1,10 @@
+﻿<?php
+// Setup/seed script: CLI-only. Never expose over the web in production.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('This script can only be run from the command line.');
+}
+?>
 <?php
 require_once 'config/database.php';
 
@@ -7,10 +14,10 @@ INSERT IGNORE INTO countries (code, name, currency_code, currency_symbol, tax_ra
 ('USA', 'United States', 'USD', '$', 0.00),
 ('CAN', 'Canada', 'CAD', 'C$', 5.00),
 ('MEX', 'Mexico', 'MXN', '$', 16.00),
-('GBR', 'United Kingdom', 'GBP', '£', 20.00),
-('DEU', 'Germany', 'EUR', '€', 19.00),
-('FRA', 'France', 'EUR', '€', 20.00),
-('JPN', 'Japan', 'JPY', '¥', 10.00),
+('GBR', 'United Kingdom', 'GBP', 'Â£', 20.00),
+('DEU', 'Germany', 'EUR', 'â‚¬', 19.00),
+('FRA', 'France', 'EUR', 'â‚¬', 20.00),
+('JPN', 'Japan', 'JPY', 'Â¥', 10.00),
 ('AUS', 'Australia', 'AUD', 'A$', 10.00)
 ";
 

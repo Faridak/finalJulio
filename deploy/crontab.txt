@@ -1,0 +1,19 @@
+# VentDepot production crontab  —  install with:  crontab deploy/crontab.txt
+# (run as www-data:  sudo -u www-data crontab deploy/crontab.txt)
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+APP=/var/www/ventdepot
+LOG=/var/log/ventdepot
+
+# transactional email queue
+* * * * *    php $APP/cron/email-worker.php        >> $LOG/email.log 2>&1
+# release abandoned stock reservations + expire OXXO vouchers
+*/5 * * * *  php $APP/cron/reservation-worker.php  >> $LOG/reservation.log 2>&1
+# back-in-stock wishlist notifications
+*/15 * * * * php $APP/cron/backinstock-worker.php  >> $LOG/backinstock.log 2>&1
+# nightly: draft POs from reorder alerts (admin approves in the morning)
+0 2 * * *    php $APP/cron/auto-po-worker.php      >> $LOG/autopo.log 2>&1
+# nightly database backup, keep 14 days
+0 3 * * *    mysqldump -u backup -p"$DB_BACKUP_PASS" ventdepot | gzip > /backups/ventdepot-$(date +\%F).sql.gz && find /backups -name 'ventdepot-*.sql.gz' -mtime +14 -delete
+# weekly log rotation safety
+0 4 * * 0    find $LOG -name '*.log' -size +50M -exec truncate -s 0 {} \;

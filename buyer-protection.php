@@ -12,7 +12,7 @@ if (!isLoggedIn()) {
 
 $escrowSystem = new EscrowSystem($pdo);
 $userId = $_SESSION['user_id'];
-$userRole = $_SESSION['role'] ?? 'customer';
+$userRole = $_SESSION['user_role'] ?? 'customer';
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -90,8 +90,8 @@ if ($statusFilter) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?> - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
     <?php include 'includes/navigation.php'; ?>

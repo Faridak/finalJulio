@@ -19,19 +19,26 @@ if (!empty($cart)) {
     $stmt->execute($ids);
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    require_once 'services/PricingService.php';
+    $pricingSvc = new PricingService($pdo);
     foreach ($products as $product) {
         $id = $product['id'];
         if (isset($cart[$id])) {
             $quantity = $cart[$id];
-            $subtotal = $product['price'] * $quantity;
+            // Effective price (timed discounts, bulk tiers, promos) — what
+            // checkout will actually charge.
+            $ep = $pricingSvc->effectivePrice((int) $id, (int) $quantity);
+            $unit = round((float) ($ep['unit_effective'] ?? $product['price']), 2);
+            $subtotal = $unit * $quantity;
             $cartTotal += $subtotal;
-            
+
             $img = !empty($product['image_url']) ? $product['image_url'] : 'assets/images/placeholder.jpg';
 
             $cartDetails[] = [
                 'product_id' => $id,
                 'name' => $product['name'],
-                'price' => $product['price'],
+                'price' => $unit,
+                'base_price' => ($ep['discount'] ?? 0) > 0 ? (float) $product['price'] : null,
                 'image_url' => $img,
                 'quantity' => $quantity,
                 'subtotal' => $subtotal,
@@ -51,9 +58,9 @@ $_SESSION['cart_count'] = array_sum($cart);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart - VentDepot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="public/vendor/css/tailwind.min.css">
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="public/vendor/css/fontawesome.min.css">
     <script>
         tailwind.config = {
             theme: {
@@ -75,6 +82,10 @@ $_SESSION['cart_count'] = array_sum($cart);
 
     <main class="flex-grow container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
+
+        <?php if (!empty($_GET['notice'])): ?>
+            <div class="bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded mb-6"><?= htmlspecialchars($_GET['notice']) ?></div>
+        <?php endif; ?>
 
         <?php if (empty($cartDetails)): ?>
             <div class="bg-white rounded-lg shadow-md p-12 text-center">
@@ -108,7 +119,12 @@ $_SESSION['cart_count'] = array_sum($cart);
                                             <?= htmlspecialchars($item['name']) ?>
                                         </a>
                                         <div class="text-gray-500 text-sm mt-1">ID: <?= $item['product_id'] ?></div>
-                                        <div class="text-primary font-bold mt-2">$<?= number_format($item['price'], 2) ?></div>
+                                        <div class="text-primary font-bold mt-2">$<?= number_format($item['price'], 2) ?>
+                                            <?php if (!empty($item['base_price'])): ?>
+                                                <span class="text-sm text-gray-400 line-through font-normal ml-1">$<?= number_format($item['base_price'], 2) ?></span>
+                                                <span class="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded ml-1">SALE</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                     <div class="flex flex-col items-center gap-2">
                                         <div class="flex items-center border border-gray-300 rounded-md">
