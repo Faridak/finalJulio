@@ -2,15 +2,24 @@
 // Queue System for Background Processing
 // This file implements a Redis-based queue system for handling heavy calculations
 
-require_once __DIR__ . '/../vendor/autoload.php';
+// Redis is optional: used only when Predis is installed (composer require
+// predis/predis:^3.3) AND a Redis server answers. Otherwise jobs are processed
+// immediately (enqueue() fallback) — production currently runs without Redis.
+if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
 
 use Predis\Client;
 
 class AccountingQueueSystem {
     private $redis;
     private $enabled = true;
-    
+
     public function __construct() {
+        if (!class_exists(Client::class)) {
+            $this->enabled = false;   // no Predis: process jobs immediately
+            return;
+        }
         try {
             // Try to connect to Redis
             $this->redis = new Client([

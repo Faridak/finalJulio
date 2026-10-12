@@ -53,6 +53,8 @@ Options -Indexes
     # Legacy deploy scripts (server IP, root user) + one-off cron/setup scripts
     RewriteRule ^deploy\.(sh|ps1|bat)$ - [F,L]
     RewriteRule ^(analytics-cron|escrow-cron|create_inventory_tables|create_shipping_tables|insert_inventory_sample_data|insert_shipping_sample_data|quick-visual-setup|migrate)\.php$ - [F,L]
+    # Unused framework front controller (src/), not the site entry point
+    RewriteRule ^public/index\.php$ - [F,L]
     # Internal PHP (only ever included, never requested directly)
     RewriteRule ^(config|includes|classes|services|src|websockets|automation|security)/.*\.php$ - [F,L]
 </IfModule>

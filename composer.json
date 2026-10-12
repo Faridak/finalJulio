@@ -1,6 +1,6 @@
 {
     "name": "ventdepot/ecommerce-platform",
-    "description": "A comprehensive e-commerce marketplace platform",
+    "description": "VentDepot marketplace. Runs with no third-party PHP packages: email, .env, object storage and payments use built-in, dependency-free code.",
     "type": "project",
     "license": "proprietary",
     "authors": [
@@ -11,38 +11,28 @@
     ],
     "require": {
         "php": ">=8.0",
-        "ext-pdo": "*",
+        "ext-curl": "*",
+        "ext-fileinfo": "*",
+        "ext-gd": "*",
         "ext-json": "*",
-        "ext-openssl": "*",
         "ext-mbstring": "*",
-        "stripe/stripe-php": "^10.0",
-        "phpmailer/phpmailer": "^6.6",
-        "firebase/php-jwt": "^6.3",
-        "vlucas/phpdotenv": "^5.4",
-        "monolog/monolog": "^3.0"
+        "ext-openssl": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*"
     },
-    "require-dev": {
-        "phpunit/phpunit": "^9.5",
-        "squizlabs/php_codesniffer": "^3.6"
+    "suggest": {
+        "predis/predis": "^3.3 — only if a Redis server is added; config/redis-cache.php and config/queue-system.php fall back to file cache / immediate jobs without it (3.0–3.2 have a critical CVE)",
+        "cboden/ratchet": "^0.4 — only to run websockets/inventory-websocket-server.php (not used by the site)",
+        "phpmailer/phpmailer": "^6.9 — optional; services/EmailService.php uses the built-in SmtpMailer without it"
     },
     "autoload": {
         "psr-4": {
             "VentDepot\\": "src/"
-        },
-        "files": [
-            "includes/functions.php",
-            "includes/helpers.php"
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "VentDepot\\Tests\\": "tests/"
         }
     },
     "scripts": {
-        "test": "phpunit",
-        "cs-check": "phpcs",
-        "cs-fix": "phpcbf"
+        "test": "php tests/regression.php",
+        "preflight": "php deploy/preflight.php"
     },
     "config": {
         "sort-packages": true

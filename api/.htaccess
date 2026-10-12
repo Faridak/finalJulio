@@ -9,6 +9,11 @@ Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-A
 RewriteCond %{REQUEST_METHOD} OPTIONS
 RewriteRule ^(.*)$ - [R=200,L]
 
+# Internal API code is include-only. (This file's RewriteEngine On means the
+# root .htaccess rewrite rules don't apply inside api/, so block it here.)
+RewriteRule ^(includes|config)/ - [F,L]
+RewriteRule ^homepage/HomepageController\.php$ - [F,L]
+
 # API Routing
 # Route all API requests to router.php
 RewriteCond %{REQUEST_FILENAME} !-f

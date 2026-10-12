@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Load environment variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
+// (was vlucas/phpdotenv, which was never installed — this endpoint always 500'd)
+require_once __DIR__ . '/../../config/env.php';
 
 // Initialize database
 $config = require_once __DIR__ . '/../config/database.php';

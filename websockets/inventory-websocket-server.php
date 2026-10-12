@@ -2,7 +2,17 @@
 // Real-time Inventory WebSocket Server
 // This script provides real-time inventory updates using WebSockets
 
-require_once __DIR__ . '/../vendor/autoload.php';
+// OPTIONAL feature, not part of the production stack: nothing on the site
+// connects to this server (the UI polls instead). To enable it, on a PHP 8.1+
+// box run `composer require cboden/ratchet` and start it under systemd.
+if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
+if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
+if (!interface_exists('Ratchet\MessageComponentInterface')) {
+    fwrite(STDERR, "WebSocket server disabled: Ratchet is not installed (composer require cboden/ratchet).\n");
+    exit(1);
+}
 require_once __DIR__ . '/../config/database.php';
 
 use Ratchet\MessageComponentInterface;

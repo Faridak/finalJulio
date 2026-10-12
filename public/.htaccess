@@ -1,10 +1,9 @@
-RewriteEngine On
-
-# Redirect Trailing Slashes If Not A Folder...
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)/$ /$1 [L,R=301]
-
-# Handle Front Controller...
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^ index.php [L]
+# public/ serves static files only (vendored JS/CSS/fonts, images).
+#
+# The previous Laravel-style front controller sent every missing file here to
+# a broken public/index.php (HTTP 500), and its own "RewriteEngine On" switched
+# OFF the root .htaccess rewrite rules inside public/ — including the guard that
+# blocks PHP execution in public/uploads. No PHP should ever run from here.
+<FilesMatch "\.(php[0-9]?|phtml|pht|phar)$">
+    Require all denied
+</FilesMatch>

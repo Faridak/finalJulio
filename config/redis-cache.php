@@ -2,7 +2,12 @@
 // Redis Caching Configuration for Accounting System
 // This file implements Redis caching for frequently accessed accounting data
 
-require_once __DIR__ . '/../vendor/autoload.php';
+// Redis is optional: used only when Predis is installed (composer require
+// predis/predis:^3.3) AND a Redis server answers. Otherwise the file cache below
+// is used — production currently runs without Redis.
+if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
 
 use Predis\Client;
 
@@ -10,8 +15,12 @@ class AccountingRedisCache {
     private $redis;
     private $enabled = true;
     private $defaultTTL = 300; // 5 minutes default TTL
-    
+
     public function __construct() {
+        if (!class_exists(Client::class)) {
+            $this->enabled = false;   // no Predis: file cache
+            return;
+        }
         try {
             // Try to connect to Redis
             $this->redis = new Client([

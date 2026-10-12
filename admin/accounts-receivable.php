@@ -1,3 +1,10 @@
+<?php
+// Auth BEFORE any output: this page used to print HTML + admin/nav.php first,
+// so nav.php fatalled (config not loaded) and the login redirect could never fire.
+require_once __DIR__ . '/../config/database.php';
+requireRole('admin');
+requireScope('finance');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
