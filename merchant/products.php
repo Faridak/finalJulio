@@ -351,5 +351,6 @@ $categories = $categoryStmt->fetchAll(PDO::FETCH_COLUMN);
             <?php endif; ?>
         <?php endif; ?>
     </div>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

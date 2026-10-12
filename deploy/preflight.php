@@ -77,6 +77,64 @@ foreach (['migration', 'scripts', 'tests', 'cron', 'backups'] as $d) {
     is_file(__DIR__ . "/../$d/.htaccess") ? pass("$d/ blocked from web") : warning("$d/ has no .htaccess guard");
 }
 is_file(__DIR__ . '/../uploads/.htaccess') ? pass('uploads/ script execution blocked') : fail('uploads/.htaccess missing');
+$noTfa = $pdo->query("SELECT COUNT(*) FROM users u LEFT JOIN user_2fa t ON t.user_id = u.id AND t.is_enabled = 1
+                      WHERE u.role IN ('admin','staff') AND t.user_id IS NULL")->fetchColumn();
+$noTfa == 0 ? pass('all staff/admin accounts use 2FA')
+            : warning("$noTfa staff/admin account(s) without 2FA — enable it in profile → Two-Factor Authentication");
+
+$prod = $env('APP_ENV') === 'production';
+// Old template keys were never read by config/database.php (app fell back to root/no password)
+if ($env('DB_PASS') !== '' && $env('DB_PASSWORD') === '') {
+    fail('.env uses DB_NAME/DB_USER/DB_PASS — rename to DB_DATABASE/DB_USERNAME/DB_PASSWORD');
+}
+// Public REST API: forged tokens if enabled with a weak/default secret
+if (filter_var($env('API_ENABLED'), FILTER_VALIDATE_BOOLEAN)) {
+    strlen($env('JWT_SECRET')) >= 32 ? pass('REST API on, JWT_SECRET set')
+        : fail('API_ENABLED=true but JWT_SECRET is missing/short (need 32+ chars)');
+} else {
+    pass('public REST API disabled (API_ENABLED=false)');
+}
+// Object storage cut-over order
+if ($env('ASSET_BASE_URL') !== '' && strtolower($env('STORAGE_DRIVER')) !== 's3') {
+    fail('ASSET_BASE_URL is set but STORAGE_DRIVER is not s3 — new uploads would 404');
+}
+$q = __DIR__ . '/../logs/media-retry.queue';
+(is_file($q) && filesize($q) > 0)
+    ? warning(count(file($q)) . ' media upload(s) waiting to reach object storage (cron/media-retry-worker.php)')
+    : pass('no pending media uploads');
+// PHP runtime hardening (01-provision-server.sh installs 99-ventdepot.ini for CLI + Apache)
+if ($prod) {
+    ini_get('display_errors') && strtolower(ini_get('display_errors')) !== 'off'
+        ? fail('display_errors is ON — errors (paths, SQL) would be shown to visitors') : pass('display_errors off');
+    (ini_get('session.cookie_httponly') && ini_get('session.cookie_secure') && ini_get('session.use_strict_mode'))
+        ? pass('session cookies httponly + secure + strict')
+        : warning('session cookie hardening missing — install deploy 99-ventdepot.ini');
+}
+// Backups actually landing (the old crontab had no password and wrote nowhere)
+if (is_dir('/backups')) {
+    $latest = glob('/backups/ventdepot-*.sql.gz') ?: [];
+    usort($latest, fn($a, $b) => filemtime($b) <=> filemtime($a));
+    if (!$latest) {
+        warning('no nightly backup in /backups yet (first one runs at 03:00)');
+    } else {
+        $age = (time() - filemtime($latest[0])) / 3600;
+        ($age < 26 && filesize($latest[0]) > 10240)
+            ? pass('latest backup ' . basename($latest[0]) . ' (' . round(filesize($latest[0]) / 1048576, 1) . ' MB)')
+            : fail('latest backup is ' . round($age) . 'h old or empty — check /var/log/ventdepot/backup.log');
+    }
+}
+// Live HTTP check: sensitive paths must not be served
+if (!$isPlaceholder($env('APP_URL')) && function_exists('curl_init')) {
+    foreach (['.env', 'deploy.sh', 'migrate.php', 'config/database.php', 'node_modules/', 'composer.json', 'logs/media-retry.queue'] as $p) {
+        $ch = curl_init(rtrim($env('APP_URL'), '/') . '/' . $p);
+        curl_setopt_array($ch, [CURLOPT_NOBODY => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 8, CURLOPT_FOLLOWLOCATION => false]);
+        curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($code === 0) { warning("could not reach " . $env('APP_URL') . " for HTTP checks"); break; }
+        in_array($code, [403, 404], true) ? pass("/$p not served ($code)") : fail("/$p is publicly reachable (HTTP $code)");
+    }
+}
 
 echo "== Writable paths ==\n";
 foreach (['uploads', 'uploads/thumbs', 'uploads/stores', 'uploads/avatars'] as $d) {

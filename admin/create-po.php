@@ -15,7 +15,7 @@ $locationId = (int) ($_POST['location_id'] ?? ($locations[0]['id'] ?? 1));
 $result = null; $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $lines = [];
     foreach ($_POST['qty'] ?? [] as $spId => $qty) {
         if ((int) $qty > 0) $lines[] = ['supplier_product_id' => (int) $spId, 'qty' => (int) $qty];

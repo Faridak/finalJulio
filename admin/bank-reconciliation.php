@@ -13,7 +13,7 @@ $accounts = $pdo->query("SELECT id, name, account_kind, account_mask, gl_account
 $bankId = (int) ($_GET['account'] ?? ($_POST['bank_account_id'] ?? ($accounts[0]['id'] ?? 0)));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $action = $_POST['action'] ?? '';
     if ($action === 'upload' && !empty($_FILES['statement']['tmp_name'])) {
         $csv = file_get_contents($_FILES['statement']['tmp_name']);

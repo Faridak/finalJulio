@@ -519,5 +519,6 @@ $topProducts = $topProductsStmt->fetchAll();
             </div>
         </div>
     </div>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

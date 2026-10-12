@@ -125,7 +125,7 @@ if ($params['category_id']) { $c = $pdo->prepare("SELECT name FROM categories WH
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <?php foreach ($r['products'] as $pr): ?>
                     <a href="product.php?id=<?= (int)$pr['id'] ?>" class="bg-white rounded-lg shadow hover:shadow-md transition overflow-hidden block">
-                        <img src="<?= htmlspecialchars($pr['image_url']) ?>" class="w-full h-40 object-cover" alt="">
+                        <img src="<?= htmlspecialchars(asset_url($pr['image_url'])) ?>" class="w-full h-40 object-cover" alt="">
                         <div class="p-3">
                             <div class="text-sm font-medium text-gray-800 line-clamp-2"><?= htmlspecialchars($pr['name']) ?></div>
                             <?php if (!empty($pr['review_count'])): ?>

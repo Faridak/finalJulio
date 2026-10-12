@@ -9,10 +9,6 @@ requireLogin();
 $userId = $_SESSION['user_id'];
 $messagingSystem = new MessagingSystem($pdo);
 
-// Create additional tables if they don't exist
-createUserBlocksTable($pdo);
-createMessageReportsTable($pdo);
-
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
@@ -30,7 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         switch ($action) {
             case 'send_message':
                 $conversationId = intval($_POST['conversation_id']);
-                $messageText = Security::sanitizeInput($_POST['message_text'], 'string');
+                // Stored raw, escaped on output (sanitizing here double-encoded quotes).
+                $messageText = mb_substr(trim((string) ($_POST['message_text'] ?? '')), 0, 5000);
                 
                 if (empty($messageText)) {
                     throw new Exception('Message cannot be empty');
@@ -52,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 
             case 'start_conversation':
                 $sellerId = intval($_POST['seller_id']);
-                $subject = Security::sanitizeInput($_POST['subject'], 'string');
-                $initialMessage = Security::sanitizeInput($_POST['initial_message'], 'string');
+                $subject = mb_substr(trim((string) ($_POST['subject'] ?? '')), 0, 255);
+                $initialMessage = mb_substr(trim((string) ($_POST['initial_message'] ?? '')), 0, 5000);
                 $productId = intval($_POST['product_id'] ?? 0) ?: null;
                 
                 if (empty($subject) || empty($initialMessage)) {
@@ -163,12 +160,12 @@ $unreadCount = $messagingSystem->getUnreadCount($userId);
                                    class="block p-4 border-b border-gray-100 hover:bg-gray-50 <?= $currentConversationId === $conv['id'] ? 'bg-blue-50 border-blue-200' : '' ?>">
                                     <div class="flex items-start space-x-3">
                                         <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                            <?= strtoupper(substr($conv['other_first_name'] ?: $conv['other_user_email'], 0, 1)) ?>
+                                            <?= htmlspecialchars(strtoupper(substr(participantName($conv['other_first_name'], $conv['other_last_name'], $conv['other_user_email']), 0, 1))) ?>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center justify-between">
                                                 <h3 class="text-sm font-medium text-gray-900 truncate">
-                                                    <?= htmlspecialchars($conv['other_first_name'] . ' ' . $conv['other_last_name'] ?: $conv['other_user_email']) ?>
+                                                    <?= htmlspecialchars(participantName($conv['other_first_name'], $conv['other_last_name'], $conv['other_user_email'])) ?>
                                                 </h3>
                                                 <?php if ($conv['unread_count'] > 0): ?>
                                                     <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full"><?= $conv['unread_count'] ?></span>
@@ -203,11 +200,11 @@ $unreadCount = $messagingSystem->getUnreadCount($userId);
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                        <?= strtoupper(substr($currentConversation['other_first_name'] ?: $currentConversation['other_user_email'], 0, 1)) ?>
+                                        <?= htmlspecialchars(strtoupper(substr(participantName($currentConversation['other_first_name'], $currentConversation['other_last_name'], $currentConversation['other_user_email']), 0, 1))) ?>
                                     </div>
                                     <div>
                                         <h3 class="font-medium text-gray-900">
-                                            <?= htmlspecialchars($currentConversation['other_first_name'] . ' ' . $currentConversation['other_last_name'] ?: $currentConversation['other_user_email']) ?>
+                                            <?= htmlspecialchars(participantName($currentConversation['other_first_name'], $currentConversation['other_last_name'], $currentConversation['other_user_email'])) ?>
                                             <span class="text-xs text-gray-500 ml-2">(<?= ucfirst($currentConversation['other_user_role']) ?>)</span>
                                         </h3>
                                         <p class="text-sm text-gray-600"><?= htmlspecialchars($currentConversation['subject']) ?></p>
@@ -229,7 +226,7 @@ $unreadCount = $messagingSystem->getUnreadCount($userId);
                             
                             <?php if ($currentConversation['product']): ?>
                                 <div class="mt-3 p-3 bg-gray-50 rounded-lg flex items-center space-x-3">
-                                    <img src="<?= htmlspecialchars($currentConversation['product']['image_url'] ?: 'https://via.placeholder.com/60x60') ?>" 
+                                    <img src="<?= htmlspecialchars(asset_url($currentConversation['product']['image_url'] ?? '') ?: 'assets/images/placeholder.jpg') ?>" 
                                          alt="<?= htmlspecialchars($currentConversation['product']['name']) ?>"
                                          class="w-12 h-12 object-cover rounded">
                                     <div>
@@ -247,7 +244,7 @@ $unreadCount = $messagingSystem->getUnreadCount($userId);
                                     <div class="max-w-xs lg:max-w-md">
                                         <?php if ($message['sender_id'] != $userId): ?>
                                             <div class="text-xs text-gray-500 mb-1">
-                                                <?= htmlspecialchars($message['sender_first_name'] . ' ' . $message['sender_last_name'] ?: $message['sender_email']) ?>
+                                                <?= htmlspecialchars(participantName($message['sender_first_name'], $message['sender_last_name'], $message['sender_email'])) ?>
                                             </div>
                                         <?php endif; ?>
                                         <div class="<?= $message['sender_id'] == $userId ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-900' ?> rounded-lg px-4 py-2">
@@ -364,6 +361,17 @@ $unreadCount = $messagingSystem->getUnreadCount($userId);
 </html>
 
 <?php
+/** First name + last initial, or a masked email — never a full email (seller PII policy). */
+function participantName($first, $last, $email) {
+    $first = trim((string) $first);
+    if ($first !== '') {
+        $last = trim((string) $last);
+        return $first . ($last !== '' ? ' ' . mb_substr($last, 0, 1) . '.' : '');
+    }
+    $local = strstr((string) $email, '@', true) ?: (string) $email;
+    return mb_substr($local, 0, 2) . '***';
+}
+
 function timeAgo($datetime) {
     $time = time() - strtotime($datetime);
     

@@ -13,7 +13,7 @@ $quoteId = (int) ($_GET['quote'] ?? ($_POST['quote_id'] ?? 0));
 $notice = ''; $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $action = $_POST['action'] ?? '';
 
     if ($action === 'add_material') {

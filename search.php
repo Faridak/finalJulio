@@ -305,7 +305,7 @@ function buildFilterUrl($params, $overrides = []) {
                             <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                                 <a href="product.php?id=<?= $product['id'] ?>" class="block">
                                     <div class="aspect-w-1 aspect-h-1 bg-gray-200">
-                                        <img src="<?= htmlspecialchars($product['image_url'] ?: 'https://via.placeholder.com/300x300') ?>" 
+                                        <img src="<?= htmlspecialchars(asset_url($product['image_url'] ?? '') ?: 'https://via.placeholder.com/300x300') ?>" 
                                              alt="<?= htmlspecialchars($product['name']) ?>"
                                              class="w-full h-48 object-cover">
                                     </div>

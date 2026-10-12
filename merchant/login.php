@@ -244,5 +244,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </footer>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

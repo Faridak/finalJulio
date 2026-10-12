@@ -159,5 +159,6 @@ $maxNet = max(array_map(fn($x) => (float) $x['net'], $months ?: [['net' => 1]]))
         </div>
     </div>
 </div>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

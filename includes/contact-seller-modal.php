@@ -39,7 +39,7 @@ $productId = $product['id'];
             
             <div class="mb-4">
                 <div class="flex items-center space-x-3">
-                    <img src="<?= htmlspecialchars($product['image_url'] ?: 'https://via.placeholder.com/60x60') ?>" 
+                    <img src="<?= htmlspecialchars(asset_url($product['image_url'] ?? '') ?: 'assets/images/placeholder.jpg') ?>" 
                          alt="<?= htmlspecialchars($product['name']) ?>"
                          class="w-12 h-12 object-cover rounded">
                     <div>

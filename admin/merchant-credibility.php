@@ -11,7 +11,7 @@ $svc = new SupplierCredibilityService($pdo);
 $notice = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $svc->scoreAll();
     $notice = 'Credibility recomputed for all sellers.';
     AuditLog::record($pdo, 'seller.credibility_recompute', 'merchant', null, 'Recomputed credibility scores for all sellers');

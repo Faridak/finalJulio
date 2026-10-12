@@ -303,5 +303,6 @@ foreach ($faqs as $faq) {
             });
         }
     </script>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

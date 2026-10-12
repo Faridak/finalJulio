@@ -6,7 +6,7 @@ require_once 'includes/security.php';
 
 // CSRF validation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-    http_response_code(419);
+    http_response_code(403);
     die('CSRF token mismatch. Please refresh the page and try again.');
 }
 
@@ -217,5 +217,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     
     <?php include 'includes/footer.php'; ?>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

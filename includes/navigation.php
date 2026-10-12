@@ -94,6 +94,8 @@ if ($navMegaTop) {
                             <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                             <a href="orders.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
                             <a href="wishlist.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Wishlist</a>
+                            <a href="messages.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Messages</a>
+                            <a href="disputes.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Disputes</a>
                             <?php if (getUserRole() === 'merchant'): ?>
                                 <a href="merchant/dashboard.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Merchant Dashboard</a>
                             <?php endif; ?>
@@ -144,3 +146,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<!-- Motion (motion.dev) animation library, sitewide: window.Motion.animate / inView / scroll.
+     Vendored from npm (`npm install` copies it here) — no CDN. -->
+<script src="public/vendor/js/motion.min.js" defer></script>

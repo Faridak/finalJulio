@@ -99,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // Move uploaded file
                     if (move_uploaded_file($file['tmp_name'], $fullPath)) {
+                        store_media_file($relativePath, $fullPath);   // mirror to object storage when configured
                         // Get file info
                         $finfo = finfo_open(FILEINFO_MIME_TYPE);
                         $mimeType = finfo_file($finfo, $fullPath);
@@ -450,7 +451,7 @@ if ($action === 'list') {
         <?php endif; ?>
     </div>
 
-    <?php include 'footer.php'; ?>
+    <?php /* no admin footer partial exists */ ?>
     
     <?php
     function formatBytes($size, $precision = 2) {

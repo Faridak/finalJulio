@@ -381,5 +381,6 @@ $topCustomers = $stmt->fetchAll();
             alert(`Export to ${format.toUpperCase()} functionality would be implemented here.\n\nThis would generate a ${format} file with the current analytics data.`);
         }
     </script>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

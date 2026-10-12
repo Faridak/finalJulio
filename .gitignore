@@ -93,3 +93,11 @@ linode-rescue/
 # Deploy secrets
 deploy/DB_PASSWORD.txt
 .env.production
+
+# ---- Must ship with the code (exceptions to the rules above) ----
+# Schema migrations: *.sql above is meant for DB dumps, but it also hid every
+# migration, so pull-deploy.sh ran migrate.php with nothing to apply.
+!migration/*.sql
+# Vendored front-end assets (Tailwind build, Three.js, Font Awesome); the
+# composer "vendor/" rule caught these too, so a git-based deploy had no CSS.
+!public/vendor/

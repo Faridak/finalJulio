@@ -22,7 +22,7 @@ function findReset(PDO $pdo, $email, $token)
 $reset = findReset($pdo, $email, $token);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     if (!$reset) {
         $error = 'This reset link is invalid or has expired. Request a new one.';
     } else {
@@ -83,5 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
     </div>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

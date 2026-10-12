@@ -11,7 +11,7 @@ $svc = new MarketplacePayoutService($pdo);
 $notice = ''; $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $mid = (int) ($_POST['merchant_id'] ?? 0);
     $r = $svc->runPayout($mid, $_SESSION['user_id']);
     if ($r['success']) {
@@ -57,7 +57,7 @@ $m = fn($n) => '$'.number_format((float)$n,2);
                 <?php foreach ($pending as $s): ?>
                 <tr class="border-b">
                     <td class="px-4 py-3"><?= htmlspecialchars($s['email']) ?><div class="text-xs text-gray-400">#<?= (int)$s['merchant_id'] ?></div></td>
-                    <td class="text-right"><?= (int)$s['lines'] ?></td>
+                    <td class="text-right"><?= (int)$s['line_count'] ?></td>
                     <td class="text-right"><?= $m($s['gross']) ?></td>
                     <td class="text-right text-gray-500"><?= $m($s['commission']) ?></td>
                     <td class="text-right font-bold text-green-700"><?= $m($s['net']) ?></td>

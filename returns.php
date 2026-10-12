@@ -319,5 +319,6 @@ while ($row = $stmt->fetch()) {
             </div>
         </div>
     </footer>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

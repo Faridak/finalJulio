@@ -39,6 +39,8 @@ try {
 
 // Include engineering helpers
 require_once __DIR__ . '/../includes/engineering_helpers.php';
+// Media URL resolver (local disk vs object storage / CDN)
+require_once __DIR__ . '/../includes/asset.php';
 
 // Include other helper functions
 function isLoggedIn() {

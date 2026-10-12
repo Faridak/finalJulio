@@ -26,11 +26,19 @@ if (!function_exists('loadEnv')) {
             $name = trim($name);
             $value = trim($value);
 
-            // Strip surrounding quotes.
-            if (strlen($value) >= 2 &&
-                (($value[0] === '"' && substr($value, -1) === '"') ||
-                 ($value[0] === "'" && substr($value, -1) === "'"))) {
-                $value = substr($value, 1, -1);
+            if ($value !== '' && ($value[0] === '"' || $value[0] === "'")) {
+                // Quoted: take what's inside the quotes; anything after the
+                // closing quote (e.g. a "# comment") is ignored.
+                $end = strpos($value, $value[0], 1);
+                $value = $end === false ? substr($value, 1) : substr($value, 1, $end - 1);
+            } else {
+                // Unquoted: " # ..." starts a comment (dotenv convention). Without
+                // this, `OXXO_WEBHOOK_SECRET=   # shared secret` made the comment
+                // text — public in the repo — the live webhook secret.
+                $value = trim(preg_replace('/\s+#.*$/', '', $value));
+                if ($value !== '' && $value[0] === '#') {
+                    $value = '';
+                }
             }
 
             if ($name === '') {

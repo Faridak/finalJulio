@@ -234,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 <div class="space-y-4 mb-6">
                     <?php foreach ($cartItems as $item): ?>
                         <div class="flex items-center space-x-4">
-                            <img src="<?= htmlspecialchars($item['image_url'] ?: 'https://via.placeholder.com/80x80') ?>" 
+                            <img src="<?= htmlspecialchars(asset_url($item['image_url'] ?? '') ?: 'https://via.placeholder.com/80x80') ?>" 
                                  alt="<?= htmlspecialchars($item['product_name']) ?>"
                                  class="w-16 h-16 object-cover rounded-lg">
                             <div class="flex-1">

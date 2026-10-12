@@ -14,7 +14,7 @@ $pdo->prepare("INSERT IGNORE INTO supplier_store (merchant_id, store_name) VALUE
     ->execute([$merchantId, 'My Store #' . $merchantId]);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $action = $_POST['action'] ?? '';
 
     if ($action === 'save_store') {
@@ -31,7 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!is_dir($dir)) mkdir($dir, 0755, true);
             $name = $field . '-' . time() . '.' . $ext;   // safe generated name, never the client's
             if (!move_uploaded_file($_FILES[$field]['tmp_name'], "$dir/$name")) { $error = 'Could not save the uploaded image.'; return null; }
-            return 'uploads/stores/' . $merchantId . '/' . $name;
+            $key = 'uploads/stores/' . $merchantId . '/' . $name;
+            store_media_file($key, "$dir/$name");   // mirror to object storage when configured
+            return $key;
         };
         $jumboImg  = $saveUpload('jumbotron_image_file') ?: ($_POST['jumbotron_image'] ?: null);
         $bannerImg = $saveUpload('banner_image_file') ?: ($_POST['banner_image_current'] ?: null);
@@ -205,5 +207,6 @@ window.addEventListener('load', function () {
     }
 });
 </script>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

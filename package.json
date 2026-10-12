@@ -1,0 +1,14 @@
+{
+  "name": "ventdepot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Front-end build tooling for VentDepot (PHP app). Browser libraries are copied into public/vendor/ and served as static files; node_modules is never deployed.",
+  "scripts": {
+    "vendor": "node -e \"require('fs').copyFileSync('node_modules/motion/dist/motion.js','public/vendor/js/motion.min.js')\"",
+    "build:css": "npx tailwindcss@3 -c tailwind.build.config.js -i tailwind.src.css -o public/vendor/css/tailwind.min.css --minify",
+    "postinstall": "npm run vendor"
+  },
+  "dependencies": {
+    "motion": "^14.0.0"
+  }
+}

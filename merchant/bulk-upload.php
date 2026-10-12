@@ -18,7 +18,7 @@ if (isset($_GET['template'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     if (empty($_FILES['csv']['tmp_name'])) {
         $error = 'Choose a CSV file.';
     } else {
@@ -109,5 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="text-xs text-gray-400 mt-2">New products go live immediately under your store. Prices in USD. Images by URL for now (or upload per-product later from Products).</p>
     </form>
 </div>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

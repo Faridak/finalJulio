@@ -22,6 +22,20 @@ function check($label, $ok, $detail = '') {
     else { $fail++; echo "  ✘ $label" . ($detail !== '' ? " — $detail" : '') . "\n"; }
 }
 
+/** Exact stock snapshot for test products: totals + per-location rows (restored after order tests). */
+function snapshotStock(PDO $pdo, array $ids) {
+    $in = implode(',', array_map('intval', $ids));
+    return [
+        'products'  => $pdo->query("SELECT id, inventory FROM products WHERE id IN ($in)")->fetchAll(PDO::FETCH_KEY_PAIR),
+        'locations' => $pdo->query("SELECT id, quantity_on_hand, quantity_reserved, quantity_available FROM product_inventory WHERE product_id IN ($in)")->fetchAll(PDO::FETCH_ASSOC),
+    ];
+}
+function restoreStock(PDO $pdo, array $snap) {
+    foreach ($snap['products'] as $id => $inv) $pdo->prepare("UPDATE products SET inventory = ? WHERE id = ?")->execute([$inv, $id]);
+    $u = $pdo->prepare("UPDATE product_inventory SET quantity_on_hand = ?, quantity_reserved = ?, quantity_available = ? WHERE id = ?");
+    foreach ($snap['locations'] as $r) $u->execute([$r['quantity_on_hand'], $r['quantity_reserved'], $r['quantity_available'], $r['id']]);
+}
+
 echo "== 1. Ledger integrity ==\n";
 $r = $pdo->query("SELECT ROUND(SUM(debit_amount)-SUM(credit_amount),2) FROM general_ledger")->fetchColumn();
 check('general ledger globally balanced', abs((float) $r) < 0.01, "off by $r");
@@ -80,6 +94,7 @@ check('personal code blocked for other users', !$v2['valid']);
 $pdo->exec("DELETE FROM promo_codes WHERE code='REGTEST10'");
 
 echo "== 6. Full order round-trip (create -> pay -> orchestrate) ==\n";
+$stock6 = snapshotStock($pdo, [$pid]);
 require_once __DIR__ . '/../includes/security.php';
 require_once __DIR__ . '/../includes/OrderProcessor.php';
 require_once __DIR__ . '/../services/OxxoPaymentService.php';
@@ -115,8 +130,97 @@ if ($oid) {
         "stock_reservations WHERE order_id=$oid", "oxxo_payments WHERE order_id=$oid",
         "order_items WHERE order_id=$oid", "orders WHERE id=$oid",
     ] as $d) $pdo->exec("DELETE FROM $d");
-    $pdo->prepare("UPDATE products SET inventory = inventory + 1 WHERE id = ?")->execute([$pid]);
+    restoreStock($pdo, $stock6);   // exact per-location stock (the old +1 on products.inventory left product_inventory 1 unit short every run)
     echo "  (round-trip data cleaned)\n";
+}
+
+echo "== 7. Refund accounting (own + marketplace, full + partial) ==\n";
+require_once __DIR__ . '/../services/ReturnService.php';
+require_once __DIR__ . '/../services/MarketplacePayoutService.php';
+$SELLER = (int) $pdo->query("SELECT id FROM users WHERE role = 'merchant' ORDER BY id DESC LIMIT 1")->fetchColumn();
+$mpid = (int) $pdo->query("SELECT id FROM products WHERE price BETWEEN 50 AND 200 AND inventory > 5 AND id <> $pid
+                           AND id NOT IN (SELECT product_id FROM product_discounts WHERE is_active=1) ORDER BY id DESC LIMIT 1")->fetchColumn();
+$orig = $pdo->query("SELECT merchant_id, ownership FROM products WHERE id=$mpid")->fetch(PDO::FETCH_ASSOC);
+$stock7 = snapshotStock($pdo, [$pid, $mpid]);
+$acct = function ($oid, $retIds, $code) use ($pdo) {   // net debit on an account for this order's sale + refunds
+    $ids = implode(',', array_map('intval', $retIds ?: [0]));
+    return round((float) $pdo->query("SELECT COALESCE(SUM(gl.debit_amount - gl.credit_amount),0)
+        FROM general_ledger gl JOIN chart_of_accounts a ON a.id = gl.account_id
+        WHERE a.account_code = '$code' AND ((gl.reference_type = 'order' AND gl.reference_id = $oid)
+           OR (gl.reference_type = 'return' AND gl.reference_id IN ($ids)))")->fetchColumn(), 2);
+};
+$cleanup7 = [];
+try {
+    // A marketplace product (seller-owned) + an own product on one order.
+    $pdo->prepare("UPDATE products SET ownership='marketplace', merchant_id=? WHERE id=?")->execute([$SELLER, $mpid]);
+    $res = $op->createOrder($CUSTOMER, [['product_id' => $pid, 'quantity' => 1], ['product_id' => $mpid, 'quantity' => 2]],
+        ['address' => 'Regression 7', 'city' => 'CDMX', 'zip' => '01000', 'country' => 'MX']);
+    $oid7 = (int) ($res['order_id'] ?? 0); $cleanup7['order'] = $oid7;
+    (new ReservationService($pdo))->record($oid7, [['product_id' => $pid, 'quantity' => 1], ['product_id' => $mpid, 'quantity' => 2]]);
+    $ox = new OxxoPaymentService($pdo);
+    $ox->confirmPayment($ox->createVoucher($oid7)['reference'], 'manual');
+    $mp = new MarketplacePayoutService($pdo);
+    $pendingBefore = $mp->pendingPayable($SELLER);
+    $saleNet = (float) $pdo->query("SELECT net_amount FROM merchant_commissions WHERE order_id=$oid7 AND merchant_id=$SELLER AND gross_amount > 0")->fetchColumn();
+    check('sale split recorded seller net', $saleNet > 0, "net=$saleNet");
+
+    $rs = new ReturnService($pdo);
+    $items7 = $pdo->query("SELECT oi.id, oi.product_id FROM order_items oi WHERE oi.order_id=$oid7")->fetchAll(PDO::FETCH_KEY_PAIR);
+    $ownItem = array_search($pid, $items7); $mpItem = array_search($mpid, $items7);
+
+    // (a) full refund of the marketplace line
+    $r1 = $rs->createReturn($oid7, $CUSTOMER, [['order_item_id' => $mpItem, 'quantity' => 2]], 'regression mkt full');
+    $cleanup7['returns'][] = $r1['return_id'] ?? 0;
+    $pdo->prepare("UPDATE return_requests SET restock=0 WHERE id=?")->execute([$r1['return_id']]);
+    $rs->setStatus($r1['return_id'], 'approved');
+    check('marketplace refund completes', !empty($rs->completeReturn($r1['return_id'])['success']));
+    check('Merchant Payable fully reversed for the refunded line', abs($acct($oid7, [$r1['return_id']], '2200')) < 0.02,
+          'net 2200 = ' . $acct($oid7, [$r1['return_id']], '2200'));
+    check('Commission Revenue fully reversed', abs($acct($oid7, [$r1['return_id']], '4100')) < 0.02);
+    check('seller balance reduced by the refund', abs($mp->pendingPayable($SELLER) - ($pendingBefore - $saleNet)) < 0.02,
+          'pending ' . $mp->pendingPayable($SELLER) . ' vs ' . ($pendingBefore - $saleNet));
+    $rs->completeReturn($r1['return_id']);   // re-run must not double-deduct
+    check('refund is idempotent (no second seller deduction)',
+          (int) $pdo->query("SELECT COUNT(*) FROM merchant_commissions WHERE payout_reference='REFUND-R" . (int) $r1['return_id'] . "'")->fetchColumn() === 1);
+
+    // (b) partial refund (half) of the own line -> only Sales Revenue moves
+    $r2 = $rs->createReturn($oid7, $CUSTOMER, [['order_item_id' => $ownItem, 'quantity' => 1]], 'regression own partial');
+    $cleanup7['returns'][] = $r2['return_id'] ?? 0;
+    $half = round($r2['refund_amount'] / 2, 2);
+    $pdo->prepare("UPDATE return_requests SET refund_amount=?, restock=0 WHERE id=?")->execute([$half, $r2['return_id']]);
+    $rs->setStatus($r2['return_id'], 'approved');
+    $rs->completeReturn($r2['return_id']);
+    $j2 = $pdo->query("SELECT a.account_code, SUM(gl.debit_amount) d, SUM(gl.credit_amount) c FROM general_ledger gl
+                       JOIN chart_of_accounts a ON a.id = gl.account_id
+                       WHERE gl.reference_type='return' AND gl.reference_id=" . (int) $r2['return_id'] . " GROUP BY a.account_code")->fetchAll(PDO::FETCH_UNIQUE);
+    check('own partial refund: cash out = refund amount', abs((float) ($j2['1000']['c'] ?? 0) - $half) < 0.01);
+    check('own partial refund: no Merchant Payable / Commission movement',
+          (float) ($j2['2200']['d'] ?? 0) == 0.0 && (float) ($j2['4100']['d'] ?? 0) == 0.0);
+
+    $bal = (float) $pdo->query("SELECT COALESCE(SUM(debit_amount)-SUM(credit_amount),0) FROM general_ledger
+                                WHERE (reference_type IN ('order','order_cogs') AND reference_id=$oid7)
+                                   OR (reference_type IN ('return','return_cogs') AND reference_id IN (" . implode(',', array_map('intval', $cleanup7['returns'])) . "))")->fetchColumn();
+    check('order + refund journals balanced', abs($bal) < 0.01, "off by $bal");
+} finally {
+    $pdo->prepare("UPDATE products SET ownership=?, merchant_id=? WHERE id=?")->execute([$orig['ownership'], $orig['merchant_id'], $mpid]);
+    $oid7 = (int) ($cleanup7['order'] ?? 0);
+    $rids = implode(',', array_map('intval', $cleanup7['returns'] ?? [0]) ?: [0]);
+    if ($oid7) {
+        foreach ([
+            "general_ledger WHERE (reference_type IN ('order','order_cogs') AND reference_id=$oid7) OR (reference_type IN ('return','return_cogs') AND reference_id IN ($rids))",
+            "inventory_movements WHERE (reference_type='sale_order' AND reference_id=$oid7) OR (reference_type='return' AND reference_id IN ($rids))",
+            "payment_refunds WHERE transaction_id IN (SELECT id FROM payment_transactions WHERE order_id=$oid7)",
+            "return_request_items WHERE return_request_id IN ($rids)", "return_requests WHERE id IN ($rids)",
+            "merchant_commissions WHERE order_id=$oid7", "merchant_suborders WHERE order_id=$oid7",
+            "email_queue WHERE reference_id=$oid7 AND reference_type IN ('order','seller_order')",
+            "tracking_events WHERE shipment_id IN (SELECT id FROM shipments WHERE order_id=$oid7)",
+            "shipments WHERE order_id=$oid7", "payment_transactions WHERE order_id=$oid7",
+            "stock_reservations WHERE order_id=$oid7", "oxxo_payments WHERE order_id=$oid7",
+            "order_items WHERE order_id=$oid7", "orders WHERE id=$oid7",
+        ] as $d) { try { $pdo->exec("DELETE FROM $d"); } catch (Throwable $e) { echo "  (cleanup: " . $e->getMessage() . ")\n"; } }
+        restoreStock($pdo, $stock7);
+        echo "  (refund test data cleaned)\n";
+    }
 }
 
 echo "\n" . ($fail === 0 ? "ALL GREEN" : "FAILURES: $fail") . " — $pass passed, $fail failed\n";

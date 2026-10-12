@@ -96,7 +96,7 @@ prepCards($featured, $pricing);
 
 function productCard($p, $badge = null) {
     $name = htmlspecialchars($p['name']);
-    $img = htmlspecialchars($p['image_url']);
+    $img = htmlspecialchars(asset_url($p['image_url']));
     $id = (int) $p['id'];
     $price = number_format($p['eff'], 2);
     $compare = !empty($p['base']) ? '<span class="text-xs text-gray-400 line-through ml-1">$' . number_format($p['base'], 2) . '</span>' : '';

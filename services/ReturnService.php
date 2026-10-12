@@ -33,9 +33,10 @@ class ReturnService
      * @param int   $userId  the requesting customer (must own the order)
      * @param array $items   [ ['order_item_id'=>int, 'quantity'=>int], ... ]
      * @param string $reason
+     * @param bool   $enforceWindow  false for admin-resolved disputes (may be raised after the window)
      * @return array{success:bool,return_id?:int,refund_amount?:float,error?:string}
      */
-    public function createReturn($orderId, $userId, array $items, $reason = '')
+    public function createReturn($orderId, $userId, array $items, $reason = '', $enforceWindow = true)
     {
         // Verify order ownership and that it is in a returnable state.
         $orderStmt = $this->pdo->prepare("
@@ -61,7 +62,7 @@ class ReturnService
         $win->execute([$orderId]);
         $windowDays = (int) ($win->fetchColumn() ?: 30);
         $daysSince = (int) floor((time() - strtotime($order['created_at'])) / 86400);
-        if ($daysSince > $windowDays) {
+        if ($enforceWindow && $daysSince > $windowDays) {
             return ['success' => false, 'error' => "The {$windowDays}-day return window has passed (ordered {$daysSince} days ago)."];
         }
 
@@ -257,16 +258,63 @@ class ReturnService
             $taxPortion  = 0.0;
         }
 
+        // Reverse each returned line the way the sale was booked: own products
+        // came out of Sales Revenue (4000); marketplace products were Merchant
+        // Payable (2200, seller net) + Commission Revenue (4100, platform fee).
+        // Partial refunds scale every line by the same factor.
+        $items = $this->pdo->prepare("
+            SELECT rri.line_refund, p.ownership, p.merchant_id
+            FROM return_request_items rri JOIN products p ON p.id = rri.product_id
+            WHERE rri.return_request_id = ?
+        ");
+        $items->execute([$ret['id']]);
+        $items = $items->fetchAll(PDO::FETCH_ASSOC);
+        $linesTotal = array_sum(array_map(fn($i) => (float) $i['line_refund'], $items));
+        $factor = $linesTotal > 0 ? $merchandise / $linesTotal : 0.0;
+
+        $perSeller = [];   // merchant_id => [gross, rate, fee, net]
+        foreach ($items as $i) {
+            if ($i['ownership'] !== 'marketplace') continue;
+            $mid = (int) $i['merchant_id'];
+            $amt = round((float) $i['line_refund'] * $factor, 2);
+            $rate = $this->commissionRate((int) $ret['order_id'], $mid);
+            $perSeller[$mid] = $perSeller[$mid] ?? ['gross' => 0.0, 'rate' => $rate, 'fee' => 0.0, 'net' => 0.0];
+            $fee = round($amt * $rate, 2);
+            $perSeller[$mid]['gross'] += $amt;
+            $perSeller[$mid]['fee']   += $fee;
+            $perSeller[$mid]['net']   += round($amt - $fee, 2);
+        }
+        $sellerNet = round(array_sum(array_column($perSeller, 'net')), 2);
+        $commission = round(array_sum(array_column($perSeller, 'fee')), 2);
+        $ownRev = round($merchandise - $sellerNet - $commission, 2);   // rounding remainder stays on own revenue
+
         $this->accounting->postJournal(
             [
-                ['code' => '4000', 'debit'  => $merchandise], // Sales Revenue (reversed)
-                ['code' => '2100', 'debit'  => $taxPortion],  // Sales Tax Payable (reversed)
+                ['code' => '4000', 'debit'  => $ownRev],       // Sales Revenue (own lines, reversed)
+                ['code' => '2200', 'debit'  => $sellerNet],    // Merchant Payable (seller's share, reversed)
+                ['code' => '4100', 'debit'  => $commission],   // Commission Revenue (platform fee, reversed)
+                ['code' => '2100', 'debit'  => $taxPortion],   // Sales Tax Payable (reversed)
                 ['code' => '1000', 'credit' => $refundAmount], // Cash out
             ],
             'Refund — return #' . $ret['id'] . ' (order #' . $ret['order_id'] . ')',
             'return',
             (int) $ret['id']
         );
+
+        // Take the refund out of each seller's balance: a negative commission
+        // line, netted into their next payout. If they were already paid for
+        // this sale, it stays pending as an amount the seller owes.
+        foreach ($perSeller as $mid => $s) {
+            $ref = 'REFUND-R' . (int) $ret['id'];
+            $dup = $this->pdo->prepare("SELECT 1 FROM merchant_commissions WHERE merchant_id = ? AND payout_reference = ? LIMIT 1");
+            $dup->execute([$mid, $ref]);
+            if ($dup->fetchColumn()) continue;   // idempotent re-run
+            $this->pdo->prepare("
+                INSERT INTO merchant_commissions
+                    (order_id, merchant_id, gross_amount, commission_rate, commission_amount, net_amount, status, payout_reference, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, 'pending_payout', ?, NOW())
+            ")->execute([$ret['order_id'], $mid, -round($s['gross'], 2), $s['rate'], -round($s['fee'], 2), -round($s['net'], 2), $ref]);
+        }
 
         if ($restockCost > 0) {
             $this->accounting->postJournal(
@@ -305,6 +353,22 @@ class ReturnService
         ");
         $stmt->execute([$orderItemId]);
         return (int) $stmt->fetchColumn();
+    }
+
+    /** Commission rate charged on this seller's portion of the order (as recorded at sale). */
+    private function commissionRate($orderId, $merchantId)
+    {
+        $s = $this->pdo->prepare("
+            SELECT commission_rate FROM merchant_commissions
+            WHERE order_id = ? AND merchant_id = ? AND gross_amount > 0 ORDER BY id LIMIT 1
+        ");
+        $s->execute([$orderId, $merchantId]);
+        $rate = $s->fetchColumn();
+        if ($rate === false) {
+            require_once __DIR__ . '/MarketplacePayoutService.php';
+            return MarketplacePayoutService::DEFAULT_COMMISSION;
+        }
+        return (float) $rate;
     }
 
     private function returnItems($returnId)

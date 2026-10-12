@@ -110,7 +110,7 @@ $_SESSION['cart_count'] = array_sum($cart);
                             <?php foreach ($cartDetails as $item): ?>
                                 <div class="p-6 flex flex-col sm:flex-row items-center gap-6">
                                     <div class="w-full sm:w-24 h-24 flex-shrink-0">
-                                        <img src="<?= htmlspecialchars($item['image_url']) ?>" 
+                                        <img src="<?= htmlspecialchars(asset_url($item['image_url'])) ?>" 
                                              alt="<?= htmlspecialchars($item['name']) ?>" 
                                              class="w-full h-full object-cover rounded-md border border-gray-200">
                                     </div>

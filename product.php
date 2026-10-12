@@ -1,5 +1,6 @@
 <?php
 require_once 'config/database.php';
+require_once 'includes/security.php';   // Security:: (wishlist CSRF, contact-seller form, review POST)
 require_once 'includes/ProductReviews.php';
 require_once 'includes/dummy_data.php';
 require_once 'services/PricingService.php';
@@ -252,7 +253,7 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                 <div class="flex flex-col-reverse md:flex-row gap-4">
                     <!-- Thumbnails -->
                     <div class="flex md:flex-col gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto md:h-96 hide-scrollbar">
-                        <img src="<?= htmlspecialchars($product['image_url'] ?? 'https://via.placeholder.com/100x100') ?>" 
+                        <img src="<?= htmlspecialchars(asset_url($product['image_url'] ?? '') ?: 'https://via.placeholder.com/100x100') ?>" 
                              alt="<?= htmlspecialchars($product['name']) ?>" 
                              class="product-image-thumb w-16 h-16 md:w-24 md:h-24 rounded border-2 border-blue-500 flex-shrink-0">
                         <?php for ($i = 0; $i < 3; $i++): ?>
@@ -266,7 +267,7 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                     <div class="flex-1">
                         <div class="zoom-container relative">
                             <img id="mainImage" 
-                                 src="<?= htmlspecialchars($product['image_url'] ?? 'https://via.placeholder.com/500x500') ?>" 
+                                 src="<?= htmlspecialchars(asset_url($product['image_url'] ?? '') ?: 'https://via.placeholder.com/500x500') ?>" 
                                  alt="<?= htmlspecialchars($product['name']) ?>" 
                                  class="product-image-main w-full rounded-lg">
                             <div id="zoomLens" class="zoom-lens"></div>
@@ -407,22 +408,47 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                 </div>
                 
                 <!-- Merchant Info -->
+                <?php
+                // Public seller identity = store name + real rating. Never the
+                // seller's email (it invites off-platform deals and is PII).
+                $sellerStmt = $pdo->prepare("
+                    SELECT ss.store_name, ss.store_slug, mc.avg_rating
+                    FROM users u
+                    LEFT JOIN supplier_store ss ON ss.merchant_id = u.id
+                    LEFT JOIN merchant_credibility mc ON mc.merchant_id = u.id
+                    WHERE u.id = ?
+                ");
+                $sellerStmt->execute([$product['merchant_id']]);
+                $seller = $sellerStmt->fetch() ?: [];
+                $sellerName = $seller['store_name'] ?? '';
+                if ($sellerName === '' || $sellerName === null) {
+                    $sellerName = ($product['ownership'] ?? 'own') === 'own' ? 'VentDepot' : 'Marketplace seller';
+                }
+                $sellerRating = isset($seller['avg_rating']) ? (float) $seller['avg_rating'] : null;
+                ?>
                 <div class="mt-6 p-4 bg-gray-50 rounded-lg">
                     <div class="flex items-center">
-                        <div class="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
+                        <div class="bg-gray-200 rounded-xl w-16 h-16 flex items-center justify-center text-gray-500"><i class="fas fa-store text-2xl"></i></div>
                         <div class="ml-4">
                             <h3 class="font-medium text-gray-900">Sold by</h3>
-                            <p class="text-gray-600"><?= htmlspecialchars($product['merchant_email']) ?></p>
+                            <?php if (!empty($seller['store_slug'])): ?>
+                                <a href="store.php?seller=<?= urlencode($seller['store_slug']) ?>" class="text-blue-600 hover:underline"><?= htmlspecialchars($sellerName) ?></a>
+                            <?php else: ?>
+                                <p class="text-gray-600"><?= htmlspecialchars($sellerName) ?></p>
+                            <?php endif; ?>
+                            <?php if ($sellerRating !== null): ?>
                             <div class="flex items-center mt-1">
                                 <div class="flex">
                                     <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star <?= $i <= round($sellerRating) ? 'text-yellow-400' : 'text-gray-300' ?> text-sm"></i>
                                     <?php endfor; ?>
                                 </div>
-                                <span class="ml-2 text-sm text-gray-600">(4.8)</span>
+                                <span class="ml-2 text-sm text-gray-600">(<?= number_format($sellerRating, 1) ?>)</span>
                             </div>
+                            <?php endif; ?>
                         </div>
                     </div>
+                    <?php include __DIR__ . '/includes/contact-seller-modal.php'; ?>
                 </div>
             </div>
         </div>
@@ -468,7 +494,7 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                             <ul class="space-y-1 text-gray-600">
                                 <li><strong>SKU:</strong> <?= htmlspecialchars($product['sku'] ?? 'N/A') ?></li>
                                 <li><strong>Category:</strong> <?= htmlspecialchars($product['category'] ?? 'Uncategorized') ?></li>
-                                <li><strong>Weight:</strong> <?= $product['weight'] ?> <?= $product['weight_unit'] ?? 'kg' ?></li>
+                                <li><strong>Weight:</strong> <?= isset($product['weight']) ? htmlspecialchars($product['weight'] . ' ' . ($product['weight_unit'] ?? 'kg')) : '—' ?></li>
                                 <li><strong>In Stock:</strong> <?= $product['quantity'] ?> items</li>
                             </ul>
                         </div>
@@ -865,7 +891,7 @@ $relatedProducts = array_slice($relatedProducts, 0, 4);
                     <?php foreach ($relatedProducts as $relatedProduct): ?>
                         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
                             <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden">
-                                <img src="<?= htmlspecialchars($relatedProduct['image_url'] ?? 'https://via.placeholder.com/300x300') ?>" 
+                                <img src="<?= htmlspecialchars(asset_url($relatedProduct['image_url'] ?? '') ?: 'https://via.placeholder.com/300x300') ?>" 
                                      alt="<?= htmlspecialchars($relatedProduct['name']) ?>" 
                                      class="w-full h-48 object-cover">
                             </div>

@@ -123,7 +123,7 @@ $confirmationNumber = 'VD-' . str_pad($orderId, 6, '0', STR_PAD_LEFT) . '-' . da
                     <div class="space-y-4">
                         <?php foreach ($orderItems as $item): ?>
                             <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                                <img src="<?= htmlspecialchars($item['image_url'] ?: 'https://via.placeholder.com/80x80') ?>" 
+                                <img src="<?= htmlspecialchars(asset_url($item['image_url'] ?? '') ?: 'https://via.placeholder.com/80x80') ?>" 
                                      alt="<?= htmlspecialchars($item['product_name']) ?>"
                                      class="w-16 h-16 object-cover rounded-lg">
                                 <div class="flex-1">

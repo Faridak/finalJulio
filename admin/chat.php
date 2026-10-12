@@ -9,7 +9,7 @@ $notice = '';
 
 // Profile save (multipart: nickname + avatar upload)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'profile') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $nick = trim(mb_substr($_POST['nickname'] ?? '', 0, 40));
     if ($nick !== '') $pdo->prepare("UPDATE users SET chat_nickname = ? WHERE id = ?")->execute([$nick, $uid]);
 
@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'profi
             $ext = $types[mime_content_type($_FILES['avatar']['tmp_name'])];
             $path = 'uploads/avatars/u' . $uid . '-' . time() . '.' . $ext;
             if (move_uploaded_file($_FILES['avatar']['tmp_name'], __DIR__ . '/../' . $path)) {
+                store_media_file($path, __DIR__ . '/../' . $path);   // mirror to object storage when configured
                 $pdo->prepare("UPDATE users SET chat_avatar = ? WHERE id = ?")->execute([$path, $uid]);
             }
         }

@@ -40,7 +40,7 @@ $csrf = Security::generateCSRFToken();
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <?php foreach ($items as $it): ?>
             <div class="bg-white rounded-lg shadow overflow-hidden" id="wl-<?= (int)$it['id'] ?>">
-                <a href="product.php?id=<?= (int)$it['id'] ?>"><img src="<?= htmlspecialchars($it['image_url'] ?: 'assets/images/placeholder.jpg') ?>" class="w-full h-36 object-cover"></a>
+                <a href="product.php?id=<?= (int)$it['id'] ?>"><img src="<?= htmlspecialchars(asset_url($it['image_url'] ?? '') ?: 'assets/images/placeholder.jpg') ?>" class="w-full h-36 object-cover"></a>
                 <div class="p-3">
                     <a href="product.php?id=<?= (int)$it['id'] ?>" class="text-sm font-medium text-gray-800 hover:text-blue-600 line-clamp-2"><?= htmlspecialchars($it['name']) ?></a>
                     <div class="mt-1 text-sm"><b>$<?= number_format((float)$it['eff'],2) ?></b>

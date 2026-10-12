@@ -30,6 +30,7 @@ $navGroups = [
     'Orders' => [
         'orders.php' => 'All Orders',
         'returns.php' => 'Returns / RMA',
+        'dispute-management.php' => 'Disputes',
         'shipping-management.php' => 'Shipping',
         'shipping-rates.php' => 'Shipping Rates',
     ],
@@ -167,3 +168,5 @@ document.addEventListener('click', function (e) {
     });
 })();
 </script>
+<!-- Motion (motion.dev) animation library for all admin pages: window.Motion.animate / inView / scroll. -->
+<script src="../public/vendor/js/motion.min.js" defer></script>

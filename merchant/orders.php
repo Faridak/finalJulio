@@ -339,5 +339,6 @@ $orders = $stmt->fetchAll();
             alert('Shipping label for Order #' + orderId.toString().padStart(6, '0') + ' would be printed here.\n\nIn a real application, this would integrate with shipping providers like FedEx, UPS, or USPS.');
         }
     </script>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

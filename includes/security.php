@@ -31,6 +31,28 @@ class Security {
     }
     
     /**
+     * Post-login redirect target, or $default when it could leave the site.
+     * Accepts relative or same-host paths to a .php page with an optional query
+     * ("cart.php", "/finalJulio/product.php?id=5"). Rejects schemes, hosts,
+     * protocol-relative "//evil.com", backslashes and "..".
+     */
+    public static function safeRedirect($target, $default = 'index.php') {
+        $t = html_entity_decode(trim((string) $target), ENT_QUOTES, 'UTF-8');
+        if ($t === '' || strpos($t, '//') === 0 || preg_match('/[\x00-\x1F\\\\]/', $t)) {
+            return $default;
+        }
+        $parts = parse_url($t);
+        if ($parts === false || isset($parts['scheme']) || isset($parts['host'])) {
+            return $default;
+        }
+        $path = $parts['path'] ?? '';
+        if (strpos($path, '..') !== false || !preg_match('#^[A-Za-z0-9/._-]+\.php$#', $path)) {
+            return $default;
+        }
+        return $t;
+    }
+
+    /**
      * Comprehensive input validation
      */
     public static function validateInput($data, $rules) {
@@ -275,14 +297,33 @@ class Security {
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
         ];
         
-        $logFile = '../logs/security_' . date('Y-m-d') . '.log';
-        $logDir = dirname($logFile);
-        
+        // Anchored to the project (a cwd-relative '../logs' wrote outside the
+        // app from root pages). Logging must never break the request.
+        $logDir = __DIR__ . '/../logs';
         if (!is_dir($logDir)) {
-            mkdir($logDir, 0755, true);
+            @mkdir($logDir, 0755, true);
         }
-        
-        file_put_contents($logFile, json_encode($logEntry) . "\n", FILE_APPEND | LOCK_EX);
+        @file_put_contents($logDir . '/security_' . date('Y-m-d') . '.log', json_encode($logEntry) . "\n", FILE_APPEND | LOCK_EX);
+
+        // Queryable copy for the profile "recent security activity" panel.
+        global $pdo;
+        if ($pdo instanceof PDO) {
+            try {
+                $pdo->prepare("
+                    INSERT INTO security_events (user_id, event_type, severity, ip_address, user_agent, details)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ")->execute([
+                    $details['user_id'] ?? $logEntry['user_id'],
+                    substr((string) $event, 0, 64),
+                    in_array($severity, ['info', 'warning', 'critical'], true) ? $severity : 'info',
+                    $logEntry['ip'],
+                    substr((string) $logEntry['user_agent'], 0, 500),
+                    json_encode($details),
+                ]);
+            } catch (\Throwable $e) {
+                // table missing (migration 050 not run yet) — file log above still has it
+            }
+        }
     }
     
     /**
@@ -349,6 +390,26 @@ class Security {
         }
         
         return $errors;
+    }
+}
+
+// Procedural CSRF helpers used by several pages (cms-*, two-factor-auth,
+// product reviews, dispute center…). They were called but never defined, so
+// every POST on those pages died with "Call to undefined function".
+if (!function_exists('generateCSRFInput')) {
+    function generateCSRFInput() {
+        return Security::getCSRFInput();
+    }
+}
+
+if (!function_exists('requireCSRF')) {
+    /** Abort the request (403) unless the POSTed csrf_token matches the session. */
+    function requireCSRF() {
+        if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
+            Security::logSecurityEvent('csrf_token_mismatch', ['page' => $_SERVER['SCRIPT_NAME'] ?? '']);
+            http_response_code(403);   // not 419: Apache rewrites unknown codes to 500
+            exit('CSRF token mismatch. Please refresh the page and try again.');
+        }
     }
 }
 ?>

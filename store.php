@@ -79,7 +79,7 @@ function card($p) {
         <?php foreach ($sections as $sec): ?>
             <?php if ($sec === 'jumbotron' && ($store['jumbotron_headline'] || $store['jumbotron_image'])): ?>
                 <section class="rounded-2xl overflow-hidden text-white p-10 relative" style="background:<?= $theme ?>">
-                    <?php if ($store['jumbotron_image']): ?><img src="<?= htmlspecialchars($store['jumbotron_image']) ?>" class="absolute inset-0 w-full h-full object-cover opacity-30" alt=""><?php endif; ?>
+                    <?php if ($store['jumbotron_image']): ?><img src="<?= htmlspecialchars(asset_url($store['jumbotron_image'])) ?>" class="absolute inset-0 w-full h-full object-cover opacity-30" alt=""><?php endif; ?>
                     <div class="relative">
                         <h1 class="text-3xl md:text-4xl font-extrabold"><?= htmlspecialchars($store['jumbotron_headline'] ?: '') ?></h1>
                         <p class="mt-2 text-lg opacity-90"><?= htmlspecialchars($store['jumbotron_subtext'] ?: '') ?></p>
@@ -121,5 +121,6 @@ function card($p) {
         </div>
     </div>
     <?php endif; ?>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

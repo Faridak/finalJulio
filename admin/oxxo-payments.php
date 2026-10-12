@@ -13,7 +13,7 @@ $svc->expireOverdue();
 $notice = ''; $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $r = $svc->confirmPayment($_POST['reference'] ?? '', 'manual');
     if ($r['success']) {
         $notice = "Reference confirmed — order #{$r['order_id']} paid \$" . number_format($r['amount'], 2) . ' (cash). Fulfilment started.';

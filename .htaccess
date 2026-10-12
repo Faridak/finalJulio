@@ -18,6 +18,14 @@ Options -Indexes
     RewriteEngine On
     RewriteRule ^uploads/.*\.(php|phtml|php[0-9]|pht)$ - [F,L,NC]
     RewriteRule ^public/uploads/.*\.(php|phtml|php[0-9]|pht)$ - [F,L,NC]
+
+    # Object-storage fallback: if a media file isn't on local disk and the
+    # server has ASSET_ORIGIN set (vhost SetEnv, NOT committed), redirect to the
+    # bucket. Guarantees any template we didn't wrap still resolves after images
+    # move off the instance. Local dev (no ASSET_ORIGIN) is unaffected.
+    RewriteCond %{ENV:ASSET_ORIGIN} !^$
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^uploads/(.+\.(?:jpe?g|png|gif|webp|svg|avif|ico|bmp))$ %{ENV:ASSET_ORIGIN}/uploads/$1 [R=302,L,NC]
 </IfModule>
 
 # Security headers
@@ -25,6 +33,11 @@ Options -Indexes
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    # HTTPS only: browsers refuse plain HTTP for a year once seen (sent only over TLS)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" "expr=%{HTTPS} == 'on'"
+    # Safe baseline CSP (pages use inline scripts, so no script-src lockdown yet)
+    Header always set Content-Security-Policy "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://www.paypal.com https://www.sandbox.paypal.com"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=(self \"https://www.paypal.com\")"
 </IfModule>
 
 # Hide PHP version
@@ -35,5 +48,11 @@ Options -Indexes
 
 # Tool directories are never served over HTTP (CLI / deploy only)
 <IfModule mod_rewrite.c>
-    RewriteRule ^(migration|scripts|tests|cron|backups|deploy)(/|$) - [F,L]
+    RewriteRule ^(migration|scripts|tests|cron|backups|deploy|node_modules)(/|$) - [F,L]
+    RewriteRule ^(package(-lock)?\.json|tailwind\.(src\.css|build\.config\.js))$ - [F,L]
+    # Legacy deploy scripts (server IP, root user) + one-off cron/setup scripts
+    RewriteRule ^deploy\.(sh|ps1|bat)$ - [F,L]
+    RewriteRule ^(analytics-cron|escrow-cron|create_inventory_tables|create_shipping_tables|insert_inventory_sample_data|insert_shipping_sample_data|quick-visual-setup|migrate)\.php$ - [F,L]
+    # Internal PHP (only ever included, never requested directly)
+    RewriteRule ^(config|includes|classes|services|src|websockets|automation|security)/.*\.php$ - [F,L]
 </IfModule>

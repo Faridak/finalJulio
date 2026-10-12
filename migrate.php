@@ -70,7 +70,11 @@ foreach ($files as $f) {
     $stmts = array_filter(array_map('trim', preg_split('/;\s*[\r\n]+/', $sql)));
     try {
         foreach ($stmts as $stmt) {
-            if ($stmt === '' || strpos($stmt, '--') === 0) continue;
+            // Drop whole-line comments. Skipping any chunk that merely *began*
+            // with "--" silently swallowed the first statement after every
+            // file header (e.g. 045's role ENUM change never ran).
+            $stmt = trim(preg_replace('/^\s*--.*$/m', '', $stmt));
+            if ($stmt === '') continue;
             $pdo->exec($stmt);
         }
         $pdo->prepare("INSERT INTO schema_migrations (filename) VALUES (?)")->execute([$name]);

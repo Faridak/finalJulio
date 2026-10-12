@@ -34,7 +34,7 @@ if (!$order) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $order) {
     if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
-        http_response_code(419);
+        http_response_code(403);
         die('CSRF token mismatch. Please refresh and try again.');
     }
 
@@ -121,5 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $order) {
             </div>
         <?php endif; ?>
     </div>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

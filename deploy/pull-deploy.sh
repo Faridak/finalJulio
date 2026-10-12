@@ -6,8 +6,10 @@ set -euo pipefail
 APP=/var/www/ventdepot
 cd "$APP"
 
-echo "==> Backup DB before deploy (safety)"
-mysqldump ventdepot | gzip > "/backups/predeploy-$(date +%F-%H%M).sql.gz" 2>/dev/null || echo "  (skipped)"
+echo "==> Backup DB before deploy (safety) — abort if it fails; never migrate without one"
+BK="/backups/predeploy-$(date +%F-%H%M).sql.gz"
+mysqldump --single-transaction --routines ventdepot | gzip > "$BK" || { rm -f "$BK"; echo "Backup failed — deploy aborted."; exit 1; }
+echo "  saved $BK ($(du -h "$BK" | cut -f1))"
 
 echo "==> Fetch + reset to origin/master (keeps .env, uploads/, DB untouched — they're gitignored)"
 git fetch --quiet origin

@@ -8,6 +8,17 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0); // Don't display errors in API responses
 
+// The public REST API (index.php) is unfinished: it queries columns that don't
+// exist (products.status, users.status), creates tables on every request, and
+// nothing on the site uses it. Off unless explicitly enabled in .env.
+require_once __DIR__ . '/../config/env.php';
+if (!filter_var(env('API_ENABLED', false), FILTER_VALIDATE_BOOLEAN)) {
+    header('Content-Type: application/json');
+    http_response_code(404);
+    echo json_encode(['error' => 'Not found']);
+    exit;
+}
+
 // Include the main API class
 require_once 'index.php';
 

@@ -4,7 +4,7 @@
  * Implements TOTP (Time-based One-Time Password) authentication
  */
 
-require_once 'security.php';
+require_once __DIR__ . '/security.php';
 
 class TwoFactorAuth {
     private $pdo;
@@ -27,32 +27,36 @@ class TwoFactorAuth {
     }
     
     /**
-     * Generate QR code URL for authenticator apps
+     * otpauth:// URI for authenticator apps. Render it as a QR code in the
+     * browser (public/vendor/js/qrcode.min.js) — never send it to a third-party
+     * QR service: the URI contains the shared secret.
      */
-    public function getQRCodeUrl($email, $secret) {
-        $label = urlencode($this->issuer . ':' . $email);
-        $issuer = urlencode($this->issuer);
-        $url = "otpauth://totp/{$label}?secret={$secret}&issuer={$issuer}";
-        return "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($url);
+    public function getOtpAuthUri($email, $secret) {
+        $label = rawurlencode($this->issuer . ':' . $email);
+        $issuer = rawurlencode($this->issuer);
+        return "otpauth://totp/{$label}?secret={$secret}&issuer={$issuer}";
     }
     
     /**
      * Verify TOTP code
      */
     public function verifyCode($secret, $code, $window = 1) {
-        $timestamp = time();
-        
-        // Check current window and adjacent windows for clock drift
+        return $this->matchStep($secret, $code, $window) !== null;
+    }
+
+    /** Time-step the code is valid for (current ±$window, for clock drift), or null. */
+    private function matchStep($secret, $code, $window = 1) {
+        $code = preg_replace('/\D/', '', (string) $code);
+        if (strlen($code) !== 6) {
+            return null;
+        }
+        $now = intval(time() / 30);
         for ($i = -$window; $i <= $window; $i++) {
-            $timeSlice = intval(($timestamp + ($i * 30)) / 30);
-            $calculatedCode = $this->generateTOTP($secret, $timeSlice);
-            
-            if (hash_equals($calculatedCode, str_pad($code, 6, '0', STR_PAD_LEFT))) {
-                return true;
+            if (hash_equals($this->generateTOTP($secret, $now + $i), $code)) {
+                return $now + $i;
             }
         }
-        
-        return false;
+        return null;
     }
     
     /**
@@ -189,7 +193,17 @@ class TwoFactorAuth {
             return false;
         }
         
-        $isValid = $this->verifyCode($secret, $code);
+        // Each code is single-use: reject a step at or before the last accepted one.
+        $step = $this->matchStep($secret, $code);
+        $isValid = false;
+        if ($step !== null) {
+            $upd = $this->pdo->prepare("
+                UPDATE user_2fa SET last_used_step = ?
+                WHERE user_id = ? AND (last_used_step IS NULL OR last_used_step < ?)
+            ");
+            $upd->execute([$step, $userId, $step]);
+            $isValid = $upd->rowCount() === 1;
+        }
         
         // Log attempt
         Security::logSecurityEvent('2fa_verification', [
@@ -313,38 +327,55 @@ class TwoFactorAuth {
     /**
      * Create trusted device
      */
+    // A random per-browser token in an HttpOnly cookie; only its SHA-256 is
+    // stored. (The old UA+IP hash was shared by anyone behind the same NAT
+    // using the same browser build.)
+    const DEVICE_COOKIE = 'vd_trusted_device';
+    const DEVICE_DAYS = 30;
+
     public function createTrustedDevice($userId, $deviceName, $userAgent, $ipAddress) {
-        $deviceFingerprint = hash('sha256', $userAgent . $ipAddress . $userId);
-        
+        $token = bin2hex(random_bytes(32));
         try {
             $stmt = $this->pdo->prepare("
-                INSERT INTO user_trusted_devices 
-                (user_id, device_name, device_fingerprint, user_agent, ip_address, created_at)
-                VALUES (?, ?, ?, ?, ?, NOW())
+                INSERT INTO user_trusted_devices
+                (user_id, device_name, device_fingerprint, user_agent, ip_address, last_used, created_at)
+                VALUES (?, ?, ?, ?, ?, NOW(), NOW())
             ");
-            $stmt->execute([$userId, $deviceName, $deviceFingerprint, $userAgent, $ipAddress]);
-            
+            $stmt->execute([$userId, $deviceName, hash('sha256', $token), mb_substr((string) $userAgent, 0, 500), $ipAddress]);
+            setcookie(self::DEVICE_COOKIE, $token, [
+                'expires'  => time() + self::DEVICE_DAYS * 86400,
+                'path'     => '/',
+                'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
             return ['success' => true, 'device_id' => $this->pdo->lastInsertId()];
-            
         } catch (Exception $e) {
             return ['success' => false, 'error' => 'Failed to create trusted device'];
         }
     }
-    
+
     /**
-     * Check if device is trusted
+     * True when this browser carries a live trusted-device token for $userId.
+     * ($userAgent / $ipAddress kept for call compatibility; no longer used.)
      */
-    public function isTrustedDevice($userId, $userAgent, $ipAddress) {
-        $deviceFingerprint = hash('sha256', $userAgent . $ipAddress . $userId);
-        
+    public function isTrustedDevice($userId, $userAgent = null, $ipAddress = null) {
+        $token = $_COOKIE[self::DEVICE_COOKIE] ?? '';
+        if (!is_string($token) || !preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return false;
+        }
         $stmt = $this->pdo->prepare("
-            SELECT id FROM user_trusted_devices 
+            SELECT id FROM user_trusted_devices
             WHERE user_id = ? AND device_fingerprint = ? AND is_active = 1
-            AND created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+            AND created_at > DATE_SUB(NOW(), INTERVAL " . self::DEVICE_DAYS . " DAY)
         ");
-        $stmt->execute([$userId, $deviceFingerprint]);
-        
-        return $stmt->fetch() !== false;
+        $stmt->execute([$userId, hash('sha256', $token)]);
+        $id = $stmt->fetchColumn();
+        if (!$id) {
+            return false;
+        }
+        $this->pdo->prepare("UPDATE user_trusted_devices SET last_used = NOW() WHERE id = ?")->execute([$id]);
+        return true;
     }
     
     /**

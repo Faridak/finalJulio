@@ -15,6 +15,25 @@ class MessagingSystem {
      * Start a new conversation between buyer and seller
      */
     public function startConversation($buyerId, $sellerId, $subject, $productId = null) {
+        // Only real sellers can be contacted, and never yourself — otherwise any
+        // logged-in user could DM any account (admins included) by posting an id.
+        if ((int) $buyerId === (int) $sellerId) {
+            throw new Exception("You can't message yourself");
+        }
+        if ($productId) {
+            $chk = $this->pdo->prepare("SELECT 1 FROM products WHERE id = ? AND merchant_id = ?");
+            $chk->execute([$productId, $sellerId]);
+        } else {
+            $chk = $this->pdo->prepare("SELECT 1 FROM products WHERE merchant_id = ? LIMIT 1");
+            $chk->execute([$sellerId]);
+        }
+        if (!$chk->fetch()) {
+            throw new Exception("Seller not found");
+        }
+        if ($this->isUserBlocked($buyerId, $sellerId)) {
+            throw new Exception("You can't message this seller");
+        }
+
         try {
             // Check if conversation already exists for this product
             if ($productId) {
@@ -63,9 +82,9 @@ class MessagingSystem {
             
             $this->pdo->commit();
             return $conversationId;
-            
+
         } catch (Exception $e) {
-            $this->pdo->rollBack();
+            if ($this->pdo->inTransaction()) $this->pdo->rollBack();
             throw $e;
         }
     }
@@ -79,7 +98,14 @@ class MessagingSystem {
             if (!$this->isParticipant($conversationId, $senderId)) {
                 throw new Exception("You are not a participant in this conversation");
             }
-            
+            $other = $this->pdo->prepare("SELECT user_id FROM conversation_participants WHERE conversation_id = ? AND user_id != ?");
+            $other->execute([$conversationId, $senderId]);
+            foreach ($other->fetchAll(PDO::FETCH_COLUMN) as $otherId) {
+                if ($this->isUserBlocked($senderId, $otherId)) {
+                    throw new Exception("Messaging is blocked between you and this user");
+                }
+            }
+
             // Insert message
             $stmt = $this->pdo->prepare("
                 INSERT INTO messages (conversation_id, sender_id, message_text, message_type, attachment_url) 
@@ -127,12 +153,12 @@ class MessagingSystem {
                 cp.role as user_role,
                 cp.last_read_at,
                 (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id AND m.sender_id != ? AND m.created_at > COALESCE(cp.last_read_at, '1970-01-01')) as unread_count,
-                (SELECT m.message_text FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC LIMIT 1) as last_message,
-                (SELECT m.created_at FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC LIMIT 1) as last_message_at,
+                (SELECT m.message_text FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC, m.id DESC LIMIT 1) as last_message,
+                (SELECT m.created_at FROM messages m WHERE m.conversation_id = c.id ORDER BY m.created_at DESC, m.id DESC LIMIT 1) as last_message_at,
                 other_participant.user_id as other_user_id,
                 other_user.email as other_user_email,
-                other_profile.first_name as other_first_name,
-                other_profile.last_name as other_last_name
+                COALESCE(other_profile.first_name, other_user.first_name) as other_first_name,
+                COALESCE(other_profile.last_name, other_user.last_name) as other_last_name
             FROM conversations c
             JOIN conversation_participants cp ON c.id = cp.conversation_id
             JOIN conversation_participants other_participant ON c.id = other_participant.conversation_id AND other_participant.user_id != ?
@@ -178,13 +204,13 @@ class MessagingSystem {
             SELECT 
                 m.*,
                 u.email as sender_email,
-                up.first_name as sender_first_name,
-                up.last_name as sender_last_name
+                COALESCE(up.first_name, u.first_name) as sender_first_name,
+                COALESCE(up.last_name, u.last_name) as sender_last_name
             FROM messages m
             JOIN users u ON m.sender_id = u.id
             LEFT JOIN user_profiles up ON u.id = up.user_id
             WHERE m.conversation_id = ?
-            ORDER BY m.created_at DESC
+            ORDER BY m.created_at DESC, m.id DESC
             LIMIT ? OFFSET ?
         ");
         
@@ -212,8 +238,8 @@ class MessagingSystem {
                 cp.role as user_role,
                 other_participant.user_id as other_user_id,
                 other_user.email as other_user_email,
-                other_profile.first_name as other_first_name,
-                other_profile.last_name as other_last_name,
+                COALESCE(other_profile.first_name, other_user.first_name) as other_first_name,
+                COALESCE(other_profile.last_name, other_user.last_name) as other_last_name,
                 other_participant.role as other_user_role
             FROM conversations c
             JOIN conversation_participants cp ON c.id = cp.conversation_id
@@ -317,8 +343,8 @@ class MessagingSystem {
                 m.*,
                 c.subject,
                 u.email as sender_email,
-                up.first_name as sender_first_name,
-                up.last_name as sender_last_name
+                COALESCE(up.first_name, u.first_name) as sender_first_name,
+                COALESCE(up.last_name, u.last_name) as sender_last_name
             FROM messages m
             JOIN conversations c ON m.conversation_id = c.id
             JOIN conversation_participants cp ON c.id = cp.conversation_id
@@ -326,7 +352,7 @@ class MessagingSystem {
             LEFT JOIN user_profiles up ON u.id = up.user_id
             WHERE cp.user_id = ? AND cp.is_active = TRUE
             AND (m.message_text LIKE ? OR c.subject LIKE ?)
-            ORDER BY m.created_at DESC
+            ORDER BY m.created_at DESC, m.id DESC
             LIMIT ? OFFSET ?
         ");
         
@@ -399,40 +425,4 @@ class MessagingSystem {
     }
 }
 
-/**
- * Create user_blocks table if it doesn't exist
- */
-function createUserBlocksTable($pdo) {
-    $sql = "
-        CREATE TABLE IF NOT EXISTS user_blocks (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            blocker_id INT NOT NULL,
-            blocked_id INT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE,
-            UNIQUE KEY unique_block (blocker_id, blocked_id)
-        )
-    ";
-    $pdo->exec($sql);
-}
-
-/**
- * Create message_reports table if it doesn't exist
- */
-function createMessageReportsTable($pdo) {
-    $sql = "
-        CREATE TABLE IF NOT EXISTS message_reports (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            message_id INT NOT NULL,
-            reporter_id INT NOT NULL,
-            reason VARCHAR(255) NOT NULL,
-            status ENUM('pending', 'reviewed', 'dismissed') DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
-            FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE
-        )
-    ";
-    $pdo->exec($sql);
-}
 ?>

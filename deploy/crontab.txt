@@ -11,9 +11,13 @@ LOG=/var/log/ventdepot
 */5 * * * *  php $APP/cron/reservation-worker.php  >> $LOG/reservation.log 2>&1
 # back-in-stock wishlist notifications
 */15 * * * * php $APP/cron/backinstock-worker.php  >> $LOG/backinstock.log 2>&1
+# retry media uploads that failed to reach object storage (no-op when local)
+*/10 * * * * php $APP/cron/media-retry-worker.php  >> $LOG/media-retry.log 2>&1
 # nightly: draft POs from reorder alerts (admin approves in the morning)
 0 2 * * *    php $APP/cron/auto-po-worker.php      >> $LOG/autopo.log 2>&1
-# nightly database backup, keep 14 days
-0 3 * * *    mysqldump -u backup -p"$DB_BACKUP_PASS" ventdepot | gzip > /backups/ventdepot-$(date +\%F).sql.gz && find /backups -name 'ventdepot-*.sql.gz' -mtime +14 -delete
+# nightly database backup, keep 14 days. pipefail: a failed dump must NOT
+# delete older backups (without it, gzip's success hid mysqldump failures).
+# Credentials: /etc/ventdepot/backup.cnf (created by 01-provision-server.sh).
+0 3 * * *    set -o pipefail; F=/backups/ventdepot-$(date +\%F).sql.gz; mysqldump --defaults-extra-file=/etc/ventdepot/backup.cnf --single-transaction --routines ventdepot | gzip > "$F" && find /backups -name 'ventdepot-*.sql.gz' -mtime +14 -delete || { rm -f "$F"; echo "$(date) BACKUP FAILED" >> $LOG/backup.log; }
 # weekly log rotation safety
 0 4 * * 0    find $LOG -name '*.log' -size +50M -exec truncate -s 0 {} \;

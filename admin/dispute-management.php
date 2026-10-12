@@ -1,401 +1,155 @@
 <?php
-session_start();
-require_once 'config/database.php';
-require_once 'includes/security.php';
-require_once 'includes/EscrowSystem.php';
+/**
+ * Dispute center (admin): queue of buyer <-> seller disputes and the decision
+ * form. A buyer-favour decision creates an approved return; the refund is then
+ * completed in Returns (payment record + optional restock + ledger reversal).
+ * Rewritten on DisputeService — the old EscrowSystem version targeted tables
+ * and order statuses that never existed.
+ */
+require_once '../config/database.php';
+require_once '../includes/security.php';
+require_once '../services/DisputeService.php';
 
-// Check if user is admin
-if (!isLoggedIn() || ($_SESSION['user_role'] ?? '') !== 'admin') {
-    header('Location: login.php');
-    exit;
-}
+requireRole('admin');
+requireScope('orders');
 
-$escrowSystem = new EscrowSystem($pdo);
+$svc = new DisputeService($pdo);
+$adminId = (int) $_SESSION['user_id'];
+$flash = $_SESSION['dispute_flash'] ?? null;
+unset($_SESSION['dispute_flash']);
+$error = '';
 
-// Handle dispute resolution
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     requireCSRF();
-    
-    if ($_POST['action'] === 'resolve_dispute') {
-        $disputeId = intval($_POST['dispute_id']);
-        $resolution = Security::sanitizeInput($_POST['resolution'], 'string');
-        $awardToBuyer = floatval($_POST['award_to_buyer_percentage'] ?? 0);
-        
-        $result = $escrowSystem->resolveDispute($disputeId, $_SESSION['user_id'], $resolution, $awardToBuyer);
-        
-        if ($result['success']) {
-            $successMessage = "Dispute resolved successfully.";
-        } else {
-            $errorMessage = $result['error'];
-        }
+    $disputeId = (int) ($_POST['dispute_id'] ?? 0);
+    $action = $_POST['action'] ?? '';
+    if ($action === 'note') {
+        $res = $svc->reply($disputeId, $adminId, 'admin', $_POST['body'] ?? '');
+        $msg = 'Message posted to both parties.';
+    } elseif ($action === 'resolve') {
+        $amount = trim($_POST['refund_amount'] ?? '');
+        $res = $svc->resolve($disputeId, $adminId, $_POST['winner'] ?? '', $_POST['notes'] ?? '',
+            $amount === '' ? null : (float) $amount, !empty($_POST['restock']));
+        $msg = !empty($res['return_id'])
+            ? 'Resolved for the buyer. Return #' . $res['return_id'] . ' approved — complete the refund in Returns.'
+            : 'Resolved for the seller.';
+    } else {
+        $res = ['success' => false, 'error' => 'Unknown action.'];
     }
+    if ($res['success']) {
+        $_SESSION['dispute_flash'] = $msg;
+        header('Location: dispute-management.php?id=' . $disputeId);
+        exit;
+    }
+    $error = $res['error'];
 }
 
-// Get dispute statistics
-$stmt = $pdo->prepare("
-    SELECT 
-        COUNT(*) as total_disputes,
-        COUNT(CASE WHEN status = 'open' THEN 1 END) as open_disputes,
-        COUNT(CASE WHEN status = 'under_review' THEN 1 END) as under_review,
-        COUNT(CASE WHEN status = 'resolved' THEN 1 END) as resolved_disputes,
-        AVG(CASE WHEN resolved_at IS NOT NULL 
-            THEN TIMESTAMPDIFF(HOUR, created_at, resolved_at) END) as avg_resolution_hours
-    FROM escrow_disputes 
-    WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-");
-$stmt->execute();
-$disputeStats = $stmt->fetch();
-
-// Get pending disputes
-$stmt = $pdo->prepare("
-    SELECT 
-        ed.*,
-        et.amount as escrow_amount,
-        et.order_id,
-        buyer.email as buyer_email,
-        seller.email as seller_email,
-        CONCAT(COALESCE(buyer_profile.first_name, ''), ' ', COALESCE(buyer_profile.last_name, '')) as buyer_name,
-        CONCAT(COALESCE(seller_profile.first_name, ''), ' ', COALESCE(seller_profile.last_name, '')) as seller_name
-    FROM escrow_disputes ed
-    JOIN escrow_transactions et ON ed.escrow_id = et.id
-    JOIN users buyer ON et.buyer_id = buyer.id
-    JOIN users seller ON et.seller_id = seller.id
-    LEFT JOIN user_profiles buyer_profile ON buyer.id = buyer_profile.user_id
-    LEFT JOIN user_profiles seller_profile ON seller.id = seller_profile.user_id
-    WHERE ed.status IN ('open', 'under_review')
-    ORDER BY 
-        CASE ed.priority 
-            WHEN 'urgent' THEN 1 
-            WHEN 'high' THEN 2 
-            WHEN 'medium' THEN 3 
-            WHEN 'low' THEN 4 
-        END,
-        ed.created_at ASC
-");
-$stmt->execute();
-$pendingDisputes = $stmt->fetchAll();
-
-// Get escrow statistics
-$escrowStats = $escrowSystem->getEscrowStatistics('30_days');
+$d = !empty($_GET['id']) ? $svc->get((int) $_GET['id'], $adminId, 'admin') : null;
+$filter = in_array($_GET['f'] ?? '', ['active', 'resolved', 'all'], true) ? $_GET['f'] : 'active';
+$list = $d ? [] : $svc->listFor($adminId, 'admin', $filter === 'all' ? null : $filter);
+$stats = $svc->stats();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dispute Management - Admin Dashboard</title>
+    <title>Dispute Center - Admin</title>
     <link rel="stylesheet" href="../public/vendor/css/tailwind.min.css">
     <link rel="stylesheet" href="../public/vendor/css/fontawesome.min.css">
 </head>
 <body class="bg-gray-50">
 <?php include __DIR__ . '/nav.php'; ?>
-    <?php include 'includes/navigation.php'; ?>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <?php if ($flash): ?><div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">Dispute Management Center</h1>
-            <p class="text-gray-600">Monitor and resolve buyer-seller disputes</p>
+<?php if ($d): $as = 'admin'; ?>
+    <a href="dispute-management.php" class="text-blue-600 hover:underline text-sm mb-4 inline-block">&larr; Dispute queue</a>
+    <div class="bg-white rounded-lg shadow p-4 mb-4 text-sm text-gray-600">
+        Buyer: <?= htmlspecialchars($d['buyer_email'] ?? ('#' . $d['buyer_id'])) ?> ·
+        Seller: <?= htmlspecialchars($d['seller_email'] ?? ('#' . $d['merchant_id'])) ?> ·
+        <a href="order-details.php?id=<?= (int) $d['order_id'] ?>" class="text-blue-600 hover:underline">Order #<?= (int) $d['order_id'] ?></a> ·
+        Priority: <?= htmlspecialchars($d['priority']) ?>
+    </div>
+    <?php include __DIR__ . '/../includes/dispute-thread.php'; ?>
+
+    <?php if (in_array($d['status'], DisputeService::OPEN_STATUSES, true)): ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form method="POST" class="bg-white rounded-lg shadow p-6">
+                <?= Security::getCSRFInput() ?>
+                <input type="hidden" name="action" value="note"><input type="hidden" name="dispute_id" value="<?= (int) $d['id'] ?>">
+                <h2 class="font-semibold text-gray-900 mb-2">Message both parties</h2>
+                <textarea name="body" rows="4" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Ask for evidence, tracking, photos…"></textarea>
+                <button class="mt-3 bg-gray-800 hover:bg-gray-900 text-white font-semibold py-2 px-4 rounded">Post message</button>
+            </form>
+
+            <form method="POST" class="bg-white rounded-lg shadow p-6" onsubmit="return confirm('Record this decision? Both parties are notified and it cannot be reopened.')">
+                <?= Security::getCSRFInput() ?>
+                <input type="hidden" name="action" value="resolve"><input type="hidden" name="dispute_id" value="<?= (int) $d['id'] ?>">
+                <h2 class="font-semibold text-gray-900 mb-2">Decision</h2>
+                <div class="flex gap-6 text-sm mb-3">
+                    <label><input type="radio" name="winner" value="buyer" required> Buyer (refund)</label>
+                    <label><input type="radio" name="winner" value="seller"> Seller (no refund)</label>
+                </div>
+                <label class="block text-sm text-gray-700 mb-1">Refund amount — blank = full refund of this seller's items + tax share</label>
+                <input type="number" name="refund_amount" step="0.01" min="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 mb-3"
+                       placeholder="<?= $d['amount_requested'] !== null ? 'Buyer asked $' . number_format($d['amount_requested'], 2) : 'Full refund' ?>">
+                <label class="text-sm flex items-center gap-2 mb-3"><input type="checkbox" name="restock" value="1"> Goods were returned — restock (full refunds only)</label>
+                <textarea name="notes" rows="3" required class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Decision and reasoning (visible to buyer and seller)"></textarea>
+                <button class="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Record decision</button>
+            </form>
         </div>
+    <?php elseif ($d['return_request_id'] && $d['return_status'] !== 'refunded'): ?>
+        <a href="returns.php" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">Complete refund for return #<?= (int) $d['return_request_id'] ?> in Returns &rarr;</a>
+    <?php endif; ?>
 
-        <!-- Success/Error Messages -->
-        <?php if (isset($successMessage)): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-                <?= htmlspecialchars($successMessage) ?>
-            </div>
-        <?php endif; ?>
+<?php else: ?>
+    <h1 class="text-2xl font-bold text-gray-900 mb-1">Dispute Center</h1>
+    <p class="text-sm text-gray-500 mb-6">Buyer &harr; seller disputes. Sellers get <?= DisputeService::SELLER_DAYS ?> days to answer; buyers can escalate after that.</p>
 
-        <?php if (isset($errorMessage)): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                <?= htmlspecialchars($errorMessage) ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- Statistics Dashboard -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Dispute Stats -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div class="p-3 bg-red-100 rounded-full">
-                        <i class="fas fa-exclamation-triangle text-red-600"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900"><?= number_format($disputeStats['open_disputes']) ?></h3>
-                        <p class="text-gray-600 text-sm">Open Disputes</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div class="p-3 bg-yellow-100 rounded-full">
-                        <i class="fas fa-clock text-yellow-600"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900"><?= number_format($disputeStats['under_review']) ?></h3>
-                        <p class="text-gray-600 text-sm">Under Review</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div class="p-3 bg-green-100 rounded-full">
-                        <i class="fas fa-check-circle text-green-600"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900"><?= number_format($disputeStats['resolved_disputes']) ?></h3>
-                        <p class="text-gray-600 text-sm">Resolved (30 days)</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center">
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <i class="fas fa-hourglass-half text-blue-600"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900"><?= number_format($disputeStats['avg_resolution_hours'] ?? 0, 1) ?>h</h3>
-                        <p class="text-gray-600 text-sm">Avg Resolution Time</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Escrow Overview -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Escrow Overview (30 days)</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Escrows</span>
-                        <span class="font-medium"><?= number_format($escrowStats['total_escrows']) ?></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Active Amount</span>
-                        <span class="font-medium">$<?= number_format($escrowStats['held_amount'], 2) ?></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Avg Holding Period</span>
-                        <span class="font-medium"><?= number_format($escrowStats['avg_holding_days'] ?? 0, 1) ?> days</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Escrow Status</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Active</span>
-                        <span class="font-medium"><?= number_format($escrowStats['active_escrows']) ?></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Shipped</span>
-                        <span class="font-medium"><?= number_format($escrowStats['shipped_escrows']) ?></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Disputed</span>
-                        <span class="font-medium text-red-600"><?= number_format($escrowStats['disputed_escrows']) ?></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Released</span>
-                        <span class="font-medium text-green-600"><?= number_format($escrowStats['released_escrows']) ?></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Financial Summary</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Volume</span>
-                        <span class="font-medium">$<?= number_format($escrowStats['total_amount'], 2) ?></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Fees Collected</span>
-                        <span class="font-medium">$<?= number_format($escrowStats['total_fees_collected'], 2) ?></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Currently Held</span>
-                        <span class="font-medium text-blue-600">$<?= number_format($escrowStats['held_amount'], 2) ?></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Disputes -->
-        <div class="bg-white rounded-lg shadow-md">
-            <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold text-gray-900">Pending Disputes</h2>
-            </div>
-
-            <?php if (empty($pendingDisputes)): ?>
-                <div class="p-8 text-center">
-                    <i class="fas fa-peace text-gray-300 text-4xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No Pending Disputes</h3>
-                    <p class="text-gray-600">All disputes have been resolved. Great job!</p>
-                </div>
-            <?php else: ?>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dispute</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parties</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <?php foreach ($pendingDisputes as $dispute): ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        <div>
-                                            <div class="text-sm font-medium text-gray-900">
-                                                Order #<?= $dispute['order_id'] ?>
-                                            </div>
-                                            <div class="text-sm text-gray-600">
-                                                <?= ucfirst(str_replace('_', ' ', $dispute['dispute_reason'])) ?>
-                                            </div>
-                                            <div class="flex items-center mt-1">
-                                                <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full 
-                                                    <?= match($dispute['priority']) {
-                                                        'urgent' => 'bg-red-100 text-red-800',
-                                                        'high' => 'bg-orange-100 text-orange-800',
-                                                        'medium' => 'bg-yellow-100 text-yellow-800',
-                                                        'low' => 'bg-green-100 text-green-800',
-                                                        default => 'bg-gray-100 text-gray-800'
-                                                    } ?>">
-                                                    <?= ucfirst($dispute['priority']) ?> Priority
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm">
-                                            <div><strong>Buyer:</strong> <?= htmlspecialchars($dispute['buyer_name'] ?: $dispute['buyer_email']) ?></div>
-                                            <div><strong>Seller:</strong> <?= htmlspecialchars($dispute['seller_name'] ?: $dispute['seller_email']) ?></div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            $<?= number_format($dispute['escrow_amount'], 2) ?>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full 
-                                            <?= $dispute['status'] === 'open' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' ?>">
-                                            <?= ucfirst(str_replace('_', ' ', $dispute['status'])) ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">
-                                        <?= date('M j, Y g:i A', strtotime($dispute['created_at'])) ?>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button onclick="openDisputeModal(<?= $dispute['id'] ?>, '<?= addslashes($dispute['description']) ?>', <?= $dispute['escrow_amount'] ?>)" 
-                                                class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                                            Review & Resolve
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs uppercase text-gray-400">Active</div><div class="text-xl font-bold"><?= (int) $stats['active'] ?></div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs uppercase text-gray-400">Needs decision</div><div class="text-xl font-bold text-purple-700"><?= (int) $stats['under_review'] ?></div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs uppercase text-gray-400">Seller overdue</div><div class="text-xl font-bold text-red-600"><?= (int) $stats['seller_overdue'] ?></div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs uppercase text-gray-400">Resolved (30d)</div><div class="text-xl font-bold"><?= (int) $stats['resolved_30d'] ?></div><div class="text-xs text-gray-400"><?= (int) $stats['buyer_wins_30d'] ?> for buyer</div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs uppercase text-gray-400">Avg time (30d)</div><div class="text-xl font-bold"><?= $stats['avg_hours_30d'] !== null ? round($stats['avg_hours_30d']) . 'h' : '—' ?></div></div>
     </div>
 
-    <!-- Dispute Resolution Modal -->
-    <div id="disputeResolutionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-screen overflow-y-auto">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Resolve Dispute</h3>
-                
-                <div id="disputeDetails" class="bg-gray-50 p-4 rounded-lg mb-4">
-                    <!-- Dispute details will be populated here -->
-                </div>
-                
-                <form method="POST">
-                    <?= generateCSRFInput() ?>
-                    <input type="hidden" name="action" value="resolve_dispute">
-                    <input type="hidden" name="dispute_id" id="modalDisputeId">
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Award to Buyer (%)</label>
-                        <div class="flex items-center space-x-4">
-                            <input type="range" name="award_to_buyer_percentage" id="awardSlider" 
-                                   min="0" max="100" value="0" 
-                                   class="flex-1"
-                                   oninput="updateAwardDisplay()">
-                            <span id="awardDisplay" class="text-sm font-medium w-20 text-center">0% ($0.00)</span>
-                        </div>
-                        <div class="mt-2 text-xs text-gray-600">
-                            <div class="flex justify-between">
-                                <span>0% = Full refund to seller</span>
-                                <span>100% = Full refund to buyer</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Resolution Notes</label>
-                        <textarea name="resolution" rows="4" required
-                                  class="w-full border border-gray-300 rounded px-3 py-2"
-                                  placeholder="Provide detailed explanation of the resolution decision..."></textarea>
-                    </div>
-                    
-                    <div class="flex space-x-3">
-                        <button type="submit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
-                            Resolve Dispute
-                        </button>
-                        <button type="button" onclick="closeModal()" 
-                                class="px-6 py-2 border border-gray-300 rounded hover:bg-gray-50">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <div class="flex gap-4 text-sm mb-4">
+        <?php foreach (['active' => 'Active', 'resolved' => 'Resolved', 'all' => 'All'] as $k => $label): ?>
+            <a href="?f=<?= $k ?>" class="<?= $filter === $k ? 'font-semibold text-blue-600' : 'text-gray-600' ?>"><?= $label ?></a>
+        <?php endforeach; ?>
     </div>
 
-    <script>
-        let currentDisputeAmount = 0;
-        
-        function openDisputeModal(disputeId, description, escrowAmount) {
-            currentDisputeAmount = escrowAmount;
-            document.getElementById('modalDisputeId').value = disputeId;
-            document.getElementById('disputeDetails').innerHTML = `
-                <h4 class="font-medium text-gray-900 mb-2">Dispute Description:</h4>
-                <p class="text-gray-700">${description}</p>
-                <p class="text-sm text-gray-600 mt-2">Escrow Amount: $${escrowAmount.toFixed(2)}</p>
-            `;
-            document.getElementById('disputeResolutionModal').classList.remove('hidden');
-            updateAwardDisplay();
-        }
-        
-        function closeModal() {
-            document.getElementById('disputeResolutionModal').classList.add('hidden');
-        }
-        
-        function updateAwardDisplay() {
-            const slider = document.getElementById('awardSlider');
-            const display = document.getElementById('awardDisplay');
-            const percentage = slider.value;
-            const amount = (currentDisputeAmount * percentage / 100).toFixed(2);
-            display.textContent = `${percentage}% ($${amount})`;
-        }
-        
-        // Close modal when clicking outside
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('bg-black')) {
-                closeModal();
-            }
-        });
-    </script>
+    <?php if (empty($list)): ?>
+        <div class="bg-white rounded-lg shadow p-12 text-center text-gray-400">No disputes here.</div>
+    <?php else: ?>
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-left text-gray-500">
+                    <tr><th class="p-3">#</th><th class="p-3">Order</th><th class="p-3">Seller</th><th class="p-3">Reason</th><th class="p-3 text-right">Amount</th><th class="p-3">Priority</th><th class="p-3">Status</th><th class="p-3">Opened</th></tr>
+                </thead>
+                <tbody class="divide-y">
+                <?php foreach ($list as $row): $overdue = $row['status'] === 'open' && strtotime($row['seller_due_at']) < time(); ?>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3"><a href="?id=<?= (int) $row['id'] ?>" class="text-blue-600 hover:underline"><?= (int) $row['id'] ?></a></td>
+                        <td class="p-3">#<?= (int) $row['order_id'] ?></td>
+                        <td class="p-3"><?= htmlspecialchars($row['seller_name']) ?></td>
+                        <td class="p-3"><?= htmlspecialchars(DisputeService::REASONS[$row['reason']] ?? $row['reason']) ?></td>
+                        <td class="p-3 text-right">$<?= number_format((float) $row['disputed_amount'], 2) ?></td>
+                        <td class="p-3"><?= htmlspecialchars($row['priority']) ?></td>
+                        <td class="p-3 <?= $row['status'] === 'under_review' ? 'text-purple-700 font-semibold' : ($overdue ? 'text-red-600' : '') ?>">
+                            <?= htmlspecialchars(str_replace('_', ' ', $row['status'])) ?><?= $overdue ? ' (seller overdue)' : '' ?>
+                        </td>
+                        <td class="p-3 whitespace-nowrap"><?= date('M j', strtotime($row['created_at'])) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
+</div>
 </body>
 </html>

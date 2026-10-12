@@ -1,8 +1,7 @@
 <?php
 require_once 'config/database.php';
 require_once 'includes/security.php';
-// Temporarily comment out 2FA until tables are set up
-// require_once 'includes/TwoFactorAuth.php';
+require_once 'includes/TwoFactorAuth.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
@@ -12,22 +11,30 @@ if (isLoggedIn()) {
 
 $error = '';
 $redirect = Security::sanitizeInput($_GET['redirect'] ?? 'index.php', 'string');
-// Temporarily comment out 2FA initialization
-// $twoFA = new TwoFactorAuth($pdo);
+$twoFA = new TwoFactorAuth($pdo);
 $show2FAForm = false;
 $pendingUserId = null;
 
-// Check if we're in 2FA verification mode
+// "Use a different account" / abandoned 2FA step: drop the half-login.
+if (isset($_GET['cancel_2fa'])) {
+    unset($_SESSION['pending_2fa_user_id'], $_SESSION['pending_2fa_at']);
+}
+
+// Check if we're in 2FA verification mode (password step passed < 10 min ago)
 if (isset($_SESSION['pending_2fa_user_id'])) {
-    $show2FAForm = true;
-    $pendingUserId = $_SESSION['pending_2fa_user_id'];
+    if (time() - ($_SESSION['pending_2fa_at'] ?? 0) > 600) {
+        unset($_SESSION['pending_2fa_user_id'], $_SESSION['pending_2fa_at']);
+    } else {
+        $show2FAForm = true;
+        $pendingUserId = $_SESSION['pending_2fa_user_id'];
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF Protection
     if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
         Security::logSecurityEvent('csrf_token_mismatch', ['page' => 'login']);
-        http_response_code(419);
+        http_response_code(403);
         die('CSRF token mismatch. Please refresh the page and try again.');
     }
 
@@ -38,13 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $trustDevice = isset($_POST['trust_device']);
         
         $isValid = false;
-        
-        if ($code) {
-            // Verify TOTP code
-            // $isValid = $twoFA->verifyUserCode($pendingUserId, $code);
+
+        // 6-digit codes are brute-forceable without a limit: 5 tries / 15 min.
+        if (!Security::checkRateLimit('2fa_verify', 5, 900)) {
+            $error = 'Too many verification attempts. Please try again later.';
+        } elseif ($code) {
+            $isValid = $twoFA->verifyUserCode($pendingUserId, $code);
         } elseif ($backupCode) {
-            // Verify backup code
-            // $isValid = $twoFA->verifyBackupCode($pendingUserId, $backupCode);
+            $isValid = $twoFA->verifyBackupCode($pendingUserId, strtoupper(trim($backupCode)));
         }
         
         if ($isValid) {
@@ -68,11 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $deviceName = 'Web Browser - ' . date('M j, Y');
                     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
                     $ipAddress = Security::getClientIP();
-                    // $twoFA->createTrustedDevice($pendingUserId, $deviceName, $userAgent, $ipAddress);
+                    $twoFA->createTrustedDevice($pendingUserId, $deviceName, $userAgent, $ipAddress);
                 }
-                
+
                 // Clean up pending session
-                unset($_SESSION['pending_2fa_user_id']);
+                unset($_SESSION['pending_2fa_user_id'], $_SESSION['pending_2fa_at']);
                 
                 // Regenerate session ID for security
                 session_regenerate_id(true);
@@ -85,15 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 
                 // Validate redirect URL
-                $allowedRedirects = ['index.php', 'merchant/dashboard.php', 'admin/dashboard.php', 'profile.php', 'cart.php'];
-                if (!in_array($redirect, $allowedRedirects) && !preg_match('/^[a-zA-Z0-9\/\._-]+\.php$/', $redirect)) {
-                    $redirect = 'index.php';
-                }
+                $redirect = Security::safeRedirect($redirect);   // relative app paths only (blocks //evil.com, ../)
                 
                 header("Location: $redirect");
                 exit;
             }
-        } else {
+        } elseif ($error === '') {
             $error = 'Invalid verification code. Please try again.';
             Security::logSecurityEvent('2fa_verification_failed', [
                 'user_id' => $pendingUserId,
@@ -130,8 +135,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$email]);
             $user = $stmt->fetch();
 
-            if ($user && Security::verifyPassword($password, $user['password'])) {
-                // Login successful without 2FA
+            $passwordOk = $user && Security::verifyPassword($password, $user['password']);
+            if ($passwordOk && $twoFA->isEnabled($user['id']) && !$twoFA->isTrustedDevice($user['id'])) {
+                // Password OK but 2FA is on: hold a half-login until the code is verified.
+                session_regenerate_id(true);
+                $_SESSION['pending_2fa_user_id'] = $user['id'];
+                $_SESSION['pending_2fa_at'] = time();
+                $show2FAForm = true;
+                $pendingUserId = $user['id'];
+            } elseif ($passwordOk) {
+                // Login successful (no 2FA, or a trusted device)
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['role'];
@@ -151,10 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 
                 // Validate redirect URL to prevent open redirects
-                $allowedRedirects = ['index.php', 'merchant/dashboard.php', 'admin/dashboard.php', 'profile.php', 'cart.php'];
-                if (!in_array($redirect, $allowedRedirects) && !preg_match('/^[a-zA-Z0-9\/\._-]+\.php$/', $redirect)) {
-                    $redirect = 'index.php';
-                }
+                $redirect = Security::safeRedirect($redirect);   // relative app paths only (blocks //evil.com, ../)
                 
                 header("Location: $redirect");
                 exit;
@@ -274,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <div class="text-center">
-                        <a href="login.php" class="text-sm text-gray-600 hover:text-blue-600">
+                        <a href="login.php?cancel_2fa=1" class="text-sm text-gray-600 hover:text-blue-600">
                             ← Back to login
                         </a>
                     </div>
@@ -454,5 +464,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
     </script>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

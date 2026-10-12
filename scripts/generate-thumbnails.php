@@ -39,6 +39,9 @@ foreach ($rows as $r) {
         imagecopyresampled($out, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
         imagejpeg($out, $destAbs, 82);
         imagedestroy($im); imagedestroy($out);
+        // Mirror only NEW thumbnails (existing ones were pushed when made, or by
+        // scripts/migrate-images-to-object-storage.php) — not ~2,700 PUTs per run.
+        store_media_file($dest, $destAbs);
     }
     $upd->execute([$dest, $r['id']]);
     $made++;

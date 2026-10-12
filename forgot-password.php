@@ -7,7 +7,7 @@ require_once 'services/EmailService.php';
 $done = false; $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     if (!Security::checkRateLimit('password_reset', 5, 3600)) {
         $error = 'Too many reset requests — try again later.';
     } else {
@@ -65,5 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
     </div>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

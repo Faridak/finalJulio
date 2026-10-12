@@ -18,7 +18,7 @@ $notice = ''; $error = '';
 
 // ---- Actions --------------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $pid = (int) ($_POST['product_id'] ?? 0);
     $action = $_POST['action'] ?? '';
 

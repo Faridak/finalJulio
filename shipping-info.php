@@ -308,5 +308,6 @@ $zones = $pdo->query("SELECT * FROM shipping_zones WHERE is_active = TRUE ORDER 
             </div>
         </div>
     </footer>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

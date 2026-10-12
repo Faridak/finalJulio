@@ -102,6 +102,11 @@ class MarketplacePayoutService
         $gross = array_sum(array_column($lines, 'gross_amount'));
         $comm = array_sum(array_column($lines, 'commission_amount'));
         $net = array_sum(array_column($lines, 'net_amount'));
+        if (round($net, 2) <= 0) {
+            // Refund lines (negative net) exceed sales: nothing to pay; the
+            // balance carries forward against future sales.
+            return ['success' => false, 'error' => 'Refunds exceed sales — seller owes $' . number_format(-$net, 2) . '; nothing to pay out.'];
+        }
         $orders = count(array_unique(array_column($lines, 'order_id')));
         $ref = 'PO-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
 
@@ -140,7 +145,7 @@ class MarketplacePayoutService
     public function pendingSellers()
     {
         return $this->pdo->query("
-            SELECT mc.merchant_id, u.email, COUNT(*) lines, SUM(mc.gross_amount) gross,
+            SELECT mc.merchant_id, u.email, COUNT(*) AS line_count, SUM(mc.gross_amount) gross,
                    SUM(mc.commission_amount) commission, SUM(mc.net_amount) net
             FROM merchant_commissions mc JOIN users u ON mc.merchant_id=u.id
             WHERE mc.status='pending_payout'

@@ -100,6 +100,8 @@ $topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                             <a href="../index.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">View Store</a>
                             <a href="earnings.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Earnings</a>
+                            <a href="../messages.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Buyer Messages</a>
+                            <a href="disputes.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Disputes</a>
                             <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                             <a href="../logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
                         </div>
@@ -321,5 +323,6 @@ $topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         });
     </script>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

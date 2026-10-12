@@ -508,5 +508,6 @@ $existingCategories = $stmt->fetchAll(PDO::FETCH_COLUMN);
             document.getElementById('sku').value = sku;
         });
     </script>
+<script src="../public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

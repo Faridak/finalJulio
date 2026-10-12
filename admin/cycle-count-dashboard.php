@@ -14,7 +14,7 @@ $notice = '';
 
 // Approve / reject pending adjustments.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(419); die('CSRF mismatch'); }
+    if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) { http_response_code(403); die('CSRF mismatch'); }
     $svc = new StockAdjustmentService($pdo);
     $adjId = (int) ($_POST['adjustment_id'] ?? 0);
     if (($_POST['decision'] ?? '') === 'approve') {

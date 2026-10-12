@@ -12,7 +12,7 @@ if (!isLoggedIn()) {
 
 $twoFA = new TwoFactorAuth($pdo);
 $userId = $_SESSION['user_id'];
-$userEmail = $_SESSION['email'];
+$userEmail = $_SESSION['user_email'] ?? '';   // login stores 'user_email' (was 'email': undefined index)
 
 // Handle POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -116,7 +116,7 @@ $remainingBackupCodes = $twoFA->getRemainingBackupCodes($userId);
 
 // Generate new secret for setup
 $newSecret = $twoFA->generateSecret();
-$qrCodeUrl = $twoFA->getQRCodeUrl($userEmail, $newSecret);
+$otpUri = $twoFA->getOtpAuthUri($userEmail, $newSecret);
 ?>
 
 <!DOCTYPE html>
@@ -194,7 +194,7 @@ $qrCodeUrl = $twoFA->getQRCodeUrl($userEmail, $newSecret);
                             <div class="text-center">
                                 <h3 class="font-semibold mb-4">Scan QR Code:</h3>
                                 <div class="inline-block p-4 bg-white border rounded-lg">
-                                    <img src="<?= $qrCodeUrl ?>" alt="2FA QR Code" class="w-48 h-48">
+                                    <div id="otpQr" class="w-48 h-48" data-uri="<?= htmlspecialchars($otpUri) ?>" aria-label="2FA QR Code"></div>
                                 </div>
                             </div>
                         </div>
@@ -458,5 +458,13 @@ $qrCodeUrl = $twoFA->getQRCodeUrl($userEmail, $newSecret);
             });
         });
     </script>
+<script src="public/vendor/js/qrcode.min.js"></script>
+<script>
+    // QR rendered locally: the otpauth URI holds the 2FA secret and must not leave the browser.
+    (function () {
+        var el = document.getElementById('otpQr');
+        if (el && window.QRCode) new QRCode(el, { text: el.dataset.uri, width: 192, height: 192, correctLevel: QRCode.CorrectLevel.M });
+    })();
+</script>
 </body>
 </html>

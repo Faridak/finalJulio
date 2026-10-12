@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF Protection
     if (!Security::validateCSRFToken($_POST['csrf_token'] ?? '')) {
         Security::logSecurityEvent('csrf_token_mismatch', ['page' => 'register']);
-        http_response_code(419);
+        http_response_code(403);
         die('CSRF token mismatch. Please refresh the page and try again.');
     }
 
@@ -257,5 +257,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+<script src="public/vendor/js/motion.min.js" defer></script>
 </body>
 </html>

@@ -169,31 +169,32 @@ class VentDepotAPI {
                 return false;
             }
             
-            $header = json_decode(base64_decode($parts[0]), true);
+            $secret = self::jwtSecret();
+            if ($secret === null) {
+                return false; // token auth disabled until a real JWT_SECRET is configured
+            }
+
             $payload = json_decode(base64_decode($parts[1]), true);
             $signature = $parts[2];
-            
+
             // Verify signature
-            $expectedSignature = base64_encode(hash_hmac(
-                'sha256',
-                $parts[0] . '.' . $parts[1],
-                $_ENV['JWT_SECRET'] ?? 'default_secret',
-                true
-            ));
-            
-            if (!hash_equals($signature, $expectedSignature)) {
+            $expectedSignature = base64_encode(hash_hmac('sha256', $parts[0] . '.' . $parts[1], $secret, true));
+
+            if (!hash_equals($expectedSignature, $signature)) {
                 return false;
             }
-            
-            // Check expiration
-            if (isset($payload['exp']) && $payload['exp'] < time()) {
+
+            // Expiry is mandatory: a token without 'exp' would be valid forever.
+            if (!isset($payload['exp']) || (int) $payload['exp'] < time()) {
                 return false;
             }
-            
-            // Get user data
+
+            // Get user data (users has no status column; the old "status = 'active'"
+            // filter made every lookup throw, which is the only reason forged
+            // 'default_secret' tokens didn't work)
             if (isset($payload['user_id'])) {
                 $stmt = $this->pdo->prepare("
-                    SELECT id, role, email FROM users WHERE id = ? AND status = 'active'
+                    SELECT id, role, email FROM users WHERE id = ?
                 ");
                 $stmt->execute([$payload['user_id']]);
                 return $stmt->fetch();
@@ -313,7 +314,20 @@ class VentDepotAPI {
     /**
      * Generate JWT token
      */
+    /**
+     * JWT signing key from .env, or null when missing/weak. Never a built-in
+     * fallback: a known default ('default_secret') lets anyone forge admin tokens.
+     */
+    private static function jwtSecret() {
+        $s = function_exists('env') ? (string) env('JWT_SECRET', '') : (string) ($_ENV['JWT_SECRET'] ?? '');
+        return strlen($s) >= 32 ? $s : null;
+    }
+
     private function generateJWTToken($user) {
+        $secret = self::jwtSecret();
+        if ($secret === null) {
+            throw new Exception('JWT_SECRET is not configured (min 32 chars)');
+        }
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
         $payload = json_encode([
             'user_id' => $user['id'],
@@ -326,12 +340,7 @@ class VentDepotAPI {
         $headerEncoded = base64_encode($header);
         $payloadEncoded = base64_encode($payload);
         
-        $signature = base64_encode(hash_hmac(
-            'sha256',
-            $headerEncoded . '.' . $payloadEncoded,
-            $_ENV['JWT_SECRET'] ?? 'default_secret',
-            true
-        ));
+        $signature = base64_encode(hash_hmac('sha256', $headerEncoded . '.' . $payloadEncoded, $secret, true));
         
         return $headerEncoded . '.' . $payloadEncoded . '.' . $signature;
     }

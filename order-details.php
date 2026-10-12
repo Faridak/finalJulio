@@ -94,6 +94,9 @@ foreach ($trk->fetchAll(PDO::FETCH_ASSOC) as $t) {
                         <i class="fas fa-redo mr-2"></i> Reorder all
                     </button>
                 </form>
+                <a href="disputes.php?order=<?= $orderId ?>" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded shadow-sm inline-flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Report a problem
+                </a>
                 <button onclick="window.print()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded shadow-sm inline-flex items-center">
                     <i class="fas fa-print mr-2"></i> Print
                 </button>
@@ -112,7 +115,7 @@ foreach ($trk->fetchAll(PDO::FETCH_ASSOC) as $t) {
                         <?php foreach ($orderItems as $item): ?>
                             <div class="p-6 flex gap-4">
                                 <div class="w-20 h-20 flex-shrink-0">
-                                    <img src="<?= htmlspecialchars($item['image_url'] ?: 'assets/images/placeholder.jpg') ?>" 
+                                    <img src="<?= htmlspecialchars(asset_url($item['image_url'] ?? '') ?: 'assets/images/placeholder.jpg') ?>" 
                                          alt="<?= htmlspecialchars($item['product_name']) ?>"
                                          class="w-full h-full object-cover rounded-md border border-gray-200">
                                 </div>
