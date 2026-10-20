@@ -336,7 +336,7 @@ function buildFilterUrl($params, $overrides = []) {
                                         
                                         <div class="flex items-center justify-between text-xs">
                                             <span class="text-gray-600"><?= htmlspecialchars($product['category']) ?></span>
-                                            <?php if ($product['stock'] > 0): ?>
+                                            <?php if ((int) ($product['inventory'] ?? $product['stock'] ?? 0) > 0): ?>   <?php /* products column is 'inventory' */ ?>
                                                 <span class="text-green-600">In Stock</span>
                                             <?php else: ?>
                                                 <span class="text-red-600">Out of Stock</span>
