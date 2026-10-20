@@ -125,7 +125,7 @@ cat > /etc/apache2/sites-available/ventdepot.conf <<APACHE
 
     # Object storage: after the image migration, uncomment and set to the same
     # value as ASSET_BASE_URL in .env (.htaccess redirects missing uploads there).
-    #SetEnv ASSET_ORIGIN https://ventdepot-media.us-ord-1.linodeobjects.com
+    #SetEnv ASSET_ORIGIN https://ventdepot-media.us-ord-10.linodeobjects.com
 
     ErrorLog  /var/log/ventdepot/apache-error.log
     CustomLog /var/log/ventdepot/apache-access.log combined

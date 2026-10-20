@@ -12,12 +12,12 @@
  *
  * Config comes from .env (never hard-coded):
  *   STORAGE_DRIVER=s3            # 's3' to use object storage, 'local' for disk
- *   S3_ENDPOINT=https://us-ord-1.linodeobjects.com
- *   S3_REGION=us-ord-1
+ *   S3_ENDPOINT=https://us-ord-10.linodeobjects.com
+ *   S3_REGION=us-ord
  *   S3_BUCKET=ventdepot-media
  *   S3_KEY=...                   # access key
  *   S3_SECRET=...                # secret key
- *   ASSET_BASE_URL=https://ventdepot-media.us-ord-1.linodeobjects.com
+ *   ASSET_BASE_URL=https://ventdepot-media.us-ord-10.linodeobjects.com
  *
  * Usage:
  *   $s = ObjectStorage::fromEnv();
