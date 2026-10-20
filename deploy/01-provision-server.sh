@@ -25,6 +25,19 @@ ufw allow OpenSSH
 ufw allow 'Apache Full'
 ufw --force enable
 
+echo "==> SSH: key-only logins (only if a key is installed, so you can't lock yourself out)"
+if [ -s /root/.ssh/authorized_keys ]; then
+  cat > /etc/ssh/sshd_config.d/99-ventdepot.conf <<'SSHD'
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin prohibit-password
+SSHD
+  systemctl reload ssh 2>/dev/null || systemctl reload sshd
+  echo "    password logins disabled"
+else
+  echo "    WARNING: no /root/.ssh/authorized_keys — password logins left ON"
+fi
+
 echo "==> Database"
 mysql -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASS}';"
@@ -109,6 +122,10 @@ cat > /etc/apache2/sites-available/ventdepot.conf <<APACHE
         Require all granted
         Options -Indexes +FollowSymLinks
     </Directory>
+
+    # Object storage: after the image migration, uncomment and set to the same
+    # value as ASSET_BASE_URL in .env (.htaccess redirects missing uploads there).
+    #SetEnv ASSET_ORIGIN https://ventdepot-media.us-ord-1.linodeobjects.com
 
     ErrorLog  /var/log/ventdepot/apache-error.log
     CustomLog /var/log/ventdepot/apache-access.log combined
