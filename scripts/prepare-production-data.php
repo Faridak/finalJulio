@@ -32,7 +32,7 @@ $steps = [
      ["UPDATE products SET inventory = 0"], []],
     ['Stock to zero: per-location inventory',
      "SELECT COUNT(*) FROM product_inventory WHERE quantity_on_hand <> 0 OR quantity_reserved <> 0 OR quantity_available <> 0",
-     ["UPDATE product_inventory SET quantity_on_hand = 0, quantity_reserved = 0, quantity_available = 0, last_counted_at = NULL"], []],
+     ["UPDATE product_inventory SET quantity_on_hand = 0, quantity_reserved = 0, last_counted_at = NULL   -- quantity_available is generated (on_hand - reserved)"], []],
     ['Stock to zero: bin assignments (slots kept, quantity 0)',
      "SELECT COUNT(*) FROM product_bin_assignments WHERE quantity <> 0",
      ["UPDATE product_bin_assignments SET quantity = 0"], []],

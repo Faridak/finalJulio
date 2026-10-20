@@ -201,13 +201,12 @@ class ScanService
     private function adjustInventory($pid, $loc, $delta, $cost)
     {
         $this->pdo->prepare("
-            INSERT INTO product_inventory (product_id, location_id, quantity_on_hand, quantity_reserved, quantity_available, average_cost, last_cost, last_movement_at, created_at)
-            VALUES (?, ?, GREATEST(?,0), 0, GREATEST(?,0), ?, ?, NOW(), NOW())
+            INSERT INTO product_inventory (product_id, location_id, quantity_on_hand, quantity_reserved, average_cost, last_cost, last_movement_at, created_at)
+            VALUES (?, ?, GREATEST(?,0), 0, ?, ?, NOW(), NOW())
             ON DUPLICATE KEY UPDATE
                 quantity_on_hand = GREATEST(quantity_on_hand + ?, 0),
-                quantity_available = GREATEST(quantity_available + ?, 0),
                 last_movement_at = NOW()
-        ")->execute([$pid, $loc, $delta, $delta, $cost, $cost, $delta, $delta]);
+        ")->execute([$pid, $loc, $delta, $cost, $cost, $delta]);   // quantity_available is generated
         // Keep catalog mirror roughly in step.
         $this->pdo->prepare("UPDATE products SET inventory = GREATEST(inventory + ?, 0) WHERE id = ?")->execute([$delta, $pid]);
     }

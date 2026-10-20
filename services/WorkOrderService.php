@@ -50,8 +50,8 @@ class WorkOrderService
             ")->execute([(int) $productId, $loc ?: 1, $qty, $unitCost, $lineCost, (int) $quoteId, $userId]);
             $this->pdo->prepare("UPDATE products SET inventory = GREATEST(inventory - ?, 0) WHERE id = ?")->execute([$qty, (int) $productId]);
             if ($loc) {
-                $this->pdo->prepare("UPDATE product_inventory SET quantity_on_hand = GREATEST(quantity_on_hand - ?, 0), quantity_available = GREATEST(quantity_available - ?, 0), last_movement_at = NOW() WHERE product_id=? AND location_id=?")
-                    ->execute([$qty, $qty, (int) $productId, $loc]);
+                $this->pdo->prepare("UPDATE product_inventory SET quantity_on_hand = GREATEST(quantity_on_hand - ?, 0), last_movement_at = NOW() WHERE product_id=? AND location_id=?")
+                    ->execute([$qty, (int) $productId, $loc]);   // quantity_available is generated
             }
 
             // COGS at consumption

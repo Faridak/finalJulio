@@ -230,6 +230,9 @@ US buyers. Stripe stays simulated (remove from checkout).
 - Decide the public REST API (`api/router.php`, off by default): finish it for the mobile app/
   partners, or delete it.
 - Drop the stale `C:\Users\farid\Documents\finalJulio` clone to avoid editing the wrong copy.
+- **MariaDB strict mode:** production runs the same non-strict `sql_mode` as development. Turn on
+  `STRICT_TRANS_TABLES` after a full test pass on staging (the app never ran strict; e.g. writes to
+  generated columns were silently ignored until 2026-10-19).
 
 ---
 

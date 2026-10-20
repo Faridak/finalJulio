@@ -27,13 +27,13 @@ function snapshotStock(PDO $pdo, array $ids) {
     $in = implode(',', array_map('intval', $ids));
     return [
         'products'  => $pdo->query("SELECT id, inventory FROM products WHERE id IN ($in)")->fetchAll(PDO::FETCH_KEY_PAIR),
-        'locations' => $pdo->query("SELECT id, quantity_on_hand, quantity_reserved, quantity_available FROM product_inventory WHERE product_id IN ($in)")->fetchAll(PDO::FETCH_ASSOC),
+        'locations' => $pdo->query("SELECT id, quantity_on_hand, quantity_reserved FROM product_inventory WHERE product_id IN ($in)")->fetchAll(PDO::FETCH_ASSOC),
     ];
 }
 function restoreStock(PDO $pdo, array $snap) {
     foreach ($snap['products'] as $id => $inv) $pdo->prepare("UPDATE products SET inventory = ? WHERE id = ?")->execute([$inv, $id]);
-    $u = $pdo->prepare("UPDATE product_inventory SET quantity_on_hand = ?, quantity_reserved = ?, quantity_available = ? WHERE id = ?");
-    foreach ($snap['locations'] as $r) $u->execute([$r['quantity_on_hand'], $r['quantity_reserved'], $r['quantity_available'], $r['id']]);
+    $u = $pdo->prepare("UPDATE product_inventory SET quantity_on_hand = ?, quantity_reserved = ? WHERE id = ?   -- quantity_available is generated");
+    foreach ($snap['locations'] as $r) $u->execute([$r['quantity_on_hand'], $r['quantity_reserved'], $r['id']]);
 }
 
 echo "== 1. Ledger integrity ==\n";

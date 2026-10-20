@@ -91,13 +91,14 @@ class ReservationService
         $holds = $sel->fetchAll(PDO::FETCH_ASSOC);
 
         $cat = $this->pdo->prepare("UPDATE products SET inventory = inventory + ? WHERE id = ?");
-        $loc = $this->pdo->prepare("UPDATE product_inventory SET quantity_on_hand = quantity_on_hand + ?, quantity_available = quantity_available + ?, last_movement_at = NOW() WHERE product_id = ? AND location_id = ?");
+        // quantity_available is a generated column (on_hand - reserved): never written directly
+        $loc = $this->pdo->prepare("UPDATE product_inventory SET quantity_on_hand = quantity_on_hand + ?, last_movement_at = NOW() WHERE product_id = ? AND location_id = ?");
         $mark = $this->pdo->prepare("UPDATE stock_reservations SET status = ? WHERE id = ?");
 
         $count = 0;
         foreach ($holds as $h) {
             $cat->execute([$h['quantity'], $h['product_id']]);
-            if ($h['location_id']) $loc->execute([$h['quantity'], $h['quantity'], $h['product_id'], $h['location_id']]);
+            if ($h['location_id']) $loc->execute([$h['quantity'], $h['product_id'], $h['location_id']]);
             $mark->execute([$newStatus, $h['id']]);
             $count++;
         }

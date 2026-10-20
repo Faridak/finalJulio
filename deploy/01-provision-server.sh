@@ -145,6 +145,9 @@ max_connections         = 150
 slow_query_log          = 1
 slow_query_log_file     = /var/log/mysql/slow.log
 long_query_time         = 1
+# Same sql_mode as development (XAMPP). The app was built and tested non-strict;
+# moving to STRICT_TRANS_TABLES is planned after a full test pass (PRODUCTION_PLAN).
+sql_mode                = "NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION"
 MYCNF
 systemctl restart mariadb
 # remove anonymous users / test DB (what mysql_secure_installation does; root keeps unix_socket auth)

@@ -264,17 +264,17 @@ class StockReplenishmentService
 
             $this->pdo->prepare("
                 UPDATE product_inventory
-                SET quantity_on_hand = ?, quantity_available = quantity_available + ?,
+                SET quantity_on_hand = ?,
                     average_cost = ?, last_cost = ?, last_movement_at = NOW()
                 WHERE id = ?
-            ")->execute([$newQty, $quantity, $avgCost, $unitCost, $row['id']]);
+            ")->execute([$newQty, $avgCost, $unitCost, $row['id']]);   // quantity_available is generated
         } else {
             $this->pdo->prepare("
                 INSERT INTO product_inventory
-                    (product_id, location_id, quantity_on_hand, quantity_reserved, quantity_available,
+                    (product_id, location_id, quantity_on_hand, quantity_reserved,
                      average_cost, last_cost, last_movement_at, created_at)
-                VALUES (?, ?, ?, 0, ?, ?, ?, NOW(), NOW())
-            ")->execute([$productId, $locationId, $quantity, $quantity, $unitCost, $unitCost]);
+                VALUES (?, ?, ?, 0, ?, ?, NOW(), NOW())
+            ")->execute([$productId, $locationId, $quantity, $unitCost, $unitCost]);
         }
     }
 
