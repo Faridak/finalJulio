@@ -221,6 +221,29 @@ US buyers. Stripe stays simulated (remove from checkout).
 
 ---
 
+## Parallel run + cutover from ColdFusion (Hostek)
+
+Status 2026-10-19: new system on Linode in **testing** at
+`https://172-236-124-194.ip.linodeusercontent.com` (noindex, PayPal sandbox, no mail).
+ColdFusion on Hostek stays the live system until both behave the same.
+
+- **Data baseline:** the new DB comes from a **31 March** legacy snapshot (owner; migration notes
+  mention `Backup20251021.bak` — confirm which). Everything ColdFusion changed since then must be
+  synced before cutover.
+- **Delta sync (before cutover), reusing `migration/run_etl.php` (upserts on `products.legacy_id`):**
+  1. Fresh SQL Server `.bak` from Hostek → restore locally → re-run `legacy/extract_products.sql`
+     and `extract_photos.sql`.
+  2. **Diff** the new extract against the 31 March extract (`products.clean.json`): new products,
+     changed price/name/specs/stock, products that crossed the stock ≥ 10 scope, discontinued ones.
+  3. Apply only the **legacy-side changes** — never blind-overwrite fields edited in the new system
+     (categories, repointed images, accessories, pricing rules). Review the diff before applying.
+  4. New products' photos: Hostek `wwwroot\photogallery` → bucket (`deploy/hostek-images-to-bucket.sh`).
+  5. **Real stock at cutover** from ColdFusion `saproductstock.currentstock` (production stock is 0 now).
+- **Not migrated yet (decide):** customers (+ password format), order history, quotes.
+- **Cutover:** freeze ColdFusion edits → final delta sync → Cloudflare DNS → certbot for
+  ventdepot.com → APP_URL → remove `ventdepot-testing` Apache conf (noindex) → PayPal live → mail on
+  → auto-PO cron on → keep Hostek read-only for a rollback window, then close it.
+
 ## Legacy cleanup (do alongside Milestone 1)
 
 - Remove or rebuild: `admin/homepage-manager.php` + `api/homepage/` (broken; homepage control
