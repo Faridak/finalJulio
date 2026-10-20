@@ -59,6 +59,7 @@ AllowUsers $ADMIN_USER
 MaxAuthTries 4
 LoginGraceTime 30
 SSHD
+mkdir -p /run/sshd   # 24.04 creates it only when sshd runs as a daemon
 sshd -t
 systemctl reload ssh 2>/dev/null || systemctl restart ssh   # 24.04: ssh may be socket-activated
 
@@ -87,6 +88,7 @@ cat > /etc/apache2/conf-available/ventdepot-security.conf <<'SEC'
 ServerTokens Prod
 ServerSignature Off
 TraceEnable Off
+ServerName ventdepot-prod
 Protocols h2 http/1.1
 SEC
 a2enconf -q ventdepot-security >/dev/null
