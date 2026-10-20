@@ -35,8 +35,9 @@ class ObjectStorage
     private string $key;
     private string $secret;
     private string $service = 's3';
+    private string $objectAcl;  // '' = rely on the bucket policy (E2/E3 endpoints reject per-object ACLs)
 
-    public function __construct(string $endpoint, string $region, string $bucket, string $key, string $secret)
+    public function __construct(string $endpoint, string $region, string $bucket, string $key, string $secret, string $objectAcl = '')
     {
         $this->endpoint = rtrim($endpoint, '/');
         $this->host     = parse_url($this->endpoint, PHP_URL_HOST) ?: $this->endpoint;
@@ -44,6 +45,7 @@ class ObjectStorage
         $this->bucket   = $bucket;
         $this->key      = $key;
         $this->secret   = $secret;
+        $this->objectAcl = $objectAcl;
     }
 
     /** Build from .env; returns null when object storage is not configured. */
@@ -61,7 +63,9 @@ class ObjectStorage
         $secret   = (string) $g('S3_SECRET');
         if ($endpoint === '' || $bucket === '' || $key === '' || $secret === '') return null;
         $region = (string) $g('S3_REGION') ?: 'us-east-1';
-        return new self($endpoint, $region, $bucket, $key, $secret);
+        // Public access comes from the bucket policy (scripts/set-bucket-policy.php).
+        // Set S3_OBJECT_ACL=public-read only for legacy (E0/E1) endpoints that support ACLs.
+        return new self($endpoint, $region, $bucket, $key, $secret, (string) $g('S3_OBJECT_ACL', ''));
     }
 
     public static function isEnabled(): bool
@@ -69,15 +73,43 @@ class ObjectStorage
         return self::fromEnv() !== null;
     }
 
-    /** Upload raw bytes. Public-read + long cache; images are content-hashed by key. */
+    /** Upload raw bytes with a long cache lifetime (image keys never change content). */
     public function put(string $objectKey, string $body, string $contentType = 'application/octet-stream'): bool
     {
-        $res = $this->request('PUT', $objectKey, $body, [
+        $headers = [
             'Content-Type'  => $contentType,
-            'x-amz-acl'     => 'public-read',
             'Cache-Control' => 'public, max-age=31536000, immutable',
-        ]);
+        ];
+        if ($this->objectAcl !== '') {
+            $headers['x-amz-acl'] = $this->objectAcl;   // E2/E3 answer 501 NotImplemented to this
+        }
+        $res = $this->request('PUT', $objectKey, $body, $headers);
         return $res['status'] >= 200 && $res['status'] < 300;
+    }
+
+    /**
+     * Bucket policy that lets anyone READ (GET) objects — how product images are
+     * made public on E2/E3 endpoints. Never grants list, write or delete.
+     */
+    public function setPublicReadPolicy(): array
+    {
+        $policy = json_encode([
+            'Version'   => '2012-10-17',
+            'Statement' => [[
+                'Sid'       => 'PublicReadObjects',
+                'Effect'    => 'Allow',
+                'Principal' => '*',
+                'Action'    => ['s3:GetObject'],
+                'Resource'  => ["arn:aws:s3:::{$this->bucket}/*"],
+            ]],
+        ], JSON_UNESCAPED_SLASHES);
+        return $this->request('PUT', '', $policy, ['Content-Type' => 'application/json'], 'policy');
+    }
+
+    /** Current bucket policy JSON (status 404 = none set). */
+    public function getBucketPolicy(): array
+    {
+        return $this->request('GET', '', '', [], 'policy');
     }
 
     /** Upload a file from disk (streams into memory once; images are small). */
@@ -122,10 +154,14 @@ class ObjectStorage
 
     // ---- AWS Signature V4 (path-style: endpoint/bucket/key) ----------------
 
-    private function request(string $method, string $objectKey, string $body = '', array $headers = []): array
+    /** $subresource: bucket-level sub-resource with no value, e.g. 'policy' (GET/PUT /bucket?policy). */
+    private function request(string $method, string $objectKey, string $body = '', array $headers = [], string $subresource = ''): array
     {
         $objectKey = ltrim($objectKey, '/');
-        $canonicalUri = '/' . $this->bucket . '/' . $this->uriEncode($objectKey, false);
+        $canonicalUri = $objectKey === ''
+            ? '/' . $this->bucket
+            : '/' . $this->bucket . '/' . $this->uriEncode($objectKey, false);
+        $canonicalQuery = $subresource === '' ? '' : rawurlencode($subresource) . '=';
 
         $now      = gmdate('Ymd\THis\Z');
         $date     = substr($now, 0, 8);
@@ -146,7 +182,7 @@ class ObjectStorage
         $signedHeaders = implode(';', $signedHeaders);
 
         $canonicalRequest = implode("\n", [
-            $method, $canonicalUri, '', $canonicalHeaders, $signedHeaders, $payloadHash,
+            $method, $canonicalUri, $canonicalQuery, $canonicalHeaders, $signedHeaders, $payloadHash,
         ]);
 
         $scope     = "$date/{$this->region}/{$this->service}/aws4_request";
@@ -166,7 +202,7 @@ class ObjectStorage
         $curlHeaders = ["Authorization: $authorization"];
         foreach ($headers as $k => $v) $curlHeaders[] = "$k: $v";
 
-        $ch = curl_init($this->endpoint . $canonicalUri);
+        $ch = curl_init($this->endpoint . $canonicalUri . ($subresource === '' ? '' : '?' . rawurlencode($subresource)));
         curl_setopt_array($ch, [
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_HTTPHEADER     => $curlHeaders,

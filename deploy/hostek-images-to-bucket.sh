@@ -41,7 +41,9 @@ export RCLONE_CONFIG_BUCKET_PROVIDER=Linode
 export RCLONE_CONFIG_BUCKET_ENDPOINT="${S3_ENDPOINT#https://}"
 export RCLONE_CONFIG_BUCKET_ACCESS_KEY_ID="$S3_KEY"
 export RCLONE_CONFIG_BUCKET_SECRET_ACCESS_KEY="$S3_SECRET"
-export RCLONE_CONFIG_BUCKET_ACL=public-read
+# No ACL: E2/E3 endpoints reject per-object ACLs; public reads come from the bucket policy
+# (php scripts/set-bucket-policy.php --apply).
+export RCLONE_CONFIG_BUCKET_NO_CHECK_BUCKET=true
 
 export RCLONE_CONFIG_HOSTEK_TYPE=ftp
 export RCLONE_CONFIG_HOSTEK_HOST="$FTP_HOST"
